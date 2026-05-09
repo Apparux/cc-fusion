@@ -4,6 +4,8 @@
 
 A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that renders a rich, colorful 3-line statusline directly in your terminal — combining gorgeous Nerd Font icons, TOML themes, and traffic-light health indicators with deep transcript parsing, token breakdowns, and smart cost hiding.
 
+🌐 English | [中文文档](README.zh.md)
+
 ---
 
 ## 📸 Preview
