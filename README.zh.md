@@ -47,7 +47,18 @@
 - **Claude Code** CLI 已安装
 - **Nerd Font** 字体（用于图标显示）— 推荐：[Maple Font](https://github.com/subframe7536/maple-font)（支持中文的 Nerd Font）或 [JetBrains Mono Nerd Font](https://www.nerdfonts.com/)
 
-### 安装步骤
+### 快速安装（推荐）
+
+不需要 npm —— clone 即用：
+
+```bash
+# 克隆到 ~/.claude/cc-fusion
+git clone https://github.com/CanCanNeedNei/cc-fusion.git ~/.claude/cc-fusion
+```
+
+然后配置 Claude Code（见下方）。搞定！
+
+### 手动安装（从源码）
 
 ```bash
 # 克隆仓库
@@ -57,9 +68,6 @@ cd cc-fusion
 # 安装依赖 & 编译
 npm install
 npm run build
-
-# 全局链接（可选，方便直接用 cc-fusion 命令）
-npm link
 ```
 
 ### 配置 Claude Code
@@ -70,23 +78,13 @@ npm link
 {
   "statusLine": {
     "type": "command",
-    "command": "node /path/to/cc-fusion/dist/index.js",
+    "command": "node ~/.claude/cc-fusion/dist/index.js",
     "padding": 0
   }
 }
 ```
 
-如果已全局链接：
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "cc-fusion",
-    "padding": 0
-  }
-}
-```
+重启 Claude Code 即可生效！🎉
 
 ---
 

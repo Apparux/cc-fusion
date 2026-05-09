@@ -55,19 +55,27 @@ A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-
 - **Claude Code** CLI installed
 - **Nerd Font** (for icons) — recommended: [JetBrains Mono Nerd Font](https://www.nerdfonts.com/)
 
-### Install
+### Quick Install (Recommended)
+
+No npm needed — clone and go:
+
+```bash
+# Clone to ~/.claude/cc-fusion
+git clone https://github.com/CanCanNeedNei/cc-fusion.git ~/.claude/cc-fusion
+```
+
+Then configure Claude Code (see below). That's it!
+
+### Manual Install (from source)
 
 ```bash
 # Clone
-git clone https://github.com/your-username/cc-fusion.git
+git clone https://github.com/CanCanNeedNei/cc-fusion.git
 cd cc-fusion
 
 # Install & build
 npm install
 npm run build
-
-# Link globally (optional)
-npm link
 ```
 
 ### Configure Claude Code
@@ -76,17 +84,15 @@ Add to your `~/.claude/settings.json`:
 
 ```json
 {
-  "statusline": "node /path/to/cc-fusion/dist/index.js"
+  "statusLine": {
+    "type": "command",
+    "command": "node ~/.claude/cc-fusion/dist/index.js",
+    "padding": 0
+  }
 }
 ```
 
-Or if you linked globally:
-
-```json
-{
-  "statusline": "cc-fusion"
-}
-```
+Restart Claude Code and you're done! 🎉
 
 ---
 
