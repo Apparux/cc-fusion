@@ -1,0 +1,18 @@
+{
+  "context": "上下文",
+  "usage": "用量",
+  "cost": "费用",
+  "duration": "时长",
+  "effort": "强度",
+  "edit": "编辑",
+  "read": "读取",
+  "grep": "搜索",
+  "bash": "终端",
+  "web": "网页",
+  "model": "模型",
+  "dir": "目录",
+  "git": "分支",
+  "tools": "工具",
+  "agents": "代理",
+  "todos": "待办"
+}

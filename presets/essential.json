@@ -1,0 +1,7 @@
+{
+  "name": "essential",
+  "lines": [
+    ["model", "git"],
+    ["context", "usage", "cost"]
+  ]
+}

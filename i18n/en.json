@@ -1,0 +1,18 @@
+{
+  "context": "Ctx",
+  "usage": "Use",
+  "cost": "Cost",
+  "duration": "Dur",
+  "effort": "Eff",
+  "edit": "Edit",
+  "read": "Read",
+  "grep": "Grep",
+  "bash": "Bash",
+  "web": "Web",
+  "model": "Model",
+  "dir": "Dir",
+  "git": "Git",
+  "tools": "Tools",
+  "agents": "Agents",
+  "todos": "Todos"
+}
