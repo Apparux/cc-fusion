@@ -231,7 +231,9 @@ Presets control which elements appear and on which line. Each preset is a JSON f
   "lines": [
     ["model", "dir", "git"],
     ["context", "usage", "cost", "duration", "effort"],
-    ["tools", "agents", "todos"]
+    ["tools"],
+    ["agents"],
+    ["todos"]
   ]
 }
 ```
