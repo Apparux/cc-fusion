@@ -1,5 +1,5 @@
 /**
- * render.ts — Main render engine: composes all elements into 3 lines
+ * render.ts — Main render engine: composes preset elements into lines
  */
 
 import type { RenderContext, Theme } from './types.js';

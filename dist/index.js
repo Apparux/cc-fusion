@@ -4,7 +4,7 @@
  * index.ts — CC-Fusion Statusline Entry Point
  *
  * Reads Claude Code stdin JSON, collects git + transcript data,
- * renders the 3-line statusline to stdout.
+ * renders the configured statusline to stdout.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");

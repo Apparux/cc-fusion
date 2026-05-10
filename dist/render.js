@@ -1,6 +1,6 @@
 "use strict";
 /**
- * render.ts — Main render engine: composes all elements into 3 lines
+ * render.ts — Main render engine: composes preset elements into lines
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.render = render;

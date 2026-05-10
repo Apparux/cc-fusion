@@ -2,7 +2,7 @@
 
 > **Claude Code 状态栏** — 融合 [CCometixLine](https://github.com/Haleclipse/CCometixLine) 的视觉美学与 [Claude HUD](https://github.com/jarrodwatts/claude-hud) 的全功能。
 
-一个 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的 TypeScript 插件，在终端底部渲染三行丰富的状态栏——将精致的 Nerd Font 图标、TOML 主题系统、交通灯健康指示器，与 transcript 深度解析、token 明细分解、智能费用隐藏完美结合。
+一个 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的 TypeScript 插件，在终端底部渲染丰富的多行状态栏——将精致的 Nerd Font 图标、TOML 主题系统、交通灯健康指示器，与 transcript 深度解析、token 明细分解、智能费用隐藏完美结合。
 
 🌐 [English](README.md) | 中文文档
 
@@ -35,11 +35,13 @@ Ctx [█████████░░░░░░░░░░░░░░░] 3
 
 主题控制视觉风格，预设控制行布局。`theme=cometix`、`theme=hud` 或 `theme=neon` 都可以搭配 `preset=full`、`essential`、`minimal`。
 
-**完整模式（Full）— 三行显示：**
+**完整模式（Full）— 活动信息分行显示：**
 ```
 ◈ Opus 4.6 │ ⌂ ~/my-project │ ⎇ main✱ ↑2 ↓1
 ◈ Ctx ████████████████░░░░ 82% │ ▦ Use ████████░░░░░░░░░░░░ 42% │ ◆ $0.42 │ ◷ 12m │ ↯ high
-◐ Edit: auth.ts ×3 │ ⊙ Read ×8 │ ⌕ Grep ×2 │ ⊕ 1 agent │ ☑ 3/4 tasks
+◐ Edit: auth.ts ×3 │ ⊙ Read ×8 │ ⌕ Grep ×2
+⊕ 1 agent
+☑ 3/4 tasks
 ```
 
 **核心模式（Essential）— 两行：**
@@ -426,7 +428,7 @@ cc-fusion/
 │   ├── dracula.toml      # 现代暗紫
 │   └── nord.toml         # 北欧冷色
 ├── presets/
-│   ├── full.json         # 完整三行
+│   ├── full.json         # 完整多行布局
 │   ├── essential.json    # 核心两行
 │   └── minimal.json      # 极简一行
 ├── i18n/

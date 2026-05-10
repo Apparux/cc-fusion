@@ -2,7 +2,7 @@
 
 > **Claude Code Statusline** — The beauty of [CCometixLine](https://github.com/Haleclipse/CCometixLine) fused with the full functionality of [Claude HUD](https://github.com/jarrodwatts/claude-hud).
 
-A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that renders a rich, colorful 3-line statusline directly in your terminal — combining gorgeous Nerd Font icons, TOML themes, and traffic-light health indicators with deep transcript parsing, token breakdowns, and smart cost hiding.
+A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that renders a rich, colorful multi-line statusline directly in your terminal — combining gorgeous Nerd Font icons, TOML themes, and traffic-light health indicators with deep transcript parsing, token breakdowns, and smart cost hiding.
 
 🌐 English | [中文文档](README.zh.md)
 
@@ -37,11 +37,13 @@ Themes control visual style; presets control line layout. You can use `theme=com
 
 ### Preset Variants
 
-**Full** (default — all 3 lines):
+**Full** (default — separate activity rows):
 ```
 ◈ Opus 4.6 │ ⌂ ~/my-app │ ⎇ main✱ ↑1
 ◈ Ctx ████████████████░░░░ 82%  ▦ Use ████████░░░░░░░░░░░░ 42%  ◆ $0.31  ◷ 8m  ↯ medium
-◐ Edit: index.ts ×2  ⊙ Read ×5  ⌕ Grep ×1  ⊕ 1  ☐ 2/4
+◐ Edit: index.ts ×2  ⊙ Read ×5  ⌕ Grep ×1
+⊕ 1 review-agent
+☐ 2/4
 ```
 
 **Essential** (2 lines — model + git, context + usage + cost):
@@ -418,7 +420,7 @@ cc-fusion/
 │   ├── dracula.toml      # Modern purple
 │   └── nord.toml         # Nordic cold
 ├── presets/
-│   ├── full.json         # All 3 lines
+│   ├── full.json         # Full multi-line layout
 │   ├── essential.json    # 2 lines
 │   └── minimal.json      # 1 line
 ├── i18n/

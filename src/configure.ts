@@ -19,7 +19,7 @@ const THEME_DESCRIPTIONS: Record<string, string> = {
 };
 
 const PRESET_DESCRIPTIONS: Record<string, string> = {
-  full: '3 lines with all elements',
+  full: 'full multi-line layout with all elements',
   essential: '2 lines with model, git, context, usage, and cost',
   minimal: '1 line with model and context only',
 };
