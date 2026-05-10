@@ -387,7 +387,7 @@ Claude Code 在每次提示时通过 stdin 管道传入 JSON，包含：
 从 `~/.claude/projects/` 下的 Claude Code transcript JSONL 解析：
 - 工具调用记录（Edit、MultiEdit、Write、Read、NotebookRead/Edit、Grep、Glob、Bash、WebFetch、WebSearch 等）
 - 子 Agent 启动数量和最近 agent 标签
-- TodoWrite `input.todos` 待办进度，并保留 Markdown checkbox 作为 fallback
+- Claude Code 任务工具（`TaskCreate`/`TaskUpdate`）的待办进度，并保留 `TodoWrite input.todos` 和 Markdown checkbox 作为 fallback
 - 会话时长（首条 → 末条消息时间戳）
 
 ### 3. Git CLI（项目信息）

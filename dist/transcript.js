@@ -52,6 +52,23 @@ function collectToolUses(entry) {
     }
     return toolUses;
 }
+function collectToolResults(entry) {
+    const results = [];
+    if (entry.type === 'tool_result') {
+        results.push(entry);
+    }
+    const content = (entry.type === 'assistant' || entry.type === 'user' || entry.type === 'system')
+        ? entry.message?.content
+        : undefined;
+    if (Array.isArray(content)) {
+        for (const item of content) {
+            if (item.type === 'tool_result') {
+                results.push(item);
+            }
+        }
+    }
+    return results;
+}
 function fileFromTool(tool) {
     const input = tool.input || {};
     const value = input.file_path || input.path || input.notebook_path;
@@ -67,6 +84,16 @@ function textFromEntry(entry) {
         return '';
     return content.map(item => typeof item.text === 'string' ? item.text : '').join(' ');
 }
+function isUserPromptEntry(entry) {
+    if (entry.type !== 'user')
+        return false;
+    const content = entry.message?.content;
+    if (typeof content === 'string')
+        return content.trim().length > 0;
+    if (!Array.isArray(content))
+        return false;
+    return content.some(item => item.type !== 'tool_result');
+}
 function parseTodoWrite(tool) {
     const todos = tool.input?.todos;
     if (!Array.isArray(todos))
@@ -78,10 +105,18 @@ function parseTodoWrite(tool) {
             continue;
         const status = String(todo.status || '').toLowerCase();
         total++;
-        if (status === 'completed' || status === 'done')
+        if (isDoneStatus(status))
             done++;
     }
     return { done, total };
+}
+function isDoneStatus(status) {
+    return status === 'completed' || status === 'done';
+}
+function taskIdFromCreateResult(result) {
+    if (typeof result.content !== 'string')
+        return null;
+    return result.content.match(/Task #(\d+) created successfully/)?.[1] || null;
 }
 function agentLabel(tool) {
     const input = tool.input || {};
@@ -107,6 +142,8 @@ function parseTranscript(filePath, maxLines = 500) {
         let todoDone = 0;
         let todoTotal = 0;
         let sawTodoWrite = false;
+        const taskCreateToolIds = new Set();
+        const taskStatuses = new Map();
         for (const line of tail) {
             let entry;
             try {
@@ -114,6 +151,10 @@ function parseTranscript(filePath, maxLines = 500) {
             }
             catch {
                 continue;
+            }
+            if (isUserPromptEntry(entry)) {
+                taskCreateToolIds.clear();
+                taskStatuses.clear();
             }
             const toolUses = collectToolUses(entry);
             for (const tool of toolUses) {
@@ -128,6 +169,16 @@ function parseTranscript(filePath, maxLines = 500) {
                     agentCount++;
                     lastAgent = agentLabel(tool) || lastAgent;
                 }
+                if (name === 'taskcreate') {
+                    taskCreateToolIds.add(tool.id);
+                }
+                if (name === 'taskupdate') {
+                    const taskId = tool.input?.taskId;
+                    const status = tool.input?.status;
+                    if (typeof taskId === 'string' && typeof status === 'string') {
+                        taskStatuses.set(taskId, status.toLowerCase());
+                    }
+                }
                 if (name === 'todowrite' || name === 'todo_write') {
                     const parsed = parseTodoWrite(tool);
                     if (parsed) {
@@ -137,6 +188,13 @@ function parseTranscript(filePath, maxLines = 500) {
                     }
                 }
             }
+            for (const result of collectToolResults(entry)) {
+                if (!taskCreateToolIds.has(result.tool_use_id))
+                    continue;
+                const taskId = taskIdFromCreateResult(result);
+                if (taskId)
+                    taskStatuses.set(taskId, taskStatuses.get(taskId) || 'pending');
+            }
             const text = textFromEntry(entry);
             if (text && !sawTodoWrite) {
                 const doneCount = text.match(/\[x\]/gi)?.length || 0;
@@ -144,6 +202,10 @@ function parseTranscript(filePath, maxLines = 500) {
                 todoDone += doneCount;
                 todoTotal += doneCount + pendingCount;
             }
+        }
+        if (!sawTodoWrite && taskStatuses.size > 0) {
+            todoTotal = taskStatuses.size;
+            todoDone = [...taskStatuses.values()].filter(isDoneStatus).length;
         }
         const totalCalls = Object.values(toolCounts).reduce((a, b) => a + b, 0);
         const writes = (toolCounts['write'] || 0) +

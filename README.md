@@ -379,7 +379,7 @@ The primary data source. Claude Code pipes JSON to stdin on every prompt, contai
 Parsed from Claude Code transcript JSONL paths under `~/.claude/projects/`:
 - Tool calls (Edit, MultiEdit, Write, Read, NotebookRead/Edit, Grep, Glob, Bash, WebFetch, WebSearch, etc.)
 - Agent spawn count and latest agent label
-- Todo progress from `TodoWrite input.todos`, with Markdown checkbox fallback
+- Todo progress from Claude Code task tools (`TaskCreate`/`TaskUpdate`), with `TodoWrite input.todos` and Markdown checkbox fallbacks
 - Session duration (first → last timestamp)
 
 ### 3. Git CLI
