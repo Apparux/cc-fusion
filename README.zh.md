@@ -49,11 +49,10 @@
 
 ### 快速安装（推荐）
 
-不需要 npm —— clone 即用：
+一行命令，自动 clone、自动编译：
 
 ```bash
-# 克隆到 ~/.claude/cc-fusion
-git clone https://github.com/CanCanNeedNei/cc-fusion.git ~/.claude/cc-fusion
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
 ```
 
 然后配置 Claude Code（见下方）。搞定！

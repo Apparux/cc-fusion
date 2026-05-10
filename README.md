@@ -57,11 +57,10 @@ A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-
 
 ### Quick Install (Recommended)
 
-No npm needed — clone and go:
+One-liner — auto clone, auto build:
 
 ```bash
-# Clone to ~/.claude/cc-fusion
-git clone https://github.com/CanCanNeedNei/cc-fusion.git ~/.claude/cc-fusion
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
 ```
 
 Then configure Claude Code (see below). That's it!
