@@ -94,7 +94,7 @@ Add to your `~/.claude/settings.json`:
 
 Restart Claude Code and you're done! 🎉
 
-### Uninstall
+### Uninstall CC-Fusion
 
 One-liner:
 
@@ -111,6 +111,22 @@ rm -rf ~/.claude/cc-fusion
 # Remove statusLine from settings.json
 # Open ~/.claude/settings.json and delete the statusLine block
 ```
+
+### Uninstall CCometixLine
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-ccline.sh | bash
+```
+
+Cleans up: npm global package `@cometix/ccline`, `~/.claude/ccline/`, and `statusLine` from settings.json.
+
+### Uninstall Claude HUD
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-claude-hud.sh | bash
+```
+
+Cleans up: `~/.claude/plugins/claude-hud/` and `statusLine` from settings.json.
 
 ---
 

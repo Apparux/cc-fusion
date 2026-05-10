@@ -86,7 +86,7 @@ npm run build
 
 重启 Claude Code 即可生效！🎉
 
-### 卸载
+### 卸载 CC-Fusion
 
 一行命令：
 
@@ -103,6 +103,22 @@ rm -rf ~/.claude/cc-fusion
 # 从 settings.json 中移除 statusLine 配置
 # 打开 ~/.claude/settings.json，删除 statusLine 那一段
 ```
+
+### 卸载 CCometixLine
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-ccline.sh | bash
+```
+
+清理内容：npm 全局包 `@cometix/ccline`、`~/.claude/ccline/` 目录、settings.json 中的 statusLine 配置。
+
+### 卸载 Claude HUD
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-claude-hud.sh | bash
+```
+
+清理内容：`~/.claude/plugins/claude-hud/` 目录、settings.json 中的 statusLine 配置。
 
 ---
 
