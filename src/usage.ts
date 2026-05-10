@@ -1,20 +1,21 @@
 /**
- * usage.ts — Usage bar + traffic-light + 7-day threshold
+ * usage.ts — Usage bar + traffic-light + reset countdown
  */
 
 import type { Theme, StdinData } from './types.js';
+import { extractUsageInfo } from './stdin.js';
 import {
   progressBar,
   usageTrafficLight,
   trafficColor,
   colorize,
   bold,
+  formatDuration,
 } from './utils.js';
 
 export interface UsageRenderOptions {
   width: number;
-  threshold: number; // Only show if ≥ this %
-  resetCountdown?: string;
+  threshold: number;
 }
 
 export function renderUsage(
@@ -23,28 +24,23 @@ export function renderUsage(
   opts: UsageRenderOptions,
   i18n: Record<string, string>
 ): string | null {
-  const max = stdin.max_context_window_size || 200000;
-  const ctx = stdin.context_window || {};
-  const total =
-    (ctx.input_tokens || 0) +
-    (ctx.output_tokens || 0) +
-    (ctx.cache_creation_input_tokens || 0) +
-    (ctx.cache_read_input_tokens || 0);
-  const pct = Math.min(100, Math.round((total / max) * 100));
+  const usage = extractUsageInfo(stdin);
+  if (!usage || usage.pct < opts.threshold) return null;
 
-  // Only show if above threshold (7-day usage rule)
-  if (pct < opts.threshold) return null;
-
-  const level = usageTrafficLight(pct);
+  const level = usageTrafficLight(usage.pct);
   const color = trafficColor(level, theme);
   const icon = colorize(theme.icons.usage, theme.colors.usageColor);
-  const bar = progressBar(pct, opts.width, '█', '░', color, theme.colors.dim);
-  const pctStr = colorize(bold(`${pct}%`), color);
+  const bar = progressBar(usage.pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
+  const pctStr = colorize(bold(`${usage.pct}%`), color);
 
   let line = `${icon} ${i18n.usage || 'Use'} ${bar} ${pctStr}`;
 
-  if (opts.resetCountdown) {
-    line += ` ${colorize(`(${opts.resetCountdown})`, theme.colors.dim)}`;
+  if (usage.resetAt) {
+    const remainingMs = usage.resetAt - Date.now();
+    if (remainingMs > 0) {
+      const resetLabel = i18n.reset || 'reset';
+      line += ` ${colorize(`(${resetLabel} ${formatDuration(remainingMs)})`, theme.colors.dim)}`;
+    }
   }
 
   return line;

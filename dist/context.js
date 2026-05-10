@@ -17,7 +17,7 @@ function renderContext(stdin, theme, opts, i18n) {
     const level = (0, utils_js_1.contextTrafficLight)(pct);
     const color = (0, utils_js_1.trafficColor)(level, theme);
     const icon = (0, utils_js_1.colorize)(theme.icons.context, theme.colors.contextColor);
-    const bar = (0, utils_js_1.progressBar)(pct, opts.width, '█', '░', color, theme.colors.dim);
+    const bar = (0, utils_js_1.progressBar)(pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
     const pctStr = (0, utils_js_1.colorize)((0, utils_js_1.bold)(`${pct}%`), color);
     let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;
     if (pct >= opts.tokenBreakdownThreshold) {

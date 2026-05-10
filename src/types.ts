@@ -20,17 +20,55 @@ export interface CostInfo {
   total_cost_usd?: number;
 }
 
+export interface WorkspaceInfo {
+  current_dir?: string;
+  project_dir?: string;
+}
+
+export interface UsageMetric {
+  percent?: number;
+  percentage?: number;
+  pct?: number;
+  used?: number;
+  consumed?: number;
+  current?: number;
+  limit?: number;
+  max?: number;
+  total?: number;
+  remaining?: number;
+  reset_at?: string | number;
+  resets_at?: string | number;
+  reset_time?: string | number;
+  next_reset?: string | number;
+  reset?: string | number;
+  [key: string]: unknown;
+}
+
+export interface UsageInfo {
+  pct: number;
+  resetAt?: number;
+}
+
 export interface StdinData {
   model?: ModelInfo;
   context_window?: ContextWindow;
   max_context_window_size?: number;
   cost?: CostInfo;
   effortLevel?: string;
+  effort_level?: string;
   cwd?: string;
+  workspace?: WorkspaceInfo;
   gitBranch?: string;
   gitStatus?: string;
   sessionId?: string;
+  session_id?: string;
   version?: string;
+  provider?: string;
+  api_provider?: string;
+  output_style?: string;
+  usage?: UsageMetric | number;
+  rate_limit?: UsageMetric | number;
+  limits?: UsageMetric | number;
   transcript_path?: string;
   [key: string]: unknown;
 }
@@ -41,7 +79,7 @@ export interface TranscriptToolUse {
   type: 'tool_use';
   id: string;
   name: string;
-  input: Record<string, unknown>;
+  input?: Record<string, unknown>;
 }
 
 export interface TranscriptToolResult {
@@ -74,6 +112,7 @@ export interface ToolStats {
   totalCalls: number;
   lastEditFile?: string;
   agents: number;
+  lastAgent?: string;
   todos: { done: number; total: number };
 }
 
@@ -167,6 +206,7 @@ export interface Config {
   tokenBreakdownThreshold: number;
   barWidth: number;
   showTranscript: boolean;
+  elements?: Record<string, boolean>;
 }
 
 // ── Render Context ───────────────────────────────────────────────────────────

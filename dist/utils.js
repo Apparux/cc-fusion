@@ -55,9 +55,9 @@ function progressBar(pct, width, fillChar, emptyChar, fillColor, emptyColor) {
     return `${fill}${emptyPart}${exports.ANSI.reset}`;
 }
 function contextTrafficLight(pct) {
-    if (pct > 50)
+    if (pct < 50)
         return 'green';
-    if (pct > 20)
+    if (pct < 80)
         return 'yellow';
     return 'red';
 }

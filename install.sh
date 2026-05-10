@@ -19,13 +19,11 @@ else
   git clone --quiet "$REPO_URL" "$INSTALL_DIR"
 fi
 
-# Check if dist/ exists (pre-built)
-if [ ! -f "$INSTALL_DIR/dist/index.js" ]; then
-  echo "⚙️  Building from source..."
-  cd "$INSTALL_DIR"
-  npm install --quiet 2>/dev/null
-  npm run build --silent 2>/dev/null
-fi
+# Always build after clone/update so dist/ matches the checked-out source.
+echo "⚙️  Building from source..."
+cd "$INSTALL_DIR"
+npm install --include=dev --quiet
+npm run build --silent
 
 echo ""
 echo "✅ CC-Fusion installed successfully!"

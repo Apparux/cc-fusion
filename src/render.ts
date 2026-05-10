@@ -131,7 +131,9 @@ function renderTools(rc: RenderContext): string | null {
 function renderAgents(rc: RenderContext): string | null {
   if (rc.tools.agents === 0) return null;
   const icon = colorize(rc.theme.icons.agent, rc.theme.colors.agentColor);
-  return `${icon} ${colorize(`${rc.tools.agents}`, rc.theme.colors.agentColor)}`;
+  let text = `${rc.tools.agents}`;
+  if (rc.tools.lastAgent) text += ` ${rc.tools.lastAgent}`;
+  return `${icon} ${colorize(text, rc.theme.colors.agentColor)}`;
 }
 
 function renderTodos(rc: RenderContext): string | null {
@@ -170,6 +172,8 @@ export function render(rc: RenderContext): string {
     const parts: string[] = [];
 
     for (const elem of lineElements) {
+      if (rc.config.elements?.[elem] === false) continue;
+
       const renderer = ELEMENT_RENDERERS[elem];
       if (!renderer) continue;
 

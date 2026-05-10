@@ -4,6 +4,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renderCost = renderCost;
+const stdin_js_1 = require("./stdin.js");
 const utils_js_1 = require("./utils.js");
 function renderCost(stdin, theme, config, i18n) {
     const cost = stdin.cost?.total_cost_usd;
@@ -11,9 +12,9 @@ function renderCost(stdin, theme, config, i18n) {
     if (cost === undefined || cost === null)
         return null;
     // Smart hide for Bedrock/Vertex (cost is 0 or not tracked)
-    const modelId = (stdin.model?.id || '').toLowerCase();
+    const providerName = `${(0, stdin_js_1.getProvider)(stdin) || ''} ${stdin.model?.id || ''}`.toLowerCase();
     for (const provider of config.hideCostFor) {
-        if (modelId.includes(provider.toLowerCase()) && cost === 0) {
+        if (providerName.includes(provider.toLowerCase()) && cost === 0) {
             return null;
         }
     }

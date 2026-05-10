@@ -2,7 +2,7 @@
  * config.ts — Config loading (JSON + TOML theme)
  */
 
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { Config, Theme, ThemeColors, ThemeIcons, Preset } from './types.js';
 import { ANSI } from './utils.js';
@@ -12,7 +12,6 @@ import { ANSI } from './utils.js';
 function parseToml(raw: string): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   let currentSection: Record<string, unknown> = result;
-  let currentPath: string[] = [];
 
   for (const line of raw.split('\n')) {
     const trimmed = line.trim();
@@ -22,8 +21,6 @@ function parseToml(raw: string): Record<string, unknown> {
     const sectionMatch = trimmed.match(/^\[([^\]]+)\]$/);
     if (sectionMatch) {
       const keys = sectionMatch[1].split('.').map(k => k.trim());
-      currentPath = keys;
-      // Navigate/create nested structure
       let target = result;
       for (let i = 0; i < keys.length - 1; i++) {
         if (!target[keys[i]] || typeof target[keys[i]] !== 'object') {
@@ -44,13 +41,13 @@ function parseToml(raw: string): Record<string, unknown> {
     if (kvMatch) {
       const key = kvMatch[1];
       let value: string = kvMatch[2].trim();
-      
+
       // Remove quotes
       if ((value.startsWith('"') && value.endsWith('"')) ||
           (value.startsWith("'") && value.endsWith("'"))) {
         value = value.slice(1, -1);
       }
-      
+
       // Process escape sequences in double-quoted strings
       if (kvMatch[2].trim().startsWith('"')) {
         value = value
@@ -68,22 +65,12 @@ function parseToml(raw: string): Record<string, unknown> {
   return result;
 }
 
-function getNested(obj: Record<string, unknown>, path: string): string | undefined {
-  const keys = path.split('.');
-  let current: unknown = obj;
-  for (const key of keys) {
-    if (typeof current !== 'object' || current === null) return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return typeof current === 'string' ? current : undefined;
-}
-
 // ── File discovery ───────────────────────────────────────────────────────────
 
 function findProjectDir(): string {
   const candidates = [
-    join(__dirname, '..'),         // dist/.. = project root
-    join(__dirname, '..', '..'),   // if nested deeper
+    join(__dirname, '..'),
+    join(__dirname, '..', '..'),
     process.cwd(),
   ];
   for (const p of candidates) {
@@ -93,6 +80,40 @@ function findProjectDir(): string {
     } catch { /* try next */ }
   }
   return candidates[0];
+}
+
+function userConfigDir(): string {
+  return join(process.env.HOME || '/root', '.claude', 'cc-fusion');
+}
+
+function readJsonFile(path: string): Record<string, unknown> | null {
+  try {
+    return JSON.parse(readFileSync(path, 'utf-8')) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function mergeConfig(base: Config, override: Record<string, unknown> | null): Config {
+  if (!override) return base;
+  const merged: Config = { ...base };
+  for (const [key, value] of Object.entries(override)) {
+    if (key === 'hideCostFor' && Array.isArray(value) && value.every(v => typeof v === 'string')) {
+      merged.hideCostFor = value;
+    } else if (key === 'elements' && typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      merged.elements = { ...(merged.elements || {}), ...(value as Record<string, boolean>) };
+    } else if (key in merged) {
+      (merged as unknown as Record<string, unknown>)[key] = value;
+    }
+  }
+  return merged;
+}
+
+function firstExisting(paths: string[]): string | null {
+  for (const path of paths) {
+    if (existsSync(path)) return path;
+  }
+  return null;
 }
 
 // ── Default config ───────────────────────────────────────────────────────────
@@ -110,13 +131,22 @@ const DEFAULT_CONFIG: Config = {
 
 export function loadConfig(): Config {
   const projectDir = findProjectDir();
-  try {
-    const raw = readFileSync(join(projectDir, 'config.json'), 'utf-8');
-    const user = JSON.parse(raw);
-    return { ...DEFAULT_CONFIG, ...user };
-  } catch {
-    return { ...DEFAULT_CONFIG };
+  const configPaths = [
+    join(projectDir, 'config.json'),
+    join(process.cwd(), 'cc-fusion.config.json'),
+    join(userConfigDir(), 'config.json'),
+  ];
+
+  let config = { ...DEFAULT_CONFIG };
+  for (const path of configPaths) {
+    config = mergeConfig(config, readJsonFile(path));
   }
+
+  if (process.env.CC_FUSION_CONFIG) {
+    config = mergeConfig(config, readJsonFile(process.env.CC_FUSION_CONFIG));
+  }
+
+  return config;
 }
 
 // ── Theme loading ────────────────────────────────────────────────────────────
@@ -193,18 +223,21 @@ const ANSI_MAP: Record<string, string> = {
 
 function resolveColor(value: string | undefined, fallback: string): string {
   if (!value) return fallback;
-  // Check if it's a named ANSI color
   const mapped = ANSI_MAP[value.toLowerCase()];
   if (mapped) return mapped;
-  // Return as-is (could be raw ANSI code)
   return value;
 }
 
 export function loadTheme(name: string): Theme {
   const projectDir = findProjectDir();
-  
+  const themePath = firstExisting([
+    join(userConfigDir(), 'themes', `${name}.toml`),
+    join(projectDir, 'themes', `${name}.toml`),
+  ]);
+
   try {
-    const raw = readFileSync(join(projectDir, 'themes', `${name}.toml`), 'utf-8');
+    if (!themePath) throw new Error('theme not found');
+    const raw = readFileSync(themePath, 'utf-8');
     const parsed = parseToml(raw);
 
     const colorsSection = (parsed.colors || {}) as Record<string, unknown>;
@@ -226,7 +259,6 @@ export function loadTheme(name: string): Theme {
 
     return { name, colors, icons };
   } catch {
-    // Return default theme
     return {
       name: 'default',
       colors: { ...DEFAULT_THEME_COLORS },
@@ -263,13 +295,15 @@ const PRESETS: Record<string, Preset> = {
 
 export function loadPreset(name: string): Preset {
   const projectDir = findProjectDir();
-  
-  // Try loading from file
+  const presetPath = firstExisting([
+    join(userConfigDir(), 'presets', `${name}.json`),
+    join(projectDir, 'presets', `${name}.json`),
+  ]);
+
   try {
-    const raw = readFileSync(join(projectDir, 'presets', `${name}.json`), 'utf-8');
-    return JSON.parse(raw);
+    if (!presetPath) throw new Error('preset not found');
+    return JSON.parse(readFileSync(presetPath, 'utf-8')) as Preset;
   } catch {
-    // Use built-in preset
     return PRESETS[name] || PRESETS.full;
   }
 }

@@ -4,9 +4,10 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renderEffort = renderEffort;
+const stdin_js_1 = require("./stdin.js");
 const utils_js_1 = require("./utils.js");
 function renderEffort(stdin, theme, i18n) {
-    const effort = stdin.effortLevel;
+    const effort = (0, stdin_js_1.getEffortLevel)(stdin);
     if (!effort)
         return null;
     const level = (0, utils_js_1.effortTrafficLight)(effort);

@@ -36,7 +36,7 @@ export function renderContext(
   const level = contextTrafficLight(pct);
   const color = trafficColor(level, theme);
   const icon = colorize(theme.icons.context, theme.colors.contextColor);
-  const bar = progressBar(pct, opts.width, '█', '░', color, theme.colors.dim);
+  const bar = progressBar(pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
   const pctStr = colorize(bold(`${pct}%`), color);
 
   let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;

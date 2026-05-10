@@ -1,6 +1,7 @@
 {
   "context": "Ctx",
   "usage": "Use",
+  "reset": "reset",
   "cost": "Cost",
   "duration": "Dur",
   "effort": "Eff",

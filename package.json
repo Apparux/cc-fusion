@@ -6,10 +6,23 @@
   "bin": {
     "cc-fusion": "dist/index.js"
   },
-  "files": ["dist/", "src/", "themes/", "presets/", "i18n/", "scripts/postinstall.js", "README.md", "README.zh.md"],
+  "files": [
+    "dist/",
+    "src/",
+    "themes/",
+    "presets/",
+    "i18n/",
+    "scripts/",
+    "install.sh",
+    "uninstall.sh",
+    "README.md",
+    "README.zh.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.js"
   },
   "keywords": [

@@ -60,8 +60,8 @@ export function progressBar(
 export type TrafficLevel = 'green' | 'yellow' | 'red';
 
 export function contextTrafficLight(pct: number): TrafficLevel {
-  if (pct > 50) return 'green';
-  if (pct > 20) return 'yellow';
+  if (pct < 50) return 'green';
+  if (pct < 80) return 'yellow';
   return 'red';
 }
 

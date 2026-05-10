@@ -1,6 +1,6 @@
 # CC-Fusion
 
-> **Claude Code Statusline** — The beauty of [CCometixLine](https://github.com/Cometix/CCometixLine) fused with the full functionality of [Claude HUD](https://github.com/claude-hud/claude-hud).
+> **Claude Code Statusline** — The beauty of [CCometixLine](https://github.com/Haleclipse/CCometixLine) fused with the full functionality of [Claude HUD](https://github.com/jarrodwatts/claude-hud).
 
 A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that renders a rich, colorful 3-line statusline directly in your terminal — combining gorgeous Nerd Font icons, TOML themes, and traffic-light health indicators with deep transcript parsing, token breakdowns, and smart cost hiding.
 
@@ -10,19 +10,23 @@ A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-
 
 ## 📸 Preview
 
-```
-◈ Opus 4.6 │ ⌂ ~/project │ ⎇ main✱ +2 ~1
-◈ Ctx ████████████████░░░░ 82%  I120k O35k W8k R40k
-◆ $0.42  ◷ 12m  ↯ high
-◐ Edit: auth.ts ×3  ⊙ Read ×8  ⌕ Grep ×2  ⊕ 1  ☑ 3/4
-```
+**Cometix theme** — CCometixLine-inspired Nerd Font style:
 
 ```
-◈ Sonnet 4.5 │ ⌂ ~/api-server │ ⎇ feature/auth ↑3
-◈ Ctx ██████░░░░░░░░░░░░░░ 31%  ▦ Use ██░░░░░░░░░░░░░░░░░░ 12%
-◆ $0.08  ◷ 3m  ↯ low
-◐ Edit: handler.go  ⊙ Read ×2  ⌕ Grep ×1
+✒ Opus 4.6 │  ~/project │  main✱ +2 ~1
+󰆼 Ctx ████████████████░░░░ 82% (I120.0k/O35.0k/W8.0k/R40.0k) │ ▦ Use ████████████░░░░░░░░ 62% (reset 2h30m) │ ◆ $0.42 │ ◷ 12m │ ↯ high
+◐ Edit: auth.ts ×3 ⊙ Read ×8 ⌕ Grep ×2 ⊕ 1 review-agent ☑ 3/4
 ```
+
+**HUD theme** — Claude HUD-inspired muted terminal style:
+
+```
+◆ Sonnet 4.5 │ ⌂ ~/api-server │ ╱⌁ feature/auth ↑3
+▌ Ctx ██████░░░░░░░░░░░░░░ 31% │ ▌ Use ████████████████░░░░ 82% │ ◆ $0.08 │ ◷ 3m │ ↯ low
+✳ Edit: handler.go ⊙ Read ×2 ⌕ Grep ×1
+```
+
+Themes control visual style; presets control line layout. You can use `theme=cometix` or `theme=hud` with `preset=full`, `essential`, or `minimal`.
 
 ### Preset Variants
 
@@ -85,7 +89,19 @@ npm run build
 
 ### Configure Claude Code
 
-Add to your `~/.claude/settings.json`:
+For npm installs, add this to your `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "cc-fusion",
+    "padding": 0
+  }
+}
+```
+
+For curl/source installs, use the local build path instead:
 
 ```json
 {
@@ -97,7 +113,7 @@ Add to your `~/.claude/settings.json`:
 }
 ```
 
-Restart Claude Code and you're done! 🎉
+Restart Claude Code and you're done!
 
 ### Uninstall CC-Fusion
 
@@ -143,9 +159,11 @@ Cleans up: `~/.claude/plugins/claude-hud/` and `statusLine` from settings.json.
 
 ## ⚙️ Configuration
 
-### Main Config (`config.json`)
+### Main Config
 
-Create `config.json` in the project root:
+Config is loaded in this order: built-in defaults, package `config.json`, current directory `cc-fusion.config.json`, `~/.claude/cc-fusion/config.json`, then `CC_FUSION_CONFIG` if set.
+
+For user-level configuration, create `~/.claude/cc-fusion/config.json`:
 
 ```json
 {
@@ -156,7 +174,11 @@ Create `config.json` in the project root:
   "usageThreshold": 80,
   "tokenBreakdownThreshold": 85,
   "barWidth": 20,
-  "showTranscript": true
+  "showTranscript": true,
+  "elements": {
+    "usage": true,
+    "agents": true
+  }
 }
 ```
 
@@ -166,10 +188,11 @@ Create `config.json` in the project root:
 | `preset` | `string` | `"full"` | Display preset: `full`, `essential`, `minimal` |
 | `lang` | `string` | `"en"` | Language: `en` or `zh` |
 | `hideCostFor` | `string[]` | `["bedrock","vertex"]` | Providers where cost is hidden when $0 |
-| `usageThreshold` | `number` | `80` | Only show usage bar when ≥ this % |
-| `tokenBreakdownThreshold` | `number` | `85` | Show I/O/cache breakdown when ≥ this % |
+| `usageThreshold` | `number` | `80` | Only show real usage/rate-limit bar when ≥ this % |
+| `tokenBreakdownThreshold` | `number` | `85` | Show I/O/cache breakdown when context ≥ this % |
 | `barWidth` | `number` | `20` | Progress bar width in characters |
 | `showTranscript` | `boolean` | `true` | Parse transcript for tools/agents/todos |
+| `elements` | `object` | unset | Set an element to `false` to hide it, e.g. `{ "cost": false }` |
 
 ### Presets
 
@@ -194,7 +217,7 @@ Presets control which elements appear and on which line. Each preset is a JSON f
 | `dir` | Shortened working directory |
 | `git` | Branch + dirty + ahead/behind + file stats |
 | `context` | Context progress bar + % (with traffic-light) |
-| `usage` | Usage bar + % (only shown above threshold) |
+| `usage` | Real usage/rate-limit bar + reset countdown when Claude Code provides usage data |
 | `cost` | Session cost in USD |
 | `duration` | Session duration estimate |
 | `effort` | Effort level with color coding |
@@ -214,7 +237,17 @@ Presets control which elements appear and on which line. Each preset is a JSON f
 
 ## 🎨 Theme Customization
 
-Themes are TOML files in the `themes/` directory. Each theme defines a color palette and icon set.
+Themes are TOML files in the `themes/` directory. Each theme defines a color palette and icon set. User themes can override built-ins from `~/.claude/cc-fusion/themes/<name>.toml`.
+
+### Built-in Themes
+
+| Theme | Style | Notes |
+|-------|-------|-------|
+| `cometix` | CCometixLine-inspired | Nerd Font icons, cyan/green/bright-blue/bright-magenta palette |
+| `hud` | Claude HUD-inspired | Muted terminal look, green context/usage, gold cost, red effort |
+| `gruvbox` | Warm retro | Brown/orange/yellow-green palette |
+| `dracula` | Modern dark purple | Purple/pink palette |
+| `nord` | Nordic cold | Ice-blue/gray palette |
 
 ### Theme Structure
 
@@ -278,7 +311,7 @@ separator = "│"
 
 1. Copy an existing theme: `cp themes/cometix.toml themes/my-theme.toml`
 2. Edit colors and icons
-3. Set `"theme": "my-theme"` in `config.json`
+3. Set `"theme": "my-theme"` in `~/.claude/cc-fusion/config.json`
 
 ---
 
@@ -288,11 +321,11 @@ All health indicators use a unified traffic-light coloring:
 
 | Metric | 🟢 Green | 🟡 Yellow | 🔴 Red |
 |--------|----------|-----------|--------|
-| Context | > 50% | 20–50% | < 20% |
-| Usage | < 50% | 50–80% | > 80% |
+| Context used | < 50% | 50–80% | ≥ 80% |
+| Usage/rate-limit used | < 50% | 50–80% | ≥ 80% |
 | Effort | low/none | medium | high |
 
-> **Note:** For context, green means "plenty of room" (inverted from usage). This is intentional — high context % is good (you're using what you have), but high usage % means you're running low on budget.
+> **Note:** Context is a used-window percentage, so high context means the prompt is close to the model limit. Usage is only shown when Claude Code provides real usage or rate-limit data.
 
 ---
 
@@ -307,13 +340,14 @@ The primary data source. Claude Code pipes JSON to stdin on every prompt, contai
 - Effort level
 - Working directory, git branch/status
 - Session ID
+- Usage/rate-limit percent and reset time when Claude Code provides it
 
 ### 2. Transcript JSONL
 
-Parsed from `~/.claude/projects/*/sessions/*/transcript.jsonl`:
-- Tool calls (Edit, Read, Grep, Bash, etc.)
-- Agent spawn count
-- Todo progress (`[x]` / `[ ]` patterns)
+Parsed from Claude Code transcript JSONL paths under `~/.claude/projects/`:
+- Tool calls (Edit, MultiEdit, Write, Read, NotebookRead/Edit, Grep, Glob, Bash, WebFetch, WebSearch, etc.)
+- Agent spawn count and latest agent label
+- Todo progress from `TodoWrite input.todos`, with Markdown checkbox fallback
 - Session duration (first → last timestamp)
 
 ### 3. Git CLI
@@ -347,7 +381,8 @@ cc-fusion/
 │   ├── i18n.ts           # Internationalization loader
 │   └── utils.ts          # ANSI colors, progress bar, helpers
 ├── themes/
-│   ├── cometix.toml      # Cyan + gold (default)
+│   ├── cometix.toml      # CCometixLine-inspired (default)
+│   ├── hud.toml          # Claude HUD-inspired
 │   ├── gruvbox.toml      # Warm retro
 │   ├── dracula.toml      # Modern purple
 │   └── nord.toml         # Nordic cold
@@ -385,7 +420,7 @@ npm run dev
 npm run build
 
 # Test with sample stdin
-echo '{"model":{"display_name":"Opus 4.6","id":"claude-opus-4-6"},"context_window":{"input_tokens":45000,"output_tokens":12000},"max_context_window_size":200000,"cost":{"total_cost_usd":0.42},"effortLevel":"high","cwd":"/home/user/project","sessionId":"test123"}' | node dist/index.js
+echo '{"model":{"display_name":"Opus 4.6","id":"claude-opus-4-6"},"context_window":{"input_tokens":45000,"output_tokens":12000},"max_context_window_size":200000,"usage":{"percent":82,"reset_at":"2099-01-01T00:00:00Z"},"cost":{"total_cost_usd":0.42},"effortLevel":"high","cwd":"/home/user/project","sessionId":"test123"}' | node dist/index.js
 ```
 
 ---
@@ -398,6 +433,6 @@ MIT
 
 ## 🙏 Credits
 
-- [CCometixLine](https://github.com/Cometix/CCometixLine) — Visual design, TOML themes, Nerd Font icons, preset system
-- [Claude HUD](https://github.com/claude-hud/claude-hud) — Transcript parsing, token breakdowns, smart cost hiding, i18n, element ordering
+- [CCometixLine](https://github.com/Haleclipse/CCometixLine) — Visual design, TOML themes, Nerd Font icons, preset system
+- [Claude HUD](https://github.com/jarrodwatts/claude-hud) — Transcript parsing, token breakdowns, usage/rate-limit display, smart cost hiding, i18n, element ordering
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — The AI coding tool this plugin extends

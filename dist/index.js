@@ -25,17 +25,34 @@ function readStdin() {
     }
 }
 // ── Session duration estimation ──────────────────────────────────────────────
+function readTranscriptEdgeLines(transcriptPath) {
+    const stat = (0, fs_1.statSync)(transcriptPath);
+    if (stat.size === 0)
+        return null;
+    const chunkSize = Math.min(stat.size, 8192);
+    const firstBuffer = Buffer.alloc(chunkSize);
+    const lastBuffer = Buffer.alloc(chunkSize);
+    const fd = (0, fs_1.openSync)(transcriptPath, 'r');
+    try {
+        (0, fs_1.readSync)(fd, firstBuffer, 0, chunkSize, 0);
+        (0, fs_1.readSync)(fd, lastBuffer, 0, chunkSize, stat.size - chunkSize);
+    }
+    finally {
+        (0, fs_1.closeSync)(fd);
+    }
+    const firstLine = firstBuffer.toString('utf-8').split('\n').find(line => line.trim());
+    const lastLine = lastBuffer.toString('utf-8').trim().split('\n').filter(Boolean).pop();
+    return firstLine && lastLine ? [firstLine, lastLine] : null;
+}
 function estimateDuration(transcriptPath) {
     if (!transcriptPath)
         return '';
     try {
-        const raw = (0, fs_1.readFileSync)(transcriptPath, 'utf-8');
-        const lines = raw.trim().split('\n');
-        if (lines.length < 2)
+        const edgeLines = readTranscriptEdgeLines(transcriptPath);
+        if (!edgeLines)
             return '';
-        // Parse first and last timestamps
-        const first = JSON.parse(lines[0]);
-        const last = JSON.parse(lines[lines.length - 1]);
+        const first = JSON.parse(edgeLines[0]);
+        const last = JSON.parse(edgeLines[1]);
         const t1 = first.timestamp || first.ts || first.created_at;
         const t2 = last.timestamp || last.ts || last.created_at;
         if (t1 && t2) {
@@ -59,21 +76,23 @@ function main() {
     // 2. Parse stdin JSON
     const rawStdin = readStdin();
     const stdin = (0, stdin_js_1.parseStdin)(rawStdin);
+    const cwd = (0, stdin_js_1.getCwd)(stdin);
+    const sessionId = (0, stdin_js_1.getSessionId)(stdin);
     // 3. Collect git info
-    const git = (0, git_js_1.getGitInfo)(stdin.cwd);
+    const git = (0, git_js_1.getGitInfo)(cwd);
     // 4. Find and parse transcript
     const transcriptPath = config.showTranscript
-        ? (0, transcript_js_1.findTranscript)(stdin.sessionId, stdin.cwd, (0, stdin_js_1.getTranscriptPath)(stdin))
+        ? (0, transcript_js_1.findTranscript)(sessionId, cwd, (0, stdin_js_1.getTranscriptPath)(stdin))
         : null;
     const tools = (0, transcript_js_1.parseTranscript)(transcriptPath);
     // 5. Build render context
     const model = (0, utils_js_1.simplifyModel)(stdin.model?.display_name, stdin.model?.id);
-    const dir = (0, utils_js_1.shortenDir)(stdin.cwd, process.env.HOME);
+    const dir = (0, utils_js_1.shortenDir)(cwd, process.env.HOME);
     const contextPct = (0, stdin_js_1.calcContextPct)(stdin);
-    const usagePct = contextPct; // Same base; layered logic in render
+    const usagePct = (0, stdin_js_1.calcUsagePct)(stdin);
     const costUsd = stdin.cost?.total_cost_usd ?? null;
     const duration = estimateDuration(transcriptPath);
-    const effort = stdin.effortLevel || '';
+    const effort = (0, stdin_js_1.getEffortLevel)(stdin) || '';
     const rc = {
         stdin,
         git,

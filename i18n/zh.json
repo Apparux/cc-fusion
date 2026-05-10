@@ -1,6 +1,7 @@
 {
   "context": "上下文",
   "usage": "用量",
+  "reset": "重置",
   "cost": "费用",
   "duration": "时长",
   "effort": "强度",

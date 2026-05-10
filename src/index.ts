@@ -6,8 +6,16 @@
  * renders the 3-line statusline to stdout.
  */
 
-import { readFileSync } from 'fs';
-import { parseStdin, calcContextPct, getTranscriptPath } from './stdin.js';
+import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
+import {
+  parseStdin,
+  calcContextPct,
+  calcUsagePct,
+  getTranscriptPath,
+  getSessionId,
+  getCwd,
+  getEffortLevel,
+} from './stdin.js';
 import { findTranscript, parseTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { loadConfig, loadTheme, loadPreset } from './config.js';
@@ -28,16 +36,34 @@ function readStdin(): string {
 
 // ── Session duration estimation ──────────────────────────────────────────────
 
+function readTranscriptEdgeLines(transcriptPath: string): [string, string] | null {
+  const stat = statSync(transcriptPath);
+  if (stat.size === 0) return null;
+
+  const chunkSize = Math.min(stat.size, 8192);
+  const firstBuffer = Buffer.alloc(chunkSize);
+  const lastBuffer = Buffer.alloc(chunkSize);
+  const fd = openSync(transcriptPath, 'r');
+  try {
+    readSync(fd, firstBuffer, 0, chunkSize, 0);
+    readSync(fd, lastBuffer, 0, chunkSize, stat.size - chunkSize);
+  } finally {
+    closeSync(fd);
+  }
+
+  const firstLine = firstBuffer.toString('utf-8').split('\n').find(line => line.trim());
+  const lastLine = lastBuffer.toString('utf-8').trim().split('\n').filter(Boolean).pop();
+  return firstLine && lastLine ? [firstLine, lastLine] : null;
+}
+
 function estimateDuration(transcriptPath: string | null): string {
   if (!transcriptPath) return '';
   try {
-    const raw = readFileSync(transcriptPath, 'utf-8');
-    const lines = raw.trim().split('\n');
-    if (lines.length < 2) return '';
+    const edgeLines = readTranscriptEdgeLines(transcriptPath);
+    if (!edgeLines) return '';
 
-    // Parse first and last timestamps
-    const first = JSON.parse(lines[0]);
-    const last = JSON.parse(lines[lines.length - 1]);
+    const first = JSON.parse(edgeLines[0]);
+    const last = JSON.parse(edgeLines[1]);
 
     const t1 = first.timestamp || first.ts || first.created_at;
     const t2 = last.timestamp || last.ts || last.created_at;
@@ -66,12 +92,15 @@ function main(): void {
   const rawStdin = readStdin();
   const stdin = parseStdin(rawStdin);
 
+  const cwd = getCwd(stdin);
+  const sessionId = getSessionId(stdin);
+
   // 3. Collect git info
-  const git = getGitInfo(stdin.cwd);
+  const git = getGitInfo(cwd);
 
   // 4. Find and parse transcript
   const transcriptPath = config.showTranscript
-    ? findTranscript(stdin.sessionId, stdin.cwd, getTranscriptPath(stdin))
+    ? findTranscript(sessionId, cwd, getTranscriptPath(stdin))
     : null;
   const tools = parseTranscript(transcriptPath);
 
@@ -80,12 +109,12 @@ function main(): void {
     stdin.model?.display_name,
     stdin.model?.id
   );
-  const dir = shortenDir(stdin.cwd, process.env.HOME);
+  const dir = shortenDir(cwd, process.env.HOME);
   const contextPct = calcContextPct(stdin);
-  const usagePct = contextPct; // Same base; layered logic in render
+  const usagePct = calcUsagePct(stdin);
   const costUsd = stdin.cost?.total_cost_usd ?? null;
   const duration = estimateDuration(transcriptPath);
-  const effort = stdin.effortLevel || '';
+  const effort = getEffortLevel(stdin) || '';
 
   const rc: RenderContext = {
     stdin,

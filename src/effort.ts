@@ -3,6 +3,7 @@
  */
 
 import type { Theme, StdinData } from './types.js';
+import { getEffortLevel } from './stdin.js';
 import { effortTrafficLight, trafficColor, colorize } from './utils.js';
 
 export function renderEffort(
@@ -10,7 +11,7 @@ export function renderEffort(
   theme: Theme,
   i18n: Record<string, string>
 ): string | null {
-  const effort = stdin.effortLevel;
+  const effort = getEffortLevel(stdin);
   if (!effort) return null;
 
   const level = effortTrafficLight(effort);

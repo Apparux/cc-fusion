@@ -3,6 +3,7 @@
  */
 
 import type { Theme, StdinData, Config } from './types.js';
+import { getProvider } from './stdin.js';
 import { colorize, formatCost } from './utils.js';
 
 export function renderCost(
@@ -17,9 +18,9 @@ export function renderCost(
   if (cost === undefined || cost === null) return null;
 
   // Smart hide for Bedrock/Vertex (cost is 0 or not tracked)
-  const modelId = (stdin.model?.id || '').toLowerCase();
+  const providerName = `${getProvider(stdin) || ''} ${stdin.model?.id || ''}`.toLowerCase();
   for (const provider of config.hideCostFor) {
-    if (modelId.includes(provider.toLowerCase()) && cost === 0) {
+    if (providerName.includes(provider.toLowerCase()) && cost === 0) {
       return null;
     }
   }

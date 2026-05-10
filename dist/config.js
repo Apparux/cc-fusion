@@ -13,7 +13,6 @@ const utils_js_1 = require("./utils.js");
 function parseToml(raw) {
     const result = {};
     let currentSection = result;
-    let currentPath = [];
     for (const line of raw.split('\n')) {
         const trimmed = line.trim();
         if (!trimmed || trimmed.startsWith('#'))
@@ -22,8 +21,6 @@ function parseToml(raw) {
         const sectionMatch = trimmed.match(/^\[([^\]]+)\]$/);
         if (sectionMatch) {
             const keys = sectionMatch[1].split('.').map(k => k.trim());
-            currentPath = keys;
-            // Navigate/create nested structure
             let target = result;
             for (let i = 0; i < keys.length - 1; i++) {
                 if (!target[keys[i]] || typeof target[keys[i]] !== 'object') {
@@ -62,21 +59,11 @@ function parseToml(raw) {
     }
     return result;
 }
-function getNested(obj, path) {
-    const keys = path.split('.');
-    let current = obj;
-    for (const key of keys) {
-        if (typeof current !== 'object' || current === null)
-            return undefined;
-        current = current[key];
-    }
-    return typeof current === 'string' ? current : undefined;
-}
 // ── File discovery ───────────────────────────────────────────────────────────
 function findProjectDir() {
     const candidates = [
-        (0, path_1.join)(__dirname, '..'), // dist/.. = project root
-        (0, path_1.join)(__dirname, '..', '..'), // if nested deeper
+        (0, path_1.join)(__dirname, '..'),
+        (0, path_1.join)(__dirname, '..', '..'),
         process.cwd(),
     ];
     for (const p of candidates) {
@@ -87,6 +74,41 @@ function findProjectDir() {
         catch { /* try next */ }
     }
     return candidates[0];
+}
+function userConfigDir() {
+    return (0, path_1.join)(process.env.HOME || '/root', '.claude', 'cc-fusion');
+}
+function readJsonFile(path) {
+    try {
+        return JSON.parse((0, fs_1.readFileSync)(path, 'utf-8'));
+    }
+    catch {
+        return null;
+    }
+}
+function mergeConfig(base, override) {
+    if (!override)
+        return base;
+    const merged = { ...base };
+    for (const [key, value] of Object.entries(override)) {
+        if (key === 'hideCostFor' && Array.isArray(value) && value.every(v => typeof v === 'string')) {
+            merged.hideCostFor = value;
+        }
+        else if (key === 'elements' && typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            merged.elements = { ...(merged.elements || {}), ...value };
+        }
+        else if (key in merged) {
+            merged[key] = value;
+        }
+    }
+    return merged;
+}
+function firstExisting(paths) {
+    for (const path of paths) {
+        if ((0, fs_1.existsSync)(path))
+            return path;
+    }
+    return null;
 }
 // ── Default config ───────────────────────────────────────────────────────────
 const DEFAULT_CONFIG = {
@@ -101,14 +123,19 @@ const DEFAULT_CONFIG = {
 };
 function loadConfig() {
     const projectDir = findProjectDir();
-    try {
-        const raw = (0, fs_1.readFileSync)((0, path_1.join)(projectDir, 'config.json'), 'utf-8');
-        const user = JSON.parse(raw);
-        return { ...DEFAULT_CONFIG, ...user };
+    const configPaths = [
+        (0, path_1.join)(projectDir, 'config.json'),
+        (0, path_1.join)(process.cwd(), 'cc-fusion.config.json'),
+        (0, path_1.join)(userConfigDir(), 'config.json'),
+    ];
+    let config = { ...DEFAULT_CONFIG };
+    for (const path of configPaths) {
+        config = mergeConfig(config, readJsonFile(path));
     }
-    catch {
-        return { ...DEFAULT_CONFIG };
+    if (process.env.CC_FUSION_CONFIG) {
+        config = mergeConfig(config, readJsonFile(process.env.CC_FUSION_CONFIG));
     }
+    return config;
 }
 // ── Theme loading ────────────────────────────────────────────────────────────
 const DEFAULT_THEME_COLORS = {
@@ -181,17 +208,21 @@ const ANSI_MAP = {
 function resolveColor(value, fallback) {
     if (!value)
         return fallback;
-    // Check if it's a named ANSI color
     const mapped = ANSI_MAP[value.toLowerCase()];
     if (mapped)
         return mapped;
-    // Return as-is (could be raw ANSI code)
     return value;
 }
 function loadTheme(name) {
     const projectDir = findProjectDir();
+    const themePath = firstExisting([
+        (0, path_1.join)(userConfigDir(), 'themes', `${name}.toml`),
+        (0, path_1.join)(projectDir, 'themes', `${name}.toml`),
+    ]);
     try {
-        const raw = (0, fs_1.readFileSync)((0, path_1.join)(projectDir, 'themes', `${name}.toml`), 'utf-8');
+        if (!themePath)
+            throw new Error('theme not found');
+        const raw = (0, fs_1.readFileSync)(themePath, 'utf-8');
         const parsed = parseToml(raw);
         const colorsSection = (parsed.colors || {});
         const iconsSection = (parsed.icons || {});
@@ -210,7 +241,6 @@ function loadTheme(name) {
         return { name, colors, icons };
     }
     catch {
-        // Return default theme
         return {
             name: 'default',
             colors: { ...DEFAULT_THEME_COLORS },
@@ -244,13 +274,16 @@ const PRESETS = {
 };
 function loadPreset(name) {
     const projectDir = findProjectDir();
-    // Try loading from file
+    const presetPath = firstExisting([
+        (0, path_1.join)(userConfigDir(), 'presets', `${name}.json`),
+        (0, path_1.join)(projectDir, 'presets', `${name}.json`),
+    ]);
     try {
-        const raw = (0, fs_1.readFileSync)((0, path_1.join)(projectDir, 'presets', `${name}.json`), 'utf-8');
-        return JSON.parse(raw);
+        if (!presetPath)
+            throw new Error('preset not found');
+        return JSON.parse((0, fs_1.readFileSync)(presetPath, 'utf-8'));
     }
     catch {
-        // Use built-in preset
         return PRESETS[name] || PRESETS.full;
     }
 }

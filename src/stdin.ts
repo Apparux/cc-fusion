@@ -2,7 +2,7 @@
  * stdin.ts — Parse Claude Code stdin JSON
  */
 
-import type { StdinData } from './types.js';
+import type { StdinData, UsageInfo, UsageMetric } from './types.js';
 
 export function parseStdin(jsonStr: string): StdinData {
   try {
@@ -11,6 +11,26 @@ export function parseStdin(jsonStr: string): StdinData {
   } catch {
     return {};
   }
+}
+
+export function getSessionId(stdin: StdinData): string | undefined {
+  return stdin.sessionId || stdin.session_id;
+}
+
+export function getCwd(stdin: StdinData): string | undefined {
+  return stdin.cwd || stdin.workspace?.current_dir || stdin.workspace?.project_dir;
+}
+
+export function getProjectDir(stdin: StdinData): string | undefined {
+  return stdin.workspace?.project_dir || getCwd(stdin);
+}
+
+export function getEffortLevel(stdin: StdinData): string | undefined {
+  return stdin.effortLevel || stdin.effort_level;
+}
+
+export function getProvider(stdin: StdinData): string | undefined {
+  return stdin.provider || stdin.api_provider;
 }
 
 /**
@@ -31,12 +51,72 @@ export function calcContextPct(stdin: StdinData): number {
   return Math.min(100, Math.round((total / max) * 100));
 }
 
-/**
- * Calculate usage percentage (simplified — input + output vs max).
- * This is the "token budget" metric distinct from context fill.
- */
+function asMetric(value: unknown): UsageMetric | null {
+  if (typeof value === 'number') return { percent: value };
+  if (typeof value !== 'object' || value === null) return null;
+  return value as UsageMetric;
+}
+
+function numberFrom(metric: UsageMetric, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = metric[key];
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string' && value.trim()) {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return undefined;
+}
+
+function parseResetAt(metric: UsageMetric): number | undefined {
+  const value = metric.reset_at ?? metric.resets_at ?? metric.reset_time ?? metric.next_reset ?? metric.reset;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value < 10_000_000_000 ? value * 1000 : value;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) return numeric < 10_000_000_000 ? numeric * 1000 : numeric;
+    const parsed = Date.parse(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+function usageFromMetric(metric: UsageMetric | null): UsageInfo | null {
+  if (!metric) return null;
+
+  const directPct = numberFrom(metric, ['percent', 'percentage', 'pct']);
+  const used = numberFrom(metric, ['used', 'consumed', 'current']);
+  const limit = numberFrom(metric, ['limit', 'max', 'total']);
+  const remaining = numberFrom(metric, ['remaining']);
+
+  let pct: number | undefined = directPct;
+  if (pct === undefined && used !== undefined && limit !== undefined && limit > 0) {
+    pct = (used / limit) * 100;
+  }
+  if (pct === undefined && remaining !== undefined && limit !== undefined && limit > 0) {
+    pct = ((limit - remaining) / limit) * 100;
+  }
+  if (pct === undefined || !Number.isFinite(pct)) return null;
+
+  return {
+    pct: Math.max(0, Math.min(100, Math.round(pct))),
+    resetAt: parseResetAt(metric),
+  };
+}
+
+export function extractUsageInfo(stdin: StdinData): UsageInfo | null {
+  const metrics = [stdin.rate_limit, stdin.usage, stdin.limits];
+  for (const metric of metrics) {
+    const usage = usageFromMetric(asMetric(metric));
+    if (usage) return usage;
+  }
+  return null;
+}
+
 export function calcUsagePct(stdin: StdinData): number {
-  return calcContextPct(stdin); // Same source; callers may layer 7-day logic
+  return extractUsageInfo(stdin)?.pct ?? 0;
 }
 
 /**
@@ -71,13 +151,11 @@ export function getTokenBreakdown(stdin: StdinData): {
  */
 export function getTranscriptPath(stdin: StdinData): string | null {
   if (stdin.transcript_path) return stdin.transcript_path;
-  
-  // Try to construct from sessionId and cwd
-  const sid = stdin.sessionId;
-  const cwd = stdin.cwd;
+
+  const sid = getSessionId(stdin);
+  const cwd = getCwd(stdin);
   if (!sid || !cwd) return null;
 
-  // Claude Code convention: ~/.claude/projects/<encoded-cwd>/sessions/<sessionId>/transcript.jsonl
   const home = process.env.HOME || '/root';
   const encoded = cwd.replace(/\//g, '-').replace(/^-/, '');
   return `${home}/.claude/projects/${encoded}/sessions/${sid}/transcript.jsonl`;
