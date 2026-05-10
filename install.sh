@@ -41,3 +41,6 @@ echo '    }'
 echo '  }'
 echo ""
 echo "Then restart Claude Code. Enjoy! 🎉"
+echo ""
+echo "To uninstall later, run:"
+echo "  curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash"

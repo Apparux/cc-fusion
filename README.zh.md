@@ -86,6 +86,24 @@ npm run build
 
 重启 Claude Code 即可生效！🎉
 
+### 卸载
+
+一行命令：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash
+```
+
+或者手动卸载：
+
+```bash
+# 删除安装目录
+rm -rf ~/.claude/cc-fusion
+
+# 从 settings.json 中移除 statusLine 配置
+# 打开 ~/.claude/settings.json，删除 statusLine 那一段
+```
+
 ---
 
 ## ⚙️ 配置说明

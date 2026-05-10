@@ -94,6 +94,24 @@ Add to your `~/.claude/settings.json`:
 
 Restart Claude Code and you're done! 🎉
 
+### Uninstall
+
+One-liner:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash
+```
+
+Or manually:
+
+```bash
+# Remove installation directory
+rm -rf ~/.claude/cc-fusion
+
+# Remove statusLine from settings.json
+# Open ~/.claude/settings.json and delete the statusLine block
+```
+
 ---
 
 ## ⚙️ Configuration
