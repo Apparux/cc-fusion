@@ -290,7 +290,9 @@ const PRESETS: Record<string, Preset> = {
     lines: [
       ['model', 'dir', 'git'],
       ['context', 'usage', 'cost', 'duration', 'effort'],
-      ['tools', 'agents', 'todos'],
+      ['tools'],
+      ['agents'],
+      ['todos'],
     ],
   },
   essential: {
