@@ -49,29 +49,40 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
         continue;
       }
 
+      const toolUses: TranscriptToolUse[] = [];
       if (entry.type === 'tool_use') {
-        const tool = entry as TranscriptToolUse;
+        toolUses.push(entry as TranscriptToolUse);
+      }
+      const content = (entry.type === 'assistant' || entry.type === 'user' || entry.type === 'system')
+        ? entry.message?.content
+        : undefined;
+      if (Array.isArray(content)) {
+        for (const item of content) {
+          if (item.type === 'tool_use') {
+            toolUses.push(item as unknown as TranscriptToolUse);
+          }
+        }
+      }
+
+      for (const tool of toolUses) {
         const name = (tool.name || '').toLowerCase();
         toolCounts[name] = (toolCounts[name] || 0) + 1;
 
-        // Track last edit file
         if (name === 'edit' || name === 'write') {
           const fp = (tool.input?.file_path || tool.input?.path || '') as string;
           if (fp) lastEditFile = fp;
         }
 
-        // Track agent spawns
         if (name === 'task' || name === 'agent' || name === 'subagent' || name.includes('agent')) {
           agentCount++;
         }
       }
 
       // Track todos from assistant messages
-      if (entry.type === 'assistant' && entry.message?.content) {
-        const content = entry.message.content;
-        const text = typeof content === 'string' ? content : 
+      if (entry.type === 'assistant' && content) {
+        const text = typeof content === 'string' ? content :
           Array.isArray(content) ? content.map(c => c.text || '').join(' ') : '';
-        
+
         // Count TODO patterns: [x] done, [ ] pending
         const doneMatches = text.match(/\[x\]/gi);
         const pendingMatches = text.match(/\[ \]/g);
@@ -112,9 +123,7 @@ export function findTranscript(
     try {
       statSync(explicitPath);
       return explicitPath;
-    } catch {
-      return null;
-    }
+    } catch { /* try inferred paths */ }
   }
 
   if (!sessionId || !cwd) return null;
@@ -124,6 +133,8 @@ export function findTranscript(
   // Claude Code patterns — try multiple encodings
   const encoded = cwd.replace(/\//g, '-').replace(/^-/, '');
   const candidates = [
+    `${home}/.claude/projects/${encoded}/${sessionId}.jsonl`,
+    `${home}/.claude/projects/-${encoded}/${sessionId}.jsonl`,
     `${home}/.claude/projects/${encoded}/sessions/${sessionId}/transcript.jsonl`,
     `${home}/.claude/projects/-${encoded}/sessions/${sessionId}/transcript.jsonl`,
   ];
@@ -132,6 +143,7 @@ export function findTranscript(
   const rawParts = cwd.split('/').filter(Boolean);
   for (const part of rawParts) {
     candidates.push(
+      `${home}/.claude/projects/${part}/${sessionId}.jsonl`,
       `${home}/.claude/projects/${part}/sessions/${sessionId}/transcript.jsonl`
     );
   }

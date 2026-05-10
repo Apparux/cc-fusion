@@ -48,24 +48,34 @@ function parseTranscript(filePath, maxLines = 500) {
             catch {
                 continue;
             }
+            const toolUses = [];
             if (entry.type === 'tool_use') {
-                const tool = entry;
+                toolUses.push(entry);
+            }
+            const content = (entry.type === 'assistant' || entry.type === 'user' || entry.type === 'system')
+                ? entry.message?.content
+                : undefined;
+            if (Array.isArray(content)) {
+                for (const item of content) {
+                    if (item.type === 'tool_use') {
+                        toolUses.push(item);
+                    }
+                }
+            }
+            for (const tool of toolUses) {
                 const name = (tool.name || '').toLowerCase();
                 toolCounts[name] = (toolCounts[name] || 0) + 1;
-                // Track last edit file
                 if (name === 'edit' || name === 'write') {
                     const fp = (tool.input?.file_path || tool.input?.path || '');
                     if (fp)
                         lastEditFile = fp;
                 }
-                // Track agent spawns
                 if (name === 'task' || name === 'agent' || name === 'subagent' || name.includes('agent')) {
                     agentCount++;
                 }
             }
             // Track todos from assistant messages
-            if (entry.type === 'assistant' && entry.message?.content) {
-                const content = entry.message.content;
+            if (entry.type === 'assistant' && content) {
                 const text = typeof content === 'string' ? content :
                     Array.isArray(content) ? content.map(c => c.text || '').join(' ') : '';
                 // Count TODO patterns: [x] done, [ ] pending
@@ -105,9 +115,7 @@ function findTranscript(sessionId, cwd, explicitPath) {
             (0, fs_1.statSync)(explicitPath);
             return explicitPath;
         }
-        catch {
-            return null;
-        }
+        catch { /* try inferred paths */ }
     }
     if (!sessionId || !cwd)
         return null;
@@ -115,13 +123,15 @@ function findTranscript(sessionId, cwd, explicitPath) {
     // Claude Code patterns — try multiple encodings
     const encoded = cwd.replace(/\//g, '-').replace(/^-/, '');
     const candidates = [
+        `${home}/.claude/projects/${encoded}/${sessionId}.jsonl`,
+        `${home}/.claude/projects/-${encoded}/${sessionId}.jsonl`,
         `${home}/.claude/projects/${encoded}/sessions/${sessionId}/transcript.jsonl`,
         `${home}/.claude/projects/-${encoded}/sessions/${sessionId}/transcript.jsonl`,
     ];
     // Also try with the raw cwd path (some versions use different encoding)
     const rawParts = cwd.split('/').filter(Boolean);
     for (const part of rawParts) {
-        candidates.push(`${home}/.claude/projects/${part}/sessions/${sessionId}/transcript.jsonl`);
+        candidates.push(`${home}/.claude/projects/${part}/${sessionId}.jsonl`, `${home}/.claude/projects/${part}/sessions/${sessionId}/transcript.jsonl`);
     }
     for (const p of candidates) {
         try {

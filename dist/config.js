@@ -173,8 +173,8 @@ const ANSI_MAP = {
     magenta: utils_js_1.ANSI.magenta,
     cyan: utils_js_1.ANSI.cyan,
     white: utils_js_1.ANSI.white,
-    brightBlue: utils_js_1.ANSI.brightBlue,
-    brightMagenta: utils_js_1.ANSI.brightMagenta,
+    brightblue: utils_js_1.ANSI.brightBlue,
+    brightmagenta: utils_js_1.ANSI.brightMagenta,
     orange: utils_js_1.ANSI.orange,
     gold: utils_js_1.ANSI.gold,
 };

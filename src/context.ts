@@ -15,7 +15,7 @@ import {
 
 export interface ContextRenderOptions {
   width: number;
-  showBreakdown: boolean;
+  tokenBreakdownThreshold: number;
 }
 
 export function renderContext(
@@ -41,8 +41,7 @@ export function renderContext(
 
   let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;
 
-  // Show token breakdown when ≥85%
-  if (opts.showBreakdown && pct >= 85) {
+  if (pct >= opts.tokenBreakdownThreshold) {
     const parts: string[] = [];
     parts.push(`${colorize('I', ANSI.cyan)}${formatTokens(input)}`);
     parts.push(`${colorize('O', ANSI.green)}${formatTokens(output)}`);

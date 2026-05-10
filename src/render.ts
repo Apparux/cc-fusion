@@ -62,7 +62,7 @@ function renderGit(rc: RenderContext): string | null {
 function renderContextElement(rc: RenderContext): string {
   return renderContext(rc.stdin, rc.theme, {
     width: rc.config.barWidth,
-    showBreakdown: rc.stdin.effortLevel !== undefined,
+    tokenBreakdownThreshold: rc.config.tokenBreakdownThreshold,
   }, rc.i18n);
 }
 

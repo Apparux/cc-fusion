@@ -185,8 +185,8 @@ const ANSI_MAP: Record<string, string> = {
   magenta: ANSI.magenta,
   cyan: ANSI.cyan,
   white: ANSI.white,
-  brightBlue: ANSI.brightBlue,
-  brightMagenta: ANSI.brightMagenta,
+  brightblue: ANSI.brightBlue,
+  brightmagenta: ANSI.brightMagenta,
   orange: ANSI.orange,
   gold: ANSI.gold,
 };

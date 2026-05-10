@@ -55,7 +55,7 @@ function renderGit(rc) {
 function renderContextElement(rc) {
     return (0, context_js_1.renderContext)(rc.stdin, rc.theme, {
         width: rc.config.barWidth,
-        showBreakdown: rc.stdin.effortLevel !== undefined,
+        tokenBreakdownThreshold: rc.config.tokenBreakdownThreshold,
     }, rc.i18n);
 }
 function renderUsageElement(rc) {

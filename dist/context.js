@@ -20,8 +20,7 @@ function renderContext(stdin, theme, opts, i18n) {
     const bar = (0, utils_js_1.progressBar)(pct, opts.width, '█', '░', color, theme.colors.dim);
     const pctStr = (0, utils_js_1.colorize)((0, utils_js_1.bold)(`${pct}%`), color);
     let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;
-    // Show token breakdown when ≥85%
-    if (opts.showBreakdown && pct >= 85) {
+    if (pct >= opts.tokenBreakdownThreshold) {
         const parts = [];
         parts.push(`${(0, utils_js_1.colorize)('I', utils_js_1.ANSI.cyan)}${(0, utils_js_1.formatTokens)(input)}`);
         parts.push(`${(0, utils_js_1.colorize)('O', utils_js_1.ANSI.green)}${(0, utils_js_1.formatTokens)(output)}`);
