@@ -100,11 +100,21 @@ function mergeConfig(base, override) {
         return base;
     const merged = { ...base };
     for (const [key, value] of Object.entries(override)) {
-        if (key === 'hideCostFor' && Array.isArray(value) && value.every(v => typeof v === 'string')) {
-            merged.hideCostFor = value;
+        if (key === 'hideCostFor') {
+            if (Array.isArray(value) && value.every(v => typeof v === 'string')) {
+                merged.hideCostFor = value;
+            }
         }
-        else if (key === 'elements' && typeof value === 'object' && value !== null && !Array.isArray(value)) {
-            merged.elements = { ...(merged.elements || {}), ...value };
+        else if (key === 'elements') {
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                const elements = Object.fromEntries(Object.entries(value).filter(([, enabled]) => typeof enabled === 'boolean'));
+                merged.elements = { ...(merged.elements || {}), ...elements };
+            }
+        }
+        else if (['usageThreshold', 'tokenBreakdownThreshold', 'barWidth'].includes(key)) {
+            if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+                merged[key] = value;
+            }
         }
         else if (key in merged) {
             merged[key] = value;
