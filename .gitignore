@@ -3,3 +3,5 @@ node_modules/
 *.d.ts
 !src/**
 .idea
+.claude
+CLAUDE.md
