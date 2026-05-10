@@ -12,10 +12,11 @@ function renderUsage(stdin, theme, opts, i18n) {
         return null;
     const level = (0, utils_js_1.usageTrafficLight)(usage.pct);
     const color = (0, utils_js_1.trafficColor)(level, theme);
-    const icon = (0, utils_js_1.colorize)(theme.icons.usage, theme.colors.usageColor);
+    const icon = theme.icons.usage ? `${(0, utils_js_1.colorize)(theme.icons.usage, theme.colors.usageColor)} ` : '';
     const bar = (0, utils_js_1.progressBar)(usage.pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
+    const wrappedBar = theme.name === 'neon' ? `${(0, utils_js_1.colorize)('[', theme.colors.dim)}${bar}${(0, utils_js_1.colorize)(']', theme.colors.dim)}` : bar;
     const pctStr = (0, utils_js_1.colorize)((0, utils_js_1.bold)(`${usage.pct}%`), color);
-    let line = `${icon} ${i18n.usage || 'Use'} ${bar} ${pctStr}`;
+    let line = `${icon}${i18n.usage || 'Use'} ${wrappedBar} ${pctStr}`;
     if (usage.resetAt) {
         const remainingMs = usage.resetAt - Date.now();
         if (remainingMs > 0) {

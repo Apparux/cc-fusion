@@ -7,6 +7,7 @@
  */
 
 import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
+import { join } from 'path';
 import {
   parseStdin,
   calcContextPct,
@@ -18,7 +19,8 @@ import {
 } from './stdin.js';
 import { findTranscript, parseTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
-import { loadConfig, loadTheme, loadPreset } from './config.js';
+import { getProjectDir, loadConfig, loadTheme, loadPreset, readConfigFile } from './config.js';
+import { runConfigureCommand } from './configure.js';
 import { loadI18n } from './i18n.js';
 import { simplifyModel, shortenDir, formatDuration } from './utils.js';
 import { render } from './render.js';
@@ -79,9 +81,53 @@ function estimateDuration(transcriptPath: string | null): string {
   return '';
 }
 
+// ── CLI commands ─────────────────────────────────────────────────────────────
+
+function printHelp(): void {
+  process.stdout.write(`Usage:
+  cc-fusion              Render statusline from Claude Code stdin
+  cc-fusion configure    Run guided configuration
+  cc-fusion config       Alias for configure
+  cc-fusion init         Alias for configure
+  cc-fusion --help       Show this help
+  cc-fusion --version    Show version
+`);
+}
+
+function readPackageVersion(): string {
+  const pkg = readConfigFile(join(getProjectDir(), 'package.json'));
+  return typeof pkg?.version === 'string' ? pkg.version : 'unknown';
+}
+
+async function handleCliCommand(command: string | undefined): Promise<boolean> {
+  if (!command) return false;
+
+  if (command === 'configure' || command === 'config' || command === 'init') {
+    await runConfigureCommand();
+    return true;
+  }
+
+  if (command === '--help' || command === '-h' || command === 'help') {
+    printHelp();
+    return true;
+  }
+
+  if (command === '--version' || command === '-v' || command === 'version') {
+    process.stdout.write(`${readPackageVersion()}\n`);
+    return true;
+  }
+
+  process.stderr.write(`Unknown command: ${command}\n\n`);
+  printHelp();
+  process.exitCode = 1;
+  return true;
+}
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-function main(): void {
+async function main(): Promise<void> {
+  if (await handleCliCommand(process.argv[2])) return;
+
   // 1. Load config, theme, preset, i18n
   const config = loadConfig();
   const theme = loadTheme(config.theme);
@@ -140,4 +186,8 @@ function main(): void {
   }
 }
 
-main();
+main().catch(error => {
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`cc-fusion failed: ${message}\n`);
+  process.exitCode = 1;
+});

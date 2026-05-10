@@ -3,6 +3,12 @@
  * config.ts — Config loading (JSON + TOML theme)
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_CONFIG = void 0;
+exports.getProjectDir = getProjectDir;
+exports.getUserConfigDir = getUserConfigDir;
+exports.getUserConfigPath = getUserConfigPath;
+exports.readConfigFile = readConfigFile;
+exports.mergeConfig = mergeConfig;
 exports.loadConfig = loadConfig;
 exports.loadTheme = loadTheme;
 exports.loadPreset = loadPreset;
@@ -60,7 +66,7 @@ function parseToml(raw) {
     return result;
 }
 // ── File discovery ───────────────────────────────────────────────────────────
-function findProjectDir() {
+function getProjectDir() {
     const candidates = [
         (0, path_1.join)(__dirname, '..'),
         (0, path_1.join)(__dirname, '..', '..'),
@@ -75,10 +81,13 @@ function findProjectDir() {
     }
     return candidates[0];
 }
-function userConfigDir() {
+function getUserConfigDir() {
     return (0, path_1.join)(process.env.HOME || '/root', '.claude', 'cc-fusion');
 }
-function readJsonFile(path) {
+function getUserConfigPath() {
+    return (0, path_1.join)(getUserConfigDir(), 'config.json');
+}
+function readConfigFile(path) {
     try {
         return JSON.parse((0, fs_1.readFileSync)(path, 'utf-8'));
     }
@@ -111,7 +120,7 @@ function firstExisting(paths) {
     return null;
 }
 // ── Default config ───────────────────────────────────────────────────────────
-const DEFAULT_CONFIG = {
+exports.DEFAULT_CONFIG = {
     theme: 'cometix',
     preset: 'full',
     lang: 'en',
@@ -122,18 +131,18 @@ const DEFAULT_CONFIG = {
     showTranscript: true,
 };
 function loadConfig() {
-    const projectDir = findProjectDir();
+    const projectDir = getProjectDir();
     const configPaths = [
         (0, path_1.join)(projectDir, 'config.json'),
         (0, path_1.join)(process.cwd(), 'cc-fusion.config.json'),
-        (0, path_1.join)(userConfigDir(), 'config.json'),
+        (0, path_1.join)(getUserConfigDir(), 'config.json'),
     ];
-    let config = { ...DEFAULT_CONFIG };
+    let config = { ...exports.DEFAULT_CONFIG };
     for (const path of configPaths) {
-        config = mergeConfig(config, readJsonFile(path));
+        config = mergeConfig(config, readConfigFile(path));
     }
     if (process.env.CC_FUSION_CONFIG) {
-        config = mergeConfig(config, readJsonFile(process.env.CC_FUSION_CONFIG));
+        config = mergeConfig(config, readConfigFile(process.env.CC_FUSION_CONFIG));
     }
     return config;
 }
@@ -214,9 +223,9 @@ function resolveColor(value, fallback) {
     return value;
 }
 function loadTheme(name) {
-    const projectDir = findProjectDir();
+    const projectDir = getProjectDir();
     const themePath = firstExisting([
-        (0, path_1.join)(userConfigDir(), 'themes', `${name}.toml`),
+        (0, path_1.join)(getUserConfigDir(), 'themes', `${name}.toml`),
         (0, path_1.join)(projectDir, 'themes', `${name}.toml`),
     ]);
     try {
@@ -273,9 +282,9 @@ const PRESETS = {
     },
 };
 function loadPreset(name) {
-    const projectDir = findProjectDir();
+    const projectDir = getProjectDir();
     const presetPath = firstExisting([
-        (0, path_1.join)(userConfigDir(), 'presets', `${name}.json`),
+        (0, path_1.join)(getUserConfigDir(), 'presets', `${name}.json`),
         (0, path_1.join)(projectDir, 'presets', `${name}.json`),
     ]);
     try {

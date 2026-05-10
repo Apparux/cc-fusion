@@ -28,8 +28,8 @@ export function renderCost(
   // Hide if cost is exactly 0 (likely not tracked)
   if (cost === 0) return null;
 
-  const icon = colorize(theme.icons.cost, theme.colors.costColor);
+  const icon = theme.icons.cost ? `${colorize(theme.icons.cost, theme.colors.costColor)} ` : '';
   const costStr = colorize(formatCost(cost), theme.colors.costColor);
 
-  return `${icon} ${costStr}`;
+  return `${icon}${costStr}`;
 }

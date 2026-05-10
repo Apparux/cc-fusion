@@ -26,7 +26,14 @@
 ✳ 编辑: handler.go ⊙ 读取 ×2 ⌕ 搜索 ×1
 ```
 
-主题控制视觉风格，预设控制行布局。`theme=cometix` 或 `theme=hud` 都可以搭配 `preset=full`、`essential`、`minimal`。
+**Neon 主题** — 截图同款紫色 HUD 风格：
+
+```
+◈ Opus 4.7 │ ⌂ …/OwnProject/skills-cc │ ╱⌁ main
+Ctx [█████████░░░░░░░░░░░░░░░] 38% │ $47.28 │ ↯ high
+```
+
+主题控制视觉风格，预设控制行布局。`theme=cometix`、`theme=hud` 或 `theme=neon` 都可以搭配 `preset=full`、`essential`、`minimal`。
 
 **完整模式（Full）— 三行显示：**
 ```
@@ -52,6 +59,7 @@
 |------|------|--------|
 | `cometix` | CCometixLine 风格 | Nerd Font 图标 + 青绿/亮蓝/亮紫 |
 | `hud` | Claude HUD 风格 | muted terminal + 绿色上下文/用量 + 金色费用 |
+| `neon` | 截图同款 HUD 风格 | 紫色模型 + 方括号薄荷绿进度条 + 金色费用 |
 | `gruvbox` | 暖色复古 | 棕橙 + 黄绿 |
 | `dracula` | 现代暗紫 | 紫色 + 粉色 |
 | `nord` | 北欧冷色 | 冰蓝 + 灰色 |
@@ -92,6 +100,20 @@ cd cc-fusion
 # 安装依赖 & 编译
 npm install
 npm run build
+```
+
+### 引导式配置
+
+安装后或想更换主题、布局、语言、显示项时，运行：
+
+```bash
+cc-fusion configure
+```
+
+通过 curl 或源码安装时，运行本地构建：
+
+```bash
+node ~/.claude/cc-fusion/dist/index.js configure
 ```
 
 ### 配置 Claude Code
@@ -170,7 +192,13 @@ curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/script
 
 配置加载顺序为：内置默认值、包内 `config.json`、当前目录 `cc-fusion.config.json`、`~/.claude/cc-fusion/config.json`，最后是 `CC_FUSION_CONFIG` 指定的文件。
 
-推荐创建用户级配置 `~/.claude/cc-fusion/config.json`：
+推荐使用引导式配置创建或更新用户级配置：
+
+```bash
+cc-fusion configure
+```
+
+也可以手动创建 `~/.claude/cc-fusion/config.json`：
 
 ```json
 {
@@ -252,6 +280,7 @@ curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/script
 |------|------|------|
 | `cometix` | CCometixLine 风格 | Nerd Font 图标 + 青绿/亮蓝/亮紫配色 |
 | `hud` | Claude HUD 风格 | muted terminal、绿色上下文/用量、金色费用、红色强度 |
+| `neon` | 截图同款 HUD 风格 | 紫色模型、方括号薄荷绿进度条、金色费用、红色强度、橙色 Git |
 | `gruvbox` | 暖色复古 | 棕橙 + 黄绿配色 |
 | `dracula` | 现代暗紫 | 紫色 + 粉色配色 |
 | `nord` | 北欧冷色 | 冰蓝 + 灰色配色 |
@@ -390,6 +419,7 @@ cc-fusion/
 ├── themes/
 │   ├── cometix.toml      # CCometixLine 风格（默认）
 │   ├── hud.toml          # Claude HUD 风格
+│   ├── neon.toml         # 截图同款 HUD 风格
 │   ├── gruvbox.toml      # 暖色复古
 │   ├── dracula.toml      # 现代暗紫
 │   └── nord.toml         # 北欧冷色

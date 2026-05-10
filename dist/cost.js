@@ -21,8 +21,8 @@ function renderCost(stdin, theme, config, i18n) {
     // Hide if cost is exactly 0 (likely not tracked)
     if (cost === 0)
         return null;
-    const icon = (0, utils_js_1.colorize)(theme.icons.cost, theme.colors.costColor);
+    const icon = theme.icons.cost ? `${(0, utils_js_1.colorize)(theme.icons.cost, theme.colors.costColor)} ` : '';
     const costStr = (0, utils_js_1.colorize)((0, utils_js_1.formatCost)(cost), theme.colors.costColor);
-    return `${icon} ${costStr}`;
+    return `${icon}${costStr}`;
 }
 //# sourceMappingURL=cost.js.map

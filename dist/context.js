@@ -16,10 +16,11 @@ function renderContext(stdin, theme, opts, i18n) {
     const pct = Math.min(100, Math.round((total / max) * 100));
     const level = (0, utils_js_1.contextTrafficLight)(pct);
     const color = (0, utils_js_1.trafficColor)(level, theme);
-    const icon = (0, utils_js_1.colorize)(theme.icons.context, theme.colors.contextColor);
+    const icon = theme.icons.context ? `${(0, utils_js_1.colorize)(theme.icons.context, theme.colors.contextColor)} ` : '';
     const bar = (0, utils_js_1.progressBar)(pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
+    const wrappedBar = theme.name === 'neon' ? `${(0, utils_js_1.colorize)('[', theme.colors.dim)}${bar}${(0, utils_js_1.colorize)(']', theme.colors.dim)}` : bar;
     const pctStr = (0, utils_js_1.colorize)((0, utils_js_1.bold)(`${pct}%`), color);
-    let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;
+    let line = `${icon}${i18n.context || 'Ctx'} ${wrappedBar} ${pctStr}`;
     if (pct >= opts.tokenBreakdownThreshold) {
         const parts = [];
         parts.push(`${(0, utils_js_1.colorize)('I', utils_js_1.ANSI.cyan)}${(0, utils_js_1.formatTokens)(input)}`);

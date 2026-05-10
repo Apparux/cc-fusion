@@ -11,7 +11,13 @@ const chalk = {
 console.log(`
 ${chalk.green('✅ CC-Fusion installed successfully!')}
 
-${chalk.bold('📋 Next step — add this to ~/.claude/settings.json:')}
+${chalk.bold('📋 Guided setup:')}
+
+${chalk.cyan('  cc-fusion configure')}
+
+This helps choose theme, preset, language, and display options.
+
+${chalk.bold('Claude Code statusLine command:')}
 
 ${chalk.cyan(`  {
     "statusLine": {

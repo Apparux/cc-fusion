@@ -26,7 +26,14 @@ A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-
 ✳ Edit: handler.go ⊙ Read ×2 ⌕ Grep ×1
 ```
 
-Themes control visual style; presets control line layout. You can use `theme=cometix` or `theme=hud` with `preset=full`, `essential`, or `minimal`.
+**Neon theme** — screenshot-inspired purple HUD style:
+
+```
+◈ Opus 4.7 │ ⌂ …/OwnProject/skills-cc │ ╱⌁ main
+Ctx [█████████░░░░░░░░░░░░░░░] 38% │ $47.28 │ ↯ high
+```
+
+Themes control visual style; presets control line layout. You can use `theme=cometix`, `theme=hud`, or `theme=neon` with `preset=full`, `essential`, or `minimal`.
 
 ### Preset Variants
 
@@ -85,6 +92,20 @@ cd cc-fusion
 # Install & build
 npm install
 npm run build
+```
+
+### Guided Configuration
+
+Run the guided setup any time you install CC-Fusion or want to change theme, preset, language, or display options:
+
+```bash
+cc-fusion configure
+```
+
+For curl/source installs, run the local build directly:
+
+```bash
+node ~/.claude/cc-fusion/dist/index.js configure
 ```
 
 ### Configure Claude Code
@@ -163,7 +184,13 @@ Cleans up: `~/.claude/plugins/claude-hud/` and `statusLine` from settings.json.
 
 Config is loaded in this order: built-in defaults, package `config.json`, current directory `cc-fusion.config.json`, `~/.claude/cc-fusion/config.json`, then `CC_FUSION_CONFIG` if set.
 
-For user-level configuration, create `~/.claude/cc-fusion/config.json`:
+The recommended way to create or update user-level config is:
+
+```bash
+cc-fusion configure
+```
+
+Manual configuration is still supported. Create `~/.claude/cc-fusion/config.json`:
 
 ```json
 {
@@ -245,6 +272,7 @@ Themes are TOML files in the `themes/` directory. Each theme defines a color pal
 |-------|-------|-------|
 | `cometix` | CCometixLine-inspired | Nerd Font icons, cyan/green/bright-blue/bright-magenta palette |
 | `hud` | Claude HUD-inspired | Muted terminal look, green context/usage, gold cost, red effort |
+| `neon` | Screenshot-inspired HUD | Purple model, bracketed mint bar, gold cost, red effort, orange git |
 | `gruvbox` | Warm retro | Brown/orange/yellow-green palette |
 | `dracula` | Modern dark purple | Purple/pink palette |
 | `nord` | Nordic cold | Ice-blue/gray palette |
@@ -383,6 +411,7 @@ cc-fusion/
 ├── themes/
 │   ├── cometix.toml      # CCometixLine-inspired (default)
 │   ├── hud.toml          # Claude HUD-inspired
+│   ├── neon.toml         # Screenshot-inspired HUD
 │   ├── gruvbox.toml      # Warm retro
 │   ├── dracula.toml      # Modern purple
 │   └── nord.toml         # Nordic cold

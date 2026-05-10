@@ -35,11 +35,12 @@ export function renderContext(
 
   const level = contextTrafficLight(pct);
   const color = trafficColor(level, theme);
-  const icon = colorize(theme.icons.context, theme.colors.contextColor);
+  const icon = theme.icons.context ? `${colorize(theme.icons.context, theme.colors.contextColor)} ` : '';
   const bar = progressBar(pct, opts.width, '█', '░', theme.colors.barFill, theme.colors.barEmpty);
+  const wrappedBar = theme.name === 'neon' ? `${colorize('[', theme.colors.dim)}${bar}${colorize(']', theme.colors.dim)}` : bar;
   const pctStr = colorize(bold(`${pct}%`), color);
 
-  let line = `${icon} ${i18n.context || 'Ctx'} ${bar} ${pctStr}`;
+  let line = `${icon}${i18n.context || 'Ctx'} ${wrappedBar} ${pctStr}`;
 
   if (pct >= opts.tokenBreakdownThreshold) {
     const parts: string[] = [];

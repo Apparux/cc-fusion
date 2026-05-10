@@ -67,7 +67,7 @@ function parseToml(raw: string): Record<string, unknown> {
 
 // ── File discovery ───────────────────────────────────────────────────────────
 
-function findProjectDir(): string {
+export function getProjectDir(): string {
   const candidates = [
     join(__dirname, '..'),
     join(__dirname, '..', '..'),
@@ -82,11 +82,15 @@ function findProjectDir(): string {
   return candidates[0];
 }
 
-function userConfigDir(): string {
+export function getUserConfigDir(): string {
   return join(process.env.HOME || '/root', '.claude', 'cc-fusion');
 }
 
-function readJsonFile(path: string): Record<string, unknown> | null {
+export function getUserConfigPath(): string {
+  return join(getUserConfigDir(), 'config.json');
+}
+
+export function readConfigFile(path: string): Record<string, unknown> | null {
   try {
     return JSON.parse(readFileSync(path, 'utf-8')) as Record<string, unknown>;
   } catch {
@@ -94,7 +98,7 @@ function readJsonFile(path: string): Record<string, unknown> | null {
   }
 }
 
-function mergeConfig(base: Config, override: Record<string, unknown> | null): Config {
+export function mergeConfig(base: Config, override: Record<string, unknown> | null): Config {
   if (!override) return base;
   const merged: Config = { ...base };
   for (const [key, value] of Object.entries(override)) {
@@ -118,7 +122,7 @@ function firstExisting(paths: string[]): string | null {
 
 // ── Default config ───────────────────────────────────────────────────────────
 
-const DEFAULT_CONFIG: Config = {
+export const DEFAULT_CONFIG: Config = {
   theme: 'cometix',
   preset: 'full',
   lang: 'en',
@@ -130,20 +134,20 @@ const DEFAULT_CONFIG: Config = {
 };
 
 export function loadConfig(): Config {
-  const projectDir = findProjectDir();
+  const projectDir = getProjectDir();
   const configPaths = [
     join(projectDir, 'config.json'),
     join(process.cwd(), 'cc-fusion.config.json'),
-    join(userConfigDir(), 'config.json'),
+    join(getUserConfigDir(), 'config.json'),
   ];
 
   let config = { ...DEFAULT_CONFIG };
   for (const path of configPaths) {
-    config = mergeConfig(config, readJsonFile(path));
+    config = mergeConfig(config, readConfigFile(path));
   }
 
   if (process.env.CC_FUSION_CONFIG) {
-    config = mergeConfig(config, readJsonFile(process.env.CC_FUSION_CONFIG));
+    config = mergeConfig(config, readConfigFile(process.env.CC_FUSION_CONFIG));
   }
 
   return config;
@@ -229,9 +233,9 @@ function resolveColor(value: string | undefined, fallback: string): string {
 }
 
 export function loadTheme(name: string): Theme {
-  const projectDir = findProjectDir();
+  const projectDir = getProjectDir();
   const themePath = firstExisting([
-    join(userConfigDir(), 'themes', `${name}.toml`),
+    join(getUserConfigDir(), 'themes', `${name}.toml`),
     join(projectDir, 'themes', `${name}.toml`),
   ]);
 
@@ -294,9 +298,9 @@ const PRESETS: Record<string, Preset> = {
 };
 
 export function loadPreset(name: string): Preset {
-  const projectDir = findProjectDir();
+  const projectDir = getProjectDir();
   const presetPath = firstExisting([
-    join(userConfigDir(), 'presets', `${name}.json`),
+    join(getUserConfigDir(), 'presets', `${name}.json`),
     join(projectDir, 'presets', `${name}.json`),
   ]);
 

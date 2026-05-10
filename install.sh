@@ -28,7 +28,13 @@ npm run build --silent
 echo ""
 echo "✅ CC-Fusion installed successfully!"
 echo ""
-echo "📋 Next step — add this to ~/.claude/settings.json:"
+echo "📋 Guided setup:"
+echo ""
+echo "  node $INSTALL_DIR/dist/index.js configure"
+echo ""
+echo "This helps choose theme, preset, language, and display options."
+echo ""
+echo "Claude Code statusLine command:"
 echo ""
 echo '  {'
 echo '    "statusLine": {'
