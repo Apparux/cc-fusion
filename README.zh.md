@@ -55,6 +55,12 @@
 curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
 ```
 
+### 通过 npm 安装
+
+```bash
+npm install -g cc-fusion
+```
+
 然后配置 Claude Code（见下方）。搞定！
 
 ### 手动安装（从源码）
@@ -87,7 +93,13 @@ npm run build
 
 ### 卸载 CC-Fusion
 
-一行命令：
+通过 npm 安装的：
+
+```bash
+npm uninstall -g cc-fusion
+```
+
+通过 curl 安装的：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash

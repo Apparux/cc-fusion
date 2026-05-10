@@ -9,7 +9,18 @@ SETTINGS_FILE="$HOME/.claude/settings.json"
 
 echo "🗑️  Uninstalling CC-Fusion..."
 
-# 1. Remove installation directory
+# 1. Remove npm global package (if installed via npm)
+if command -v npm &> /dev/null; then
+  if npm list -g cc-fusion &> /dev/null; then
+    npm uninstall -g cc-fusion 2>/dev/null && echo "✅ Uninstalled npm package cc-fusion" || echo "⚠️  Failed to uninstall npm package (try: sudo npm uninstall -g cc-fusion)"
+  else
+    echo "⏭️  npm package cc-fusion not found, skipping"
+  fi
+else
+  echo "⏭️  npm not found, skipping npm cleanup"
+fi
+
+# 2. Remove installation directory (curl install method)
 if [ -d "$INSTALL_DIR" ]; then
   rm -rf "$INSTALL_DIR"
   echo "✅ Removed $INSTALL_DIR"
@@ -17,7 +28,7 @@ else
   echo "⏭️  $INSTALL_DIR not found, skipping"
 fi
 
-# 2. Remove statusLine from settings.json (if jq available)
+# 3. Remove statusLine from settings.json (if jq available)
 if [ -f "$SETTINGS_FILE" ]; then
   if command -v jq &> /dev/null; then
     # Check if statusLine.command contains cc-fusion

@@ -63,6 +63,12 @@ One-liner — auto clone, auto build:
 curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
 ```
 
+### Install via npm
+
+```bash
+npm install -g cc-fusion
+```
+
 Then configure Claude Code (see below). That's it!
 
 ### Manual Install (from source)
@@ -95,7 +101,13 @@ Restart Claude Code and you're done! 🎉
 
 ### Uninstall CC-Fusion
 
-One-liner:
+If installed via npm:
+
+```bash
+npm uninstall -g cc-fusion
+```
+
+If installed via curl (one-liner):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash
