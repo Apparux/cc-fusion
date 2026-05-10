@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project-specific workflow
 
 - After verified changes in this repository, commit and push them yourself by default.
-- When changes should be released to npm, bump `package.json`/`package-lock.json` to a new version, commit, push, and create a `v*.*.*` tag to trigger the GitHub Actions npm publish workflow.
+- When changes should be released to npm, bump `package.json`/`package-lock.json` to a new version, commit, push, create a `v*.*.*` tag to trigger the GitHub Actions npm publish workflow, and create a GitHub Release for the same tag after the npm publish workflow succeeds.
 - Do not bypass failed builds, failed smoke tests, authentication failures, or token-safety issues. Stop and report the blocker instead.
 - Do not commit local Claude Code harness files such as `.claude/settings.local.json`.
 
@@ -67,6 +67,15 @@ git commit -m "chore: bump version to <version>"
 git push origin main
 git tag -a v<version> -m "Release v<version>"
 git push origin v<version>
+gh release create v<version> --repo CanCanNeedNei/cc-fusion --title "v<version>" --notes "$(cat <<'EOF'
+## Summary
+- <release note bullet>
+
+## Verification
+- npm publish workflow succeeded
+- npm view cc-fusion version reports <version>
+EOF
+)"
 ```
 
-Use `minor` instead of `patch` for user-facing features. After pushing a release tag, check GitHub Actions with `gh run list --repo CanCanNeedNei/cc-fusion --workflow npm-publish.yml --limit 5` and confirm npm with `npm view cc-fusion version`.
+Use `minor` instead of `patch` for user-facing features. After pushing a release tag, check GitHub Actions with `gh run list --repo CanCanNeedNei/cc-fusion --workflow npm-publish.yml --limit 5`, confirm npm with `npm view cc-fusion version`, and confirm the GitHub Release with `gh release view v<version> --repo CanCanNeedNei/cc-fusion`.
