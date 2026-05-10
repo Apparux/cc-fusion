@@ -3,6 +3,7 @@
  */
 
 import type { Theme, StdinData } from './types.js';
+import { calcContextPct, getContextTokens, getContextWindowSize } from './stdin.js';
 import {
   progressBar,
   contextTrafficLight,
@@ -24,14 +25,9 @@ export function renderContext(
   opts: ContextRenderOptions,
   i18n: Record<string, string>
 ): string {
-  const max = stdin.max_context_window_size || 200000;
-  const ctx = stdin.context_window || {};
-  const input = ctx.input_tokens || 0;
-  const output = ctx.output_tokens || 0;
-  const cacheCreate = ctx.cache_creation_input_tokens || 0;
-  const cacheRead = ctx.cache_read_input_tokens || 0;
-  const total = input + output + cacheCreate + cacheRead;
-  const pct = Math.min(100, Math.round((total / max) * 100));
+  const max = getContextWindowSize(stdin) || 200000;
+  const { input, output, cacheCreate, cacheRead } = getContextTokens(stdin);
+  const pct = calcContextPct(stdin);
 
   const level = contextTrafficLight(pct);
   const color = trafficColor(level, theme);

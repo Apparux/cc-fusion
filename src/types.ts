@@ -9,11 +9,20 @@ export interface ModelInfo {
   id?: string;
 }
 
-export interface ContextWindow {
+export interface ContextUsage {
   input_tokens?: number;
   output_tokens?: number;
   cache_creation_input_tokens?: number;
   cache_read_input_tokens?: number;
+}
+
+export interface ContextWindow extends ContextUsage {
+  total_input_tokens?: number;
+  total_output_tokens?: number;
+  context_window_size?: number;
+  used_percentage?: number | null;
+  remaining_percentage?: number | null;
+  current_usage?: ContextUsage | null;
 }
 
 export interface CostInfo {

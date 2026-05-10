@@ -9,6 +9,8 @@ exports.getCwd = getCwd;
 exports.getProjectDir = getProjectDir;
 exports.getEffortLevel = getEffortLevel;
 exports.getProvider = getProvider;
+exports.getContextWindowSize = getContextWindowSize;
+exports.getContextTokens = getContextTokens;
 exports.calcContextPct = calcContextPct;
 exports.extractUsageInfo = extractUsageInfo;
 exports.calcUsagePct = calcUsagePct;
@@ -38,19 +40,34 @@ function getEffortLevel(stdin) {
 function getProvider(stdin) {
     return stdin.provider || stdin.api_provider;
 }
+function getContextWindowSize(stdin) {
+    return stdin.context_window?.context_window_size || stdin.max_context_window_size || 0;
+}
+function getContextTokens(stdin) {
+    const ctx = stdin.context_window || {};
+    const usage = ctx.current_usage || ctx;
+    const input = usage.input_tokens ?? ctx.total_input_tokens ?? 0;
+    const output = usage.output_tokens ?? ctx.total_output_tokens ?? 0;
+    const cacheCreate = usage.cache_creation_input_tokens || 0;
+    const cacheRead = usage.cache_read_input_tokens || 0;
+    const total = ctx.total_input_tokens !== undefined
+        ? ctx.total_input_tokens + (ctx.total_output_tokens || 0)
+        : input + output + cacheCreate + cacheRead;
+    return { input, output, cacheCreate, cacheRead, total };
+}
 /**
  * Calculate context usage percentage.
  * Total tokens used vs max context window.
  */
 function calcContextPct(stdin) {
-    const max = stdin.max_context_window_size;
+    const directPct = stdin.context_window?.used_percentage;
+    if (typeof directPct === 'number' && Number.isFinite(directPct)) {
+        return Math.max(0, Math.min(100, Math.round(directPct)));
+    }
+    const max = getContextWindowSize(stdin);
     if (!max || max <= 0)
         return 0;
-    const ctx = stdin.context_window || {};
-    const total = (ctx.input_tokens || 0) +
-        (ctx.output_tokens || 0) +
-        (ctx.cache_creation_input_tokens || 0) +
-        (ctx.cache_read_input_tokens || 0);
+    const { total } = getContextTokens(stdin);
     return Math.min(100, Math.round((total / max) * 100));
 }
 function asMetric(value) {
@@ -125,16 +142,11 @@ function calcUsagePct(stdin) {
  * Get token breakdown for ≥85% display.
  */
 function getTokenBreakdown(stdin) {
-    const max = stdin.max_context_window_size;
+    const max = getContextWindowSize(stdin);
     if (!max || max <= 0)
         return null;
-    const ctx = stdin.context_window || {};
-    const input = ctx.input_tokens || 0;
-    const output = ctx.output_tokens || 0;
-    const cacheCreate = ctx.cache_creation_input_tokens || 0;
-    const cacheRead = ctx.cache_read_input_tokens || 0;
-    const total = input + output + cacheCreate + cacheRead;
-    const pct = (total / max) * 100;
+    const { input, output, cacheCreate, cacheRead, total } = getContextTokens(stdin);
+    const pct = calcContextPct(stdin);
     if (pct < 85)
         return null;
     return { input, output, cacheCreate, cacheRead, total, max };

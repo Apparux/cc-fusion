@@ -4,16 +4,12 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renderContext = renderContext;
+const stdin_js_1 = require("./stdin.js");
 const utils_js_1 = require("./utils.js");
 function renderContext(stdin, theme, opts, i18n) {
-    const max = stdin.max_context_window_size || 200000;
-    const ctx = stdin.context_window || {};
-    const input = ctx.input_tokens || 0;
-    const output = ctx.output_tokens || 0;
-    const cacheCreate = ctx.cache_creation_input_tokens || 0;
-    const cacheRead = ctx.cache_read_input_tokens || 0;
-    const total = input + output + cacheCreate + cacheRead;
-    const pct = Math.min(100, Math.round((total / max) * 100));
+    const max = (0, stdin_js_1.getContextWindowSize)(stdin) || 200000;
+    const { input, output, cacheCreate, cacheRead } = (0, stdin_js_1.getContextTokens)(stdin);
+    const pct = (0, stdin_js_1.calcContextPct)(stdin);
     const level = (0, utils_js_1.contextTrafficLight)(pct);
     const color = (0, utils_js_1.trafficColor)(level, theme);
     const icon = theme.icons.context ? `${(0, utils_js_1.colorize)(theme.icons.context, theme.colors.contextColor)} ` : '';
