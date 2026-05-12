@@ -24,36 +24,5 @@ export function getGitInfo(cwd: string | undefined): GitInfo | null {
   const dirtyFlag = exec('git status --porcelain', cwd);
   const dirty = dirtyFlag.length > 0;
 
-  // Count staged, unstaged, untracked
-  let staged = 0;
-  let unstaged = 0;
-  let untracked = 0;
-  if (dirtyFlag) {
-    for (const line of dirtyFlag.split('\n')) {
-      if (!line.trim()) continue;
-      const x = line[0]; // index status
-      const y = line[1]; // worktree status
-      if (x === '?' && y === '?') {
-        untracked++;
-      } else {
-        if (x !== ' ' && x !== '?') staged++;
-        if (y !== ' ' && y !== '?') unstaged++;
-      }
-    }
-  }
-
-  // Ahead/behind tracking
-  let ahead = 0;
-  let behind = 0;
-  const upstream = exec('git rev-parse --abbrev-ref @{upstream}', cwd);
-  if (upstream) {
-    const counts = exec('git rev-list --left-right --count HEAD...@{upstream}', cwd);
-    if (counts) {
-      const parts = counts.split(/\s+/);
-      ahead = parseInt(parts[0] || '0', 10) || 0;
-      behind = parseInt(parts[1] || '0', 10) || 0;
-    }
-  }
-
-  return { branch, dirty, ahead, behind, staged, unstaged, untracked };
+  return { branch, dirty };
 }

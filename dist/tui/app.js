@@ -33,19 +33,31 @@ class TUIApp {
         this.preset = (0, config_js_1.loadPreset)(this.config.preset);
     }
     async run() {
-        this.screen.enterAltScreen();
-        this.screen.hideCursor();
-        this.input.start();
-        this.input.onKey(this.handleKey.bind(this));
-        this.running = true;
-        while (this.running) {
-            if (this.needsRender) {
-                this.render();
-                this.needsRender = false;
+        let error = null;
+        try {
+            this.screen.enterAltScreen();
+            this.screen.hideCursor();
+            this.input.start();
+            this.input.onKey(this.handleKey.bind(this));
+            this.running = true;
+            this.needsRender = true;
+            while (this.running) {
+                if (this.needsRender) {
+                    this.render();
+                    this.needsRender = false;
+                }
+                await this.sleep(16);
             }
-            await this.sleep(16);
         }
-        this.cleanup();
+        catch (err) {
+            error = err instanceof Error ? err : new Error(String(err));
+        }
+        finally {
+            this.cleanup();
+        }
+        if (error) {
+            throw error;
+        }
     }
     handleKey(key) {
         if (key.name === 'q' || key.name === 'escape' || (key.ctrl && key.name === 'escape')) {

@@ -18,9 +18,11 @@ class PresetSelectorPanel {
         const output = [];
         const border = this.renderBorder(rect.width, 'Presets');
         output.push(border);
-        const presetIndex = PRESETS.findIndex(p => p.name === currentPreset);
-        if (presetIndex !== -1) {
-            this.selectedIndex = presetIndex;
+        if (!focused) {
+            const presetIndex = PRESETS.findIndex(p => p.name === currentPreset);
+            if (presetIndex !== -1) {
+                this.selectedIndex = presetIndex;
+            }
         }
         for (let i = 0; i < PRESETS.length; i++) {
             const preset = PRESETS[i];

@@ -14,19 +14,23 @@ class Layout {
         };
     }
     calculate(terminalWidth, terminalHeight) {
+        const minHeight = 20;
+        if (terminalHeight < minHeight) {
+            terminalHeight = minHeight;
+        }
         let currentY = 0;
         const preview = {
             x: 0,
             y: currentY,
             width: terminalWidth,
-            height: Math.min(this.config.previewHeight, Math.floor(terminalHeight * 0.3)),
+            height: Math.max(3, Math.min(this.config.previewHeight, Math.floor(terminalHeight * 0.3))),
         };
         currentY += preview.height;
         const themeSelector = {
             x: 0,
             y: currentY,
             width: terminalWidth,
-            height: Math.min(this.config.themeSelectorHeight, Math.floor(terminalHeight * 0.15)),
+            height: Math.max(3, Math.min(this.config.themeSelectorHeight, Math.floor(terminalHeight * 0.15))),
         };
         currentY += themeSelector.height;
         const help = {
@@ -35,7 +39,7 @@ class Layout {
             width: terminalWidth,
             height: this.config.helpHeight,
         };
-        const contentHeight = terminalHeight - currentY - this.config.helpHeight;
+        const contentHeight = Math.max(5, terminalHeight - currentY - this.config.helpHeight);
         const splitWidth = Math.floor(terminalWidth * this.config.contentSplitRatio);
         const presetSelector = {
             x: 0,

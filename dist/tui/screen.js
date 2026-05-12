@@ -13,9 +13,17 @@ const strip_ansi_1 = __importDefault(require("strip-ansi"));
 class Screen {
     constructor() {
         this.cleanupHandlers = [];
+        if (!process.stdout.isTTY) {
+            throw new Error('Cannot run TUI in non-interactive environment. Please run cc-fusion config in a real terminal (not through Claude Code or pipes).');
+        }
+        const width = process.stdout.columns;
+        const height = process.stdout.rows;
+        if (!width || !height || width < 40 || height < 20) {
+            throw new Error(`Terminal too small or invalid (${width}x${height}). Please run cc-fusion config in a properly sized terminal (minimum 40x20).`);
+        }
         this.state = {
-            width: process.stdout.columns || 80,
-            height: process.stdout.rows || 24,
+            width,
+            height,
             lines: [],
             cursorVisible: true,
         };
@@ -51,12 +59,13 @@ class Screen {
         process.stdout.on('resize', handler);
     }
     enterAltScreen() {
+        process.stdout.write('\x1b[?1049h');
         process.stdout.write(ansi_escapes_1.default.clearScreen);
         process.stdout.write(ansi_escapes_1.default.cursorTo(0, 0));
     }
     exitAltScreen() {
         process.stdout.write(ansi_escapes_1.default.clearScreen);
-        process.stdout.write(ansi_escapes_1.default.cursorTo(0, 0));
+        process.stdout.write('\x1b[?1049l');
     }
     hideCursor() {
         cli_cursor_1.default.hide();
@@ -73,18 +82,13 @@ class Screen {
     render(lines) {
         const output = [];
         output.push(ansi_escapes_1.default.cursorTo(0, 0));
-        for (let i = 0; i < Math.min(lines.length, this.state.height); i++) {
+        output.push(ansi_escapes_1.default.eraseDown);
+        const maxLines = Math.min(lines.length, this.state.height);
+        for (let i = 0; i < maxLines; i++) {
             const line = lines[i] || '';
             const truncated = this.truncateLine(line, this.state.width);
             output.push(truncated);
-            output.push(ansi_escapes_1.default.eraseLine);
-            if (i < lines.length - 1) {
-                output.push('\n');
-            }
-        }
-        for (let i = lines.length; i < this.state.height; i++) {
-            output.push(ansi_escapes_1.default.eraseLine);
-            if (i < this.state.height - 1) {
+            if (i < maxLines - 1) {
                 output.push('\n');
             }
         }

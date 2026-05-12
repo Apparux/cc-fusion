@@ -21,9 +21,11 @@ class ThemeSelectorPanel {
         const output = [];
         const border = this.renderBorder(rect.width, 'Themes (1-6 to quick switch)');
         output.push(border);
-        const themeIndex = THEMES.findIndex(t => t.name === currentTheme);
-        if (themeIndex !== -1) {
-            this.selectedIndex = themeIndex;
+        if (!focused) {
+            const themeIndex = THEMES.findIndex(t => t.name === currentTheme);
+            if (themeIndex !== -1) {
+                this.selectedIndex = themeIndex;
+            }
         }
         const themeLine = THEMES.map((theme, i) => {
             const isCurrent = theme.name === currentTheme;
@@ -37,9 +39,20 @@ class ThemeSelectorPanel {
             }
             return display;
         }).join('  ');
-        output.push(`${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset} ${themeLine} ${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset}`);
+        const paddedThemeLine = this.padLine(themeLine, rect.width - 4);
+        output.push(`${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset} ${paddedThemeLine} ${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset}`);
+        while (output.length < rect.height - 1) {
+            const emptyLine = this.padLine('', rect.width - 4);
+            output.push(`${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset} ${emptyLine} ${utils_js_1.ANSI.dim}│${utils_js_1.ANSI.reset}`);
+        }
         output.push(this.renderBorder(rect.width, ''));
         return output;
+    }
+    padLine(line, width) {
+        const stripAnsi = (str) => str.replace(/\x1b\[[0-9;]*m/g, '');
+        const visible = stripAnsi(line);
+        const padding = Math.max(0, width - visible.length);
+        return line + ' '.repeat(padding);
     }
     moveSelection(delta) {
         this.selectedIndex = (this.selectedIndex + delta + THEMES.length) % THEMES.length;

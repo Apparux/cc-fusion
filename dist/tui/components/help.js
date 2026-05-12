@@ -12,6 +12,10 @@ class HelpPanel {
         const line = shortcuts.join('  ');
         const padded = this.padLine(line, rect.width);
         output.push(`${utils_js_1.ANSI.dim}${padded}${utils_js_1.ANSI.reset}`);
+        while (output.length < rect.height) {
+            const emptyLine = this.padLine('', rect.width);
+            output.push(`${utils_js_1.ANSI.dim}${emptyLine}${utils_js_1.ANSI.reset}`);
+        }
         return output;
     }
     getShortcuts(focusedPanel) {

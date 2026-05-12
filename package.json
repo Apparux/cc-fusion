@@ -2,6 +2,7 @@
   "name": "cc-fusion",
   "version": "1.1.2",
   "description": "Claude Code statusline: CCometixLine beauty + Claude HUD functionality",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "cc-fusion": "dist/index.js"
@@ -9,12 +10,6 @@
   "files": [
     "dist/",
     "src/",
-    "themes/",
-    "presets/",
-    "i18n/",
-    "scripts/",
-    "install.sh",
-    "uninstall.sh",
     "README.md",
     "README.zh.md"
   ],
@@ -22,8 +17,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "prepack": "npm run build",
-    "prepublishOnly": "npm run build",
-    "postinstall": "node scripts/postinstall.js"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "claude-code",
@@ -48,10 +42,5 @@
     "@types/node": "^25.6.2",
     "typescript": "^6.0.3"
   },
-  "dependencies": {
-    "ansi-escapes": "^7.3.0",
-    "chalk": "^5.6.2",
-    "cli-cursor": "^5.0.0",
-    "strip-ansi": "^7.2.0"
-  }
+  "dependencies": {}
 }

@@ -1,31 +1,16 @@
 #!/usr/bin/env node
 /**
- * index.ts — CC-Fusion Statusline Entry Point
- *
- * Reads Claude Code stdin JSON, collects git + transcript data,
- * renders the configured statusline to stdout.
+ * index.ts — CC-Fusion Entry Point
+ * Reads Claude Code stdin JSON, renders 5-line statusline to stdout.
  */
 
-import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
-import { join } from 'path';
-import {
-  parseStdin,
-  calcContextPct,
-  calcUsagePct,
-  getTranscriptPath,
-  getSessionId,
-  getCwd,
-  getEffortLevel,
-} from './stdin.js';
-import { findTranscript, parseTranscript } from './transcript.js';
+import { readFileSync } from 'fs';
+import { parseStdin, calcContextPct, getCwd } from './stdin.js';
+import { parseTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
-import { getProjectDir, loadConfig, loadTheme, loadPreset, readConfigFile } from './config.js';
-import { runConfigureCommand } from './configure.js';
-import { TUIApp } from './tui/app.js';
-import { loadI18n } from './i18n.js';
-import { simplifyModel, shortenDir, formatDuration } from './utils.js';
+import { simplifyModel, getProjectName, formatTokens } from './utils.js';
 import { render } from './render.js';
-import type { RenderContext, StdinData } from './types.js';
+import type { RenderContext, ToolStats } from './types.js';
 
 // ── Read stdin ───────────────────────────────────────────────────────────────
 
@@ -37,81 +22,28 @@ function readStdin(): string {
   }
 }
 
-// ── Session duration estimation ──────────────────────────────────────────────
-
-function readTranscriptEdgeLines(transcriptPath: string): [string, string] | null {
-  const stat = statSync(transcriptPath);
-  if (stat.size === 0) return null;
-
-  const chunkSize = Math.min(stat.size, 8192);
-  const firstBuffer = Buffer.alloc(chunkSize);
-  const lastBuffer = Buffer.alloc(chunkSize);
-  const fd = openSync(transcriptPath, 'r');
-  try {
-    readSync(fd, firstBuffer, 0, chunkSize, 0);
-    readSync(fd, lastBuffer, 0, chunkSize, stat.size - chunkSize);
-  } finally {
-    closeSync(fd);
-  }
-
-  const firstLine = firstBuffer.toString('utf-8').split('\n').find(line => line.trim());
-  const lastLine = lastBuffer.toString('utf-8').trim().split('\n').filter(Boolean).pop();
-  return firstLine && lastLine ? [firstLine, lastLine] : null;
-}
-
-function estimateDuration(transcriptPath: string | null): string {
-  if (!transcriptPath) return '';
-  try {
-    const edgeLines = readTranscriptEdgeLines(transcriptPath);
-    if (!edgeLines) return '';
-
-    const first = JSON.parse(edgeLines[0]);
-    const last = JSON.parse(edgeLines[1]);
-
-    const t1 = first.timestamp || first.ts || first.created_at;
-    const t2 = last.timestamp || last.ts || last.created_at;
-
-    if (t1 && t2) {
-      const d1 = new Date(t1).getTime();
-      const d2 = new Date(t2).getTime();
-      if (!isNaN(d1) && !isNaN(d2) && d2 > d1) {
-        return formatDuration(d2 - d1);
-      }
-    }
-  } catch { /* ignore */ }
-  return '';
-}
-
 // ── CLI commands ─────────────────────────────────────────────────────────────
 
 function printHelp(): void {
   process.stdout.write(`Usage:
   cc-fusion              Render statusline from Claude Code stdin
-  cc-fusion config       Interactive TUI configuration
-  cc-fusion init         CLI-based configuration (first-time setup)
   cc-fusion --help       Show this help
   cc-fusion --version    Show version
 `);
 }
 
 function readPackageVersion(): string {
-  const pkg = readConfigFile(join(getProjectDir(), 'package.json'));
-  return typeof pkg?.version === 'string' ? pkg.version : 'unknown';
+  try {
+    const pkgPath = new URL('../package.json', import.meta.url).pathname;
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    return pkg.version || 'unknown';
+  } catch {
+    return 'unknown';
+  }
 }
 
-async function handleCliCommand(command: string | undefined): Promise<boolean> {
+function handleCliCommand(command: string | undefined): boolean {
   if (!command) return false;
-
-  if (command === 'config') {
-    const app = new TUIApp();
-    await app.run();
-    return true;
-  }
-
-  if (command === 'init') {
-    await runConfigureCommand();
-    return true;
-  }
 
   if (command === '--help' || command === '-h' || command === 'help') {
     printHelp();
@@ -131,69 +63,58 @@ async function handleCliCommand(command: string | undefined): Promise<boolean> {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-async function main(): Promise<void> {
-  if (await handleCliCommand(process.argv[2])) return;
+function main(): void {
+  if (handleCliCommand(process.argv[2])) return;
 
-  // 1. Load config, theme, preset, i18n
-  const config = loadConfig();
-  const theme = loadTheme(config.theme);
-  const preset = loadPreset(config.preset);
-  const i18n = loadI18n(config.lang);
-
-  // 2. Parse stdin JSON
+  // 1. Parse stdin JSON
   const rawStdin = readStdin();
   const stdin = parseStdin(rawStdin);
 
   const cwd = getCwd(stdin);
-  const sessionId = getSessionId(stdin);
 
-  // 3. Collect git info
+  // 2. Collect git info
   const git = getGitInfo(cwd);
 
-  // 4. Find and parse transcript
-  const transcriptPath = config.showTranscript
-    ? findTranscript(sessionId, cwd, getTranscriptPath(stdin))
-    : null;
-  const tools = parseTranscript(transcriptPath);
+  // 3. Parse transcript (mock for now - will be implemented later)
+  const tools: ToolStats = {
+    lastRead: undefined,
+    lastEdit: undefined,
+    lastSearch: undefined,
+    agents: [],
+    todos: [],
+    totalTodos: 0,
+    doneTodos: 0,
+  };
 
-  // 5. Build render context
-  const model = simplifyModel(
-    stdin.model?.display_name,
-    stdin.model?.id
-  );
-  const dir = shortenDir(cwd, process.env.HOME);
+  // 4. Build render context
+  const model = simplifyModel(stdin.model?.display_name, stdin.model?.id);
+  const project = getProjectName(cwd);
   const contextPct = calcContextPct(stdin);
-  const usagePct = calcUsagePct(stdin);
-  const costUsd = stdin.cost?.total_cost_usd ?? null;
-  const duration = estimateDuration(transcriptPath);
-  const effort = getEffortLevel(stdin) || '';
+
+  // Calculate token usage
+  const contextWindow = stdin.context_window;
+  const totalInput = contextWindow?.total_input_tokens || 0;
+  const totalOutput = contextWindow?.total_output_tokens || 0;
+  const contextSize = contextWindow?.context_window_size || 200000;
+  const contextUsed = formatTokens(totalInput + totalOutput);
+  const contextTotal = formatTokens(contextSize);
 
   const rc: RenderContext = {
     stdin,
     git,
     tools,
-    theme,
-    preset,
-    config,
-    i18n,
     model,
-    dir,
+    project,
     contextPct,
-    usagePct,
-    costUsd,
-    duration,
-    effort,
+    contextUsed,
+    contextTotal,
   };
 
-  // 6. Render and output
+  // 5. Render and output
   const output = render(rc);
   if (output) {
     process.stdout.write(output + '\n');
   }
 }
 
-main().catch(error => {
-  const message = error instanceof Error ? error.message : String(error);
-  process.stderr.write(`cc-fusion failed: ${message}\n`);
-  process.exitCode = 1;
-});
+main();

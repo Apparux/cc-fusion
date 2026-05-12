@@ -1,70 +1,30 @@
 # CC-Fusion
 
-> **Claude Code 状态栏** — 融合 [CCometixLine](https://github.com/Haleclipse/CCometixLine) 的视觉美学与 [Claude HUD](https://github.com/jarrodwatts/claude-hud) 的全功能。
+> **Claude Code 5 行状态栏** — 为 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 设计的极简、富含 emoji 的状态栏，固定 5 行布局，带进度条和实时活动追踪。
 
-一个 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的 TypeScript 插件，在终端底部渲染丰富的多行状态栏——将精致的 Nerd Font 图标、TOML 主题系统、交通灯健康指示器，与 transcript 深度解析、token 明细分解、智能费用隐藏完美结合。
+一个为 Claude Code 设计的 TypeScript CLI，直接在终端渲染彩色 5 行状态栏 — 一目了然地显示模型信息、上下文使用情况、工具活动、Agent 追踪和任务进度。
 
 🌐 [English](README.md) | 中文文档
 
 ---
 
-## 📸 效果预览
-
-**Cometix 主题** — 接近 CCometixLine 的 Nerd Font 风格：
+## 📸 预览
 
 ```
-✒ Opus 4.6 │  ~/project │  main✱ +2 ~1
-󰆼 Ctx ████████████████░░░░ 82% (I120.0k/O35.0k/W8.0k/R40.0k) │ ▦ Use ████████████░░░░░░░░ 62% (重置 2h30m) │ ◆ $0.42 │ ◷ 12m │ ↯ high
-◐ 编辑: auth.ts ×3 ⊙ 读取 ×8 ⌕ 搜索 ×2 ⊕ 1 review-agent ☑ 3/4
+👾 Sonnet 4  |  🧰 cc-fusion  |  🌟 main ✅
+🧠 Context  ● 78.0%  ▓▓▓▓▓▓▓▓▒▒  168.4k / 200.0k tokens  [78.0%]
+⚡ Activity  |  📖 Read src/index.ts  |  ✏️ Edit utils/parser.ts  |  🔍 Search "token limit"  刚刚
+🌀 Agents  |  🟢 Planner 分析需求  |  🟠 Coder 实现功能  |  🔵 Reviewer 审查代码  |  3 运行中
+💤 Tasks  |  ✅ 1/5 需求分析  |  ✅ 2/5 设计方案  |  ⚡ 3/5 编码实现  |  ⏳ 4/5 测试验证  |  🕒 5/5 部署上线  |  40%
 ```
 
-**HUD 主题** — 接近 Claude HUD 的 muted terminal 风格：
+### 5 行布局
 
-```
-◆ Sonnet 4.5 │ ⌂ ~/api-server │ ╱⌁ feature/auth ↑3
-▌ Ctx ██████░░░░░░░░░░░░░░ 31% │ ▌ Use ████████████████░░░░ 82% │ ◆ $0.08 │ ◷ 3m │ ↯ low
-✳ 编辑: handler.go ⊙ 读取 ×2 ⌕ 搜索 ×1
-```
-
-**Neon 主题** — 截图同款紫色 HUD 风格：
-
-```
-◈ Opus 4.7 │ ⌂ …/OwnProject/skills-cc │ ╱⌁ main
-Ctx [█████████░░░░░░░░░░░░░░░] 38% │ $47.28 │ ↯ high
-```
-
-主题控制视觉风格，预设控制行布局。`theme=cometix`、`theme=hud` 或 `theme=neon` 都可以搭配 `preset=full`、`essential`、`minimal`。
-
-**完整模式（Full）— 活动信息分行显示：**
-```
-◈ Opus 4.6 │ ⌂ ~/my-project │ ⎇ main✱ ↑2 ↓1
-◈ Ctx ████████████████░░░░ 82% │ ▦ Use ████████░░░░░░░░░░░░ 42% │ ◆ $0.42 │ ◷ 12m │ ↯ high
-◐ Edit: auth.ts ×3 │ ⊙ Read ×8 │ ⌕ Grep ×2
-⊕ 1 agent
-☑ 3/4 tasks
-```
-
-**核心模式（Essential）— 两行：**
-```
-◈ Opus 4.6 │ ⌂ ~/my-project │ ⎇ main✱
-◈ Ctx ████████████████░░░░ 82% │ ▦ Use ████████░░░░░░░░░░░░ 42% │ ◆ $0.42
-```
-
-**极简模式（Minimal）— 一行：**
-```
-◈ Opus 4.6 │ ◈ Ctx ██████░░░░░░░░░░░░░░ 31%
-```
-
-### 主题展示
-
-| 主题 | 风格 | 主色调 |
-|------|------|--------|
-| `cometix` | CCometixLine 风格 | Nerd Font 图标 + 青绿/亮蓝/亮紫 |
-| `hud` | Claude HUD 风格 | muted terminal + 绿色上下文/用量 + 金色费用 |
-| `neon` | 截图同款 HUD 风格 | 紫色模型 + 方括号薄荷绿进度条 + 金色费用 |
-| `gruvbox` | 暖色复古 | 棕橙 + 黄绿 |
-| `dracula` | 现代暗紫 | 紫色 + 粉色 |
-| `nord` | 北欧冷色 | 冰蓝 + 灰色 |
+1. **核心信息** — 👾 模型 | 🧰 项目 | 🌟 Git 分支 + 状态
+2. **上下文信息** — 🧠 Token 使用情况，带进度条和百分比
+3. **工具活动** — ⚡ 最近的文件读取、编辑和搜索
+4. **Agent 追踪** — 🌀 运行中的子 Agent 及状态指示器
+5. **待办进度** — 💤 任务完成进度及状态图标
 
 ---
 
@@ -74,15 +34,7 @@ Ctx [█████████░░░░░░░░░░░░░░░] 3
 
 - **Node.js** ≥ 18
 - **Claude Code** CLI 已安装
-- **Nerd Font** 字体（用于图标显示）— 推荐：[Maple Font](https://github.com/subframe7536/maple-font)（支持中文的 Nerd Font）或 [JetBrains Mono Nerd Font](https://www.nerdfonts.com/)
-
-### 快速安装（推荐）
-
-一行命令，自动 clone、自动编译：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
-```
+- **Nerd Font**（用于图标）— 推荐：[JetBrains Mono Nerd Font](https://www.nerdfonts.com/)
 
 ### 通过 npm 安装
 
@@ -90,61 +42,21 @@ curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/instal
 npm install -g cc-fusion
 ```
 
-然后配置 Claude Code（见下方）。搞定！
-
 ### 手动安装（从源码）
 
 ```bash
-# 克隆仓库
+# 克隆
 git clone https://github.com/CanCanNeedNei/cc-fusion.git
 cd cc-fusion
 
-# 安装依赖 & 编译
+# 安装并构建
 npm install
 npm run build
 ```
 
-### 配置
-
-CC-Fusion 提供两种配置方式：
-
-#### 交互式 TUI（推荐）
-
-启动交互式终端用户界面，实时预览配置效果：
-
-```bash
-cc-fusion config
-```
-
-功能特性：
-- **实时预览** — 配置时即时查看状态栏变化
-- **四面板布局** — 预览、主题、预设、设置
-- **键盘导航** — `↑↓` 导航，`Tab` 切换面板，`Enter` 选择，`1-6` 快速切换主题
-- **全配置项可编辑** — 主题、预设、语言、转录解析、进度条宽度、阈值、元素开关
-
-通过 curl 或源码安装时：
-
-```bash
-node ~/.claude/cc-fusion/dist/index.js config
-```
-
-#### CLI 配置（首次设置 / 备选）
-
-在非 TTY 环境或首次初始化时运行引导式 CLI 配置：
-
-```bash
-cc-fusion init
-```
-
-通过 curl 或源码安装时：
-
-```bash
-node ~/.claude/cc-fusion/dist/index.js init
-```
-
 ### 配置 Claude Code
 
-通过 npm 安装时，在 `~/.claude/settings.json` 中添加：
+在 `~/.claude/settings.json` 中添加：
 
 ```json
 {
@@ -156,7 +68,7 @@ node ~/.claude/cc-fusion/dist/index.js init
 }
 ```
 
-通过 curl 或源码安装时，使用本地构建路径：
+对于手动安装，使用本地构建路径：
 
 ```json
 {
@@ -168,325 +80,112 @@ node ~/.claude/cc-fusion/dist/index.js init
 }
 ```
 
-重启 Claude Code 即可生效。
-
-### 卸载 CC-Fusion
-
-通过 npm 安装的：
-
-```bash
-npm uninstall -g cc-fusion
-```
-
-通过 curl 安装的：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash
-```
-
-或者手动卸载：
-
-```bash
-# 删除安装目录
-rm -rf ~/.claude/cc-fusion
-
-# 从 settings.json 中移除 statusLine 配置
-# 打开 ~/.claude/settings.json，删除 statusLine 那一段
-```
-
-### 卸载 CCometixLine
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-ccline.sh | bash
-```
-
-清理内容：npm 全局包 `@cometix/ccline`、`~/.claude/ccline/` 目录、settings.json 中的 statusLine 配置。
-
-### 卸载 Claude HUD
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-claude-hud.sh | bash
-```
-
-清理内容：`~/.claude/plugins/claude-hud/` 目录、settings.json 中的 statusLine 配置。
+重启 Claude Code 即可！
 
 ---
 
-## ⚙️ 配置说明
+## 📊 每行显示内容
 
-### 主配置文件
+### 第 1 行：核心信息
+- **👾 模型** — 简化的模型名称（Opus 4、Sonnet 4、Haiku 4）
+- **🧰 项目** — 当前项目目录名称
+- **🌟 Git** — 分支名称 + 状态（✅ 干净、⚠️ 有修改）
 
-配置加载顺序为：内置默认值、包内 `config.json`、当前目录 `cc-fusion.config.json`、`~/.claude/cc-fusion/config.json`，最后是 `CC_FUSION_CONFIG` 指定的文件。
+### 第 2 行：上下文使用情况
+- **🧠 Context** — 标签
+- **● 百分比** — 当前上下文使用率
+- **进度条** — 可视化表示（▓▓▓▓▓▓▓▓▒▒）
+- **Token 计数** — 已使用 / 总计 tokens
+- **徽章** — 方括号中的百分比
 
-推荐使用引导式配置创建或更新用户级配置：
+### 第 3 行：工具活动
+- **⚡ Activity** — 标签
+- **📖 Read** — 最后读取的文件
+- **✏️ Edit** — 最后编辑的文件
+- **🔍 Search** — 最后的搜索查询
+- **刚刚** — 时间指示器（空闲时显示"空闲中"）
 
-```bash
-cc-fusion configure
-```
+### 第 4 行：Agent 追踪
+- **🌀 Agents** — 标签
+- **状态点** — 🟢 绿色、🟠 橙色、🔵 蓝色、🟣 紫色、⚪ 白色
+- **Agent 信息** — 名称 + 当前任务
+- **计数** — 运行中的 Agent 数量（空闲时显示"无活动 Agent"）
 
-也可以手动创建 `~/.claude/cc-fusion/config.json`：
-
-```json
-{
-  "theme": "cometix",
-  "preset": "full",
-  "lang": "zh",
-  "hideCostFor": ["bedrock", "vertex"],
-  "usageThreshold": 80,
-  "tokenBreakdownThreshold": 85,
-  "barWidth": 20,
-  "showTranscript": true,
-  "elements": {
-    "usage": true,
-    "agents": true
-  }
-}
-```
-
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `theme` | `string` | `"cometix"` | 主题名称（对应 `themes/<name>.toml`） |
-| `preset` | `string` | `"full"` | 显示预设：`full`、`essential`、`minimal` |
-| `lang` | `string` | `"en"` | 语言：`en`（英文）或 `zh`（中文） |
-| `hideCostFor` | `string[]` | `["bedrock","vertex"]` | 费用为 $0 时隐藏费用的提供商列表 |
-| `usageThreshold` | `number` | `80` | 真实 usage/rate-limit 百分比 ≥ 此值时才显示用量栏 |
-| `tokenBreakdownThreshold` | `number` | `85` | 上下文 ≥ 此值时展开 token 明细 |
-| `barWidth` | `number` | `20` | 进度条宽度（字符数） |
-| `showTranscript` | `boolean` | `true` | 是否解析 transcript 获取工具/Agent/待办信息 |
-| `elements` | `object` | 未设置 | 将元素设为 `false` 可隐藏，例如 `{ "cost": false }` |
-
-### 预设系统
-
-预设控制哪些元素显示以及在哪一行。每个预设是一个 JSON 文件，包含 `lines` 数组：
-
-```json
-{
-  "name": "full",
-  "lines": [
-    ["model", "dir", "git"],
-    ["context", "usage", "cost", "duration", "effort"],
-    ["tools"],
-    ["agents"],
-    ["todos"]
-  ]
-}
-```
-
-**可用元素：**
-
-| 元素 | 说明 |
-|------|------|
-| `model` | 简化的模型名称（◈ Opus 4.6） |
-| `dir` | 缩短的工作目录 |
-| `git` | Git 分支 + dirty + ahead/behind + 文件统计 |
-| `context` | 上下文进度条 + 百分比（交通灯变色） |
-| `usage` | 真实 usage/rate-limit 进度条 + 重置倒计时（Claude Code 提供数据时显示） |
-| `cost` | 会话费用（美元） |
-| `duration` | 会话时长 |
-| `effort` | 推理强度等级（带颜色编码） |
-| `tools` | 工具调用统计（编辑、读取、搜索等） |
-| `agents` | 已启动的子 Agent 数量 |
-| `todos` | 待办进度（已完成/总数） |
-
-### 内置预设
-
-| 预设 | 行数 | 包含元素 |
-|------|------|----------|
-| `full` | 3 | 全部元素 |
-| `essential` | 2 | 模型、Git、上下文、用量、费用 |
-| `minimal` | 1 | 模型、上下文 |
-
----
-
-## 🎨 主题自定义
-
-主题是 `themes/` 目录下的 TOML 文件，每个主题定义一套颜色和图标。用户主题可以放在 `~/.claude/cc-fusion/themes/<name>.toml` 覆盖内置主题。
-
-### 内置主题
-
-| 主题 | 风格 | 说明 |
-|------|------|------|
-| `cometix` | CCometixLine 风格 | Nerd Font 图标 + 青绿/亮蓝/亮紫配色 |
-| `hud` | Claude HUD 风格 | muted terminal、绿色上下文/用量、金色费用、红色强度 |
-| `neon` | 截图同款 HUD 风格 | 紫色模型、方括号薄荷绿进度条、金色费用、红色强度、橙色 Git |
-| `gruvbox` | 暖色复古 | 棕橙 + 黄绿配色 |
-| `dracula` | 现代暗紫 | 紫色 + 粉色配色 |
-| `nord` | 北欧冷色 | 冰蓝 + 灰色配色 |
-
-### 主题结构
-
-```toml
-name = "my-theme"
-
-[colors]
-modelColor = "cyan"
-dirColor = "blue"
-gitColor = "green"
-contextColor = "cyan"
-usageColor = "blue"
-costColor = "gold"
-effortColor = "yellow"
-toolColor = "magenta"
-agentColor = "brightMagenta"
-todoColor = "green"
-separatorColor = "dim"
-barFill = "cyan"
-barEmpty = "dim"
-
-[icons]
-model = "◈"
-git = "⎇"
-gitDirty = "✱"
-dir = "⌂"
-effort = "↯"
-tool = "◐"
-grep = "⌕"
-read = "⊙"
-write = "✎"
-bash = "›_"
-agent = "⊕"
-todo = "☐"
-todoDone = "☑"
-cost = "◆"
-clock = "◷"
-context = "◈"
-usage = "▦"
-web = "⊕"
-separator = "│"
-```
-
-### 可用颜色
-
-| 名称 | ANSI 码 | 预览 |
-|------|---------|------|
-| `red` | `\x1b[31m` | 🔴 红色 |
-| `green` | `\x1b[32m` | 🟢 绿色 |
-| `yellow` | `\x1b[33m` | 🟡 黄色 |
-| `blue` | `\x1b[34m` | 🔵 蓝色 |
-| `magenta` | `\x1b[35m` | 🟣 紫色 |
-| `cyan` | `\x1b[36m` | 🩵 青色 |
-| `white` | `\x1b[37m` | ⚪ 白色 |
-| `brightBlue` | `\x1b[94m` | 💠 亮蓝 |
-| `brightMagenta` | `\x1b[95m` | 💜 亮紫 |
-| `orange` | `\x1b[38;5;208m` | 🟠 橙色 |
-| `gold` | `\x1b[38;5;220m` | 🟨 金色 |
-
-### 创建自定义主题
-
-1. 复制现有主题：`cp themes/cometix.toml themes/my-theme.toml`
-2. 编辑颜色和图标
-3. 在 `~/.claude/cc-fusion/config.json` 中设置 `"theme": "my-theme"`
-
----
-
-## 🚦 交通灯系统
-
-所有健康指示器使用统一的交通灯配色：
-
-| 指标 | 🟢 绿色 | 🟡 黄色 | 🔴 红色 |
-|------|---------|---------|---------|
-| 上下文已用（Context） | < 50%（余量充足） | 50–80%（开始紧张） | ≥ 80%（快满了） |
-| 用量/限流已用（Usage） | < 50%（额度充足） | 50–80%（注意控制） | ≥ 80%（快用完了） |
-| 推理强度（Effort） | low（轻松） | medium（适中） | high（高压） |
-
-> **说明：** 上下文是已使用窗口百分比，高上下文表示 prompt 接近模型窗口上限。Usage 只有在 Claude Code 提供真实 usage 或 rate-limit 数据时显示。
+### 第 5 行：任务进度
+- **💤 Tasks** — 标签
+- **状态图标** — ✅ 完成、⚡ 进行中、⏳ 待办、🕒 未开始
+- **任务列表** — ID/总数 + 任务名称
+- **进度** — 总体完成百分比（空闲时显示"无待办任务"）
 
 ---
 
 ## 🔍 数据来源
 
-### 1. Claude Code stdin JSON（主要数据源）
-
-Claude Code 在每次提示时通过 stdin 管道传入 JSON，包含：
+### 1. Claude Code Stdin JSON
+主要数据源，每次提示时从 Claude Code 管道传入：
 - 模型信息（名称、ID）
-- 上下文窗口（输入/输出/缓存 token 数，最大窗口大小）
-- 费用（总美元花费）
-- 推理强度等级
-- 工作目录、Git 分支/状态
+- 上下文窗口（输入/输出/缓存 tokens、最大大小）
+- 工作目录
 - 会话 ID
-- Claude Code 提供时的 usage/rate-limit 百分比与重置时间
 
-### 2. Transcript JSONL（活动数据源）
-
-从 `~/.claude/projects/` 下的 Claude Code transcript JSONL 解析：
-- 工具调用记录（Edit、MultiEdit、Write、Read、NotebookRead/Edit、Grep、Glob、Bash、WebFetch、WebSearch 等）
-- 子 Agent 启动数量和最近 agent 标签
-- Claude Code 任务工具（`TaskCreate`/`TaskUpdate`）的待办进度，并保留 `TodoWrite input.todos` 和 Markdown checkbox 作为 fallback
-- 会话时长（首条 → 末条消息时间戳）
-
-### 3. Git CLI（项目信息）
-
-通过 `git` 命令采集：
+### 2. Git CLI
+通过 `git` 命令收集：
 - 当前分支
-- Dirty 状态（是否有未提交的更改）
-- 领先/落后远程分支
-- 暂存、未暂存、未跟踪的文件数
+- 脏状态（未提交的更改）
 
----
-
-## 📁 文件结构
-
-```
-cc-fusion/
-├── package.json          # 项目配置
-├── tsconfig.json         # TypeScript 配置
-├── src/
-│   ├── index.ts          # 入口：读取 stdin → 解析 → 渲染 → 输出
-│   ├── types.ts          # TypeScript 类型定义
-│   ├── config.ts         # 配置 + TOML 主题 + 预设加载
-│   ├── stdin.ts          # 解析 Claude Code stdin JSON
-│   ├── transcript.ts     # 解析 transcript JSONL
-│   ├── git.ts            # Git 信息采集（child_process）
-│   ├── render.ts         # 主渲染引擎（组合所有元素）
-│   ├── context.ts        # 上下文进度条 + 交通灯
-│   ├── usage.ts          # 用量进度条 + 交通灯
-│   ├── cost.ts           # 费用显示 + 智能隐藏
-│   ├── effort.ts         # 推理强度 + 颜色
-│   ├── i18n.ts           # 国际化加载器
-│   └── utils.ts          # ANSI 颜色、进度条、工具函数
-├── themes/
-│   ├── cometix.toml      # CCometixLine 风格（默认）
-│   ├── hud.toml          # Claude HUD 风格
-│   ├── neon.toml         # 截图同款 HUD 风格
-│   ├── gruvbox.toml      # 暖色复古
-│   ├── dracula.toml      # 现代暗紫
-│   └── nord.toml         # 北欧冷色
-├── presets/
-│   ├── full.json         # 完整多行布局
-│   ├── essential.json    # 核心两行
-│   └── minimal.json      # 极简一行
-├── i18n/
-│   ├── en.json           # 英文
-│   └── zh.json           # 中文
-└── README.md
-```
-
----
-
-## 🌍 国际化
-
-CC-Fusion 开箱支持英文和中文。在 `~/.claude/cc-fusion/config.json` 中设置 `"lang": "zh"` 即可切换中文。
-
-### 添加新语言
-
-1. 复制 `i18n/en.json` 为 `i18n/<语言代码>.json`
-2. 翻译其中的值
-3. 在 `config.json` 中设置 `"lang": "<语言代码>"`
+### 3. Transcript JSONL
+从 `~/.claude/projects/` 的 transcript 文件解析：
+- 工具调用（Read、Edit、Grep 等）
+- Agent 生成
+- 任务进度
 
 ---
 
 ## 🛠️ 开发
 
 ```bash
-# 监听模式（自动编译）
+# 监视模式
 npm run dev
 
-# 编译
+# 构建
 npm run build
 
-# 用示例 stdin 测试
-echo '{"model":{"display_name":"Opus 4.6","id":"claude-opus-4-6"},"context_window":{"input_tokens":45000,"output_tokens":12000},"max_context_window_size":200000,"usage":{"percent":82,"reset_at":"2099-01-01T00:00:00Z"},"cost":{"total_cost_usd":0.42},"effortLevel":"high","cwd":"/home/user/project","sessionId":"test123"}' | node dist/index.js
+# 使用示例 stdin 测试
+printf '{"model":{"display_name":"Claude Sonnet 4","id":"claude-sonnet-4"},"context_window":{"total_input_tokens":156400,"total_output_tokens":12000,"context_window_size":200000,"used_percentage":78.2},"cwd":"/Users/user/project"}' | node dist/index.js
 ```
+
+---
+
+## 📁 架构
+
+```
+cc-fusion/
+├── src/
+│   ├── index.ts          # 入口点：读取 stdin、渲染、输出
+│   ├── types.ts          # TypeScript 接口
+│   ├── colors.ts         # ANSI 颜色代码
+│   ├── utils.ts          # 进度条、格式化器
+│   ├── stdin.ts          # 解析 Claude Code stdin JSON
+│   ├── git.ts            # 通过 child_process 获取 Git 信息
+│   ├── transcript.ts     # 解析 transcript JSONL
+│   ├── render.ts         # 主渲染器（组合 5 行）
+│   └── lines/
+│       ├── line1.ts      # 核心信息渲染器
+│       ├── line2.ts      # 上下文渲染器
+│       ├── line3.ts      # 活动渲染器
+│       ├── line4.ts      # Agents 渲染器
+│       └── line5.ts      # Tasks 渲染器
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+### 设计原则
+
+- **固定布局** — 始终 5 行，无需配置
+- **硬编码颜色** — 紫色、橙色、黄色、青色、蓝色调色板
+- **Emoji 优先** — 视觉指示器便于快速扫描
+- **零配置** — 开箱即用
 
 ---
 
@@ -498,6 +197,5 @@ MIT
 
 ## 🙏 致谢
 
-- [CCometixLine](https://github.com/Haleclipse/CCometixLine) — 视觉设计、TOML 主题系统、Nerd Font 图标、预设系统
-- [Claude HUD](https://github.com/jarrodwatts/claude-hud) — Transcript 解析、token 明细分解、usage/rate-limit 显示、智能费用隐藏、国际化、元素排序
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — 本插件所扩展的 AI 编程工具
+- 灵感来自 [CCometixLine](https://github.com/Haleclipse/CCometixLine) 和 [Claude HUD](https://github.com/jarrodwatts/claude-hud)
+- 为 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 构建

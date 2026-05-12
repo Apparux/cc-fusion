@@ -1,8 +1,8 @@
 # CC-Fusion
 
-> **Claude Code Statusline** — The beauty of [CCometixLine](https://github.com/Haleclipse/CCometixLine) fused with the full functionality of [Claude HUD](https://github.com/jarrodwatts/claude-hud).
+> **Claude Code 5-Line Statusline** — A minimalist, emoji-rich statusline for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with fixed 5-line layout, progress bars, and real-time activity tracking.
 
-A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that renders a rich, colorful multi-line statusline directly in your terminal — combining gorgeous Nerd Font icons, TOML themes, and traffic-light health indicators with deep transcript parsing, token breakdowns, and smart cost hiding.
+A TypeScript CLI for Claude Code that renders a colorful 5-line statusline directly in your terminal — showing model info, context usage, tool activity, agent tracking, and task progress at a glance.
 
 🌐 English | [中文文档](README.zh.md)
 
@@ -10,52 +10,21 @@ A TypeScript plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-
 
 ## 📸 Preview
 
-**Cometix theme** — CCometixLine-inspired Nerd Font style:
-
 ```
-✒ Opus 4.6 │  ~/project │  main✱ +2 ~1
-󰆼 Ctx ████████████████░░░░ 82% (I120.0k/O35.0k/W8.0k/R40.0k) │ ▦ Use ████████████░░░░░░░░ 62% (reset 2h30m) │ ◆ $0.42 │ ◷ 12m │ ↯ high
-◐ Edit: auth.ts ×3 ⊙ Read ×8 ⌕ Grep ×2 ⊕ 1 review-agent ☑ 3/4
-```
-
-**HUD theme** — Claude HUD-inspired muted terminal style:
-
-```
-◆ Sonnet 4.5 │ ⌂ ~/api-server │ ╱⌁ feature/auth ↑3
-▌ Ctx ██████░░░░░░░░░░░░░░ 31% │ ▌ Use ████████████████░░░░ 82% │ ◆ $0.08 │ ◷ 3m │ ↯ low
-✳ Edit: handler.go ⊙ Read ×2 ⌕ Grep ×1
+👾 Sonnet 4  |  🧰 cc-fusion  |  🌟 main ✅
+🧠 Context  ● 78.0%  ▓▓▓▓▓▓▓▓▒▒  168.4k / 200.0k tokens  [78.0%]
+⚡ Activity  |  📖 Read src/index.ts  |  ✏️ Edit utils/parser.ts  |  🔍 Search "token limit"  刚刚
+🌀 Agents  |  🟢 Planner 分析需求  |  🟠 Coder 实现功能  |  🔵 Reviewer 审查代码  |  3 运行中
+💤 Tasks  |  ✅ 1/5 需求分析  |  ✅ 2/5 设计方案  |  ⚡ 3/5 编码实现  |  ⏳ 4/5 测试验证  |  🕒 5/5 部署上线  |  40%
 ```
 
-**Neon theme** — screenshot-inspired purple HUD style:
+### 5-Line Layout
 
-```
-◈ Opus 4.7 │ ⌂ …/OwnProject/skills-cc │ ╱⌁ main
-Ctx [█████████░░░░░░░░░░░░░░░] 38% │ $47.28 │ ↯ high
-```
-
-Themes control visual style; presets control line layout. You can use `theme=cometix`, `theme=hud`, or `theme=neon` with `preset=full`, `essential`, or `minimal`.
-
-### Preset Variants
-
-**Full** (default — separate activity rows):
-```
-◈ Opus 4.6 │ ⌂ ~/my-app │ ⎇ main✱ ↑1
-◈ Ctx ████████████████░░░░ 82%  ▦ Use ████████░░░░░░░░░░░░ 42%  ◆ $0.31  ◷ 8m  ↯ medium
-◐ Edit: index.ts ×2  ⊙ Read ×5  ⌕ Grep ×1
-⊕ 1 review-agent
-☐ 2/4
-```
-
-**Essential** (2 lines — model + git, context + usage + cost):
-```
-◈ Opus 4.6 │ ⎇ main✱
-◈ Ctx ████████████████░░░░ 82%  ▦ Use ████████░░░░░░░░░░░░ 42%  ◆ $0.31
-```
-
-**Minimal** (1 line — model + context):
-```
-◈ Opus 4.6 │ ◈ Ctx ██████░░░░░░░░░░░░░░ 31%
-```
+1. **核心信息** (Core Info) — 👾 Model | 🧰 Project | 🌟 Git branch + status
+2. **上下文信息** (Context) — 🧠 Token usage with progress bar and percentage
+3. **工具活动** (Activity) — ⚡ Recent file reads, edits, and searches
+4. **Agent 追踪** (Agents) — 🌀 Running sub-agents with status indicators
+5. **待办进度** (Tasks) — 💤 Task completion progress with status icons
 
 ---
 
@@ -64,25 +33,14 @@ Themes control visual style; presets control line layout. You can use `theme=com
 ### Prerequisites
 
 - **Node.js** ≥ 18
-- **TypeScript** (dev dependency)
 - **Claude Code** CLI installed
 - **Nerd Font** (for icons) — recommended: [JetBrains Mono Nerd Font](https://www.nerdfonts.com/)
-
-### Quick Install (Recommended)
-
-One-liner — auto clone, auto build:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/install.sh | bash
-```
 
 ### Install via npm
 
 ```bash
 npm install -g cc-fusion
 ```
-
-Then configure Claude Code (see below). That's it!
 
 ### Manual Install (from source)
 
@@ -96,47 +54,9 @@ npm install
 npm run build
 ```
 
-### Configuration
-
-CC-Fusion offers two configuration methods:
-
-#### Interactive TUI (Recommended)
-
-Launch the interactive Terminal User Interface for real-time preview and easy configuration:
-
-```bash
-cc-fusion config
-```
-
-Features:
-- **Real-time preview** — see statusline changes as you configure
-- **Four-panel layout** — Preview, Themes, Presets, Settings
-- **Keyboard navigation** — `↑↓` to navigate, `Tab` to switch panels, `Enter` to select, `1-6` for quick theme switch
-- **All options editable** — themes, presets, language, transcript parsing, bar width, thresholds, element toggles
-
-For curl/source installs:
-
-```bash
-node ~/.claude/cc-fusion/dist/index.js config
-```
-
-#### CLI Configuration (First-time setup / Fallback)
-
-Run the guided CLI setup for non-TTY environments or first-time initialization:
-
-```bash
-cc-fusion init
-```
-
-For curl/source installs:
-
-```bash
-node ~/.claude/cc-fusion/dist/index.js init
-```
-
 ### Configure Claude Code
 
-For npm installs, add this to your `~/.claude/settings.json`:
+Add this to your `~/.claude/settings.json`:
 
 ```json
 {
@@ -148,7 +68,7 @@ For npm installs, add this to your `~/.claude/settings.json`:
 }
 ```
 
-For curl/source installs, use the local build path instead:
+For manual installs, use the local build path:
 
 ```json
 {
@@ -162,308 +82,62 @@ For curl/source installs, use the local build path instead:
 
 Restart Claude Code and you're done!
 
-### Uninstall CC-Fusion
-
-If installed via npm:
-
-```bash
-npm uninstall -g cc-fusion
-```
-
-If installed via curl (one-liner):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/uninstall.sh | bash
-```
-
-Or manually:
-
-```bash
-# Remove installation directory
-rm -rf ~/.claude/cc-fusion
-
-# Remove statusLine from settings.json
-# Open ~/.claude/settings.json and delete the statusLine block
-```
-
-### Uninstall CCometixLine
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-ccline.sh | bash
-```
-
-Cleans up: npm global package `@cometix/ccline`, `~/.claude/ccline/`, and `statusLine` from settings.json.
-
-### Uninstall Claude HUD
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/CanCanNeedNei/cc-fusion/main/scripts/uninstall-claude-hud.sh | bash
-```
-
-Cleans up: `~/.claude/plugins/claude-hud/` and `statusLine` from settings.json.
-
 ---
 
-## ⚙️ Configuration
+## 📊 What Each Line Shows
 
-### Main Config
+### Line 1: Core Info
+- **👾 Model** — Simplified model name (Opus 4, Sonnet 4, Haiku 4)
+- **🧰 Project** — Current project directory name
+- **🌟 Git** — Branch name + status (✅ clean, ⚠️ dirty)
 
-Config is loaded in this order: built-in defaults, package `config.json`, current directory `cc-fusion.config.json`, `~/.claude/cc-fusion/config.json`, then `CC_FUSION_CONFIG` if set.
+### Line 2: Context Usage
+- **🧠 Context** — Label
+- **● Percentage** — Current context usage
+- **Progress bar** — Visual representation (▓▓▓▓▓▓▓▓▒▒)
+- **Token count** — Used / Total tokens
+- **Badge** — Percentage in brackets
 
-The recommended way to create or update user-level config is:
+### Line 3: Tool Activity
+- **⚡ Activity** — Label
+- **📖 Read** — Last file read
+- **✏️ Edit** — Last file edited
+- **🔍 Search** — Last search query
+- **刚刚** — Time indicator (shows "空闲中" when idle)
 
-```bash
-cc-fusion configure
-```
+### Line 4: Agent Tracking
+- **🌀 Agents** — Label
+- **Status dots** — 🟢 Green, 🟠 Orange, 🔵 Blue, 🟣 Purple, ⚪ White
+- **Agent info** — Name + current task
+- **Count** — Number of running agents (shows "无活动 Agent" when idle)
 
-Manual configuration is still supported. Create `~/.claude/cc-fusion/config.json`:
-
-```json
-{
-  "theme": "cometix",
-  "preset": "full",
-  "lang": "en",
-  "hideCostFor": ["bedrock", "vertex"],
-  "usageThreshold": 80,
-  "tokenBreakdownThreshold": 85,
-  "barWidth": 20,
-  "showTranscript": true,
-  "elements": {
-    "usage": true,
-    "agents": true
-  }
-}
-```
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `theme` | `string` | `"cometix"` | Theme name (matches `themes/<name>.toml`) |
-| `preset` | `string` | `"full"` | Display preset: `full`, `essential`, `minimal` |
-| `lang` | `string` | `"en"` | Language: `en` or `zh` |
-| `hideCostFor` | `string[]` | `["bedrock","vertex"]` | Providers where cost is hidden when $0 |
-| `usageThreshold` | `number` | `80` | Only show real usage/rate-limit bar when ≥ this % |
-| `tokenBreakdownThreshold` | `number` | `85` | Show I/O/cache breakdown when context ≥ this % |
-| `barWidth` | `number` | `20` | Progress bar width in characters |
-| `showTranscript` | `boolean` | `true` | Parse transcript for tools/agents/todos |
-| `elements` | `object` | unset | Set an element to `false` to hide it, e.g. `{ "cost": false }` |
-
-### Presets
-
-Presets control which elements appear and on which line. Each preset is a JSON file with a `lines` array of arrays:
-
-```json
-{
-  "name": "full",
-  "lines": [
-    ["model", "dir", "git"],
-    ["context", "usage", "cost", "duration", "effort"],
-    ["tools"],
-    ["agents"],
-    ["todos"]
-  ]
-}
-```
-
-**Available elements:**
-
-| Element | Description |
-|---------|-------------|
-| `model` | Simplified model name (◈ Opus 4.6) |
-| `dir` | Shortened working directory |
-| `git` | Branch + dirty + ahead/behind + file stats |
-| `context` | Context progress bar + % (with traffic-light) |
-| `usage` | Real usage/rate-limit bar + reset countdown when Claude Code provides usage data |
-| `cost` | Session cost in USD |
-| `duration` | Session duration estimate |
-| `effort` | Effort level with color coding |
-| `tools` | Tool call breakdown (Edit, Read, Grep, etc.) |
-| `agents` | Number of sub-agents spawned |
-| `todos` | Todo progress (done/total) |
-
-### Built-in Presets
-
-| Preset | Lines | Elements |
-|--------|-------|----------|
-| `full` | 3 | All elements |
-| `essential` | 2 | model, git, context, usage, cost |
-| `minimal` | 1 | model, context |
-
----
-
-## 🎨 Theme Customization
-
-Themes are TOML files in the `themes/` directory. Each theme defines a color palette and icon set. User themes can override built-ins from `~/.claude/cc-fusion/themes/<name>.toml`.
-
-### Built-in Themes
-
-| Theme | Style | Notes |
-|-------|-------|-------|
-| `cometix` | CCometixLine-inspired | Nerd Font icons, cyan/green/bright-blue/bright-magenta palette |
-| `hud` | Claude HUD-inspired | Muted terminal look, green context/usage, gold cost, red effort |
-| `neon` | Screenshot-inspired HUD | Purple model, bracketed mint bar, gold cost, red effort, orange git |
-| `gruvbox` | Warm retro | Brown/orange/yellow-green palette |
-| `dracula` | Modern dark purple | Purple/pink palette |
-| `nord` | Nordic cold | Ice-blue/gray palette |
-
-### Theme Structure
-
-```toml
-name = "my-theme"
-
-[colors]
-modelColor = "cyan"
-dirColor = "blue"
-gitColor = "green"
-contextColor = "cyan"
-usageColor = "blue"
-costColor = "gold"
-effortColor = "yellow"
-toolColor = "magenta"
-agentColor = "brightMagenta"
-todoColor = "green"
-separatorColor = "dim"
-barFill = "cyan"
-barEmpty = "dim"
-
-[icons]
-model = "◈"
-git = "⎇"
-gitDirty = "✱"
-dir = "⌂"
-effort = "↯"
-tool = "◐"
-grep = "⌕"
-read = "⊙"
-write = "✎"
-bash = "›_"
-agent = "⊕"
-todo = "☐"
-todoDone = "☑"
-cost = "◆"
-clock = "◷"
-context = "◈"
-usage = "▦"
-web = "⊕"
-separator = "│"
-```
-
-### Available Color Names
-
-| Name | ANSI Code | Preview |
-|------|-----------|---------|
-| `red` | `\x1b[31m` | 🔴 |
-| `green` | `\x1b[32m` | 🟢 |
-| `yellow` | `\x1b[33m` | 🟡 |
-| `blue` | `\x1b[34m` | 🔵 |
-| `magenta` | `\x1b[35m` | 🟣 |
-| `cyan` | `\x1b[36m` | 🩵 |
-| `white` | `\x1b[37m` | ⚪ |
-| `brightBlue` | `\x1b[94m` | 💠 |
-| `brightMagenta` | `\x1b[95m` | 💜 |
-| `orange` | `\x1b[38;5;208m` | 🟠 |
-| `gold` | `\x1b[38;5;220m` | 🟨 |
-
-### Creating a Custom Theme
-
-1. Copy an existing theme: `cp themes/cometix.toml themes/my-theme.toml`
-2. Edit colors and icons
-3. Set `"theme": "my-theme"` in `~/.claude/cc-fusion/config.json`
-
----
-
-## 🚦 Traffic-Light System
-
-All health indicators use a unified traffic-light coloring:
-
-| Metric | 🟢 Green | 🟡 Yellow | 🔴 Red |
-|--------|----------|-----------|--------|
-| Context used | < 50% | 50–80% | ≥ 80% |
-| Usage/rate-limit used | < 50% | 50–80% | ≥ 80% |
-| Effort | low/none | medium | high |
-
-> **Note:** Context is a used-window percentage, so high context means the prompt is close to the model limit. Usage is only shown when Claude Code provides real usage or rate-limit data.
+### Line 5: Task Progress
+- **💤 Tasks** — Label
+- **Status icons** — ✅ Done, ⚡ Current, ⏳ Pending, 🕒 Future
+- **Task list** — ID/Total + task name
+- **Progress** — Overall completion percentage (shows "无待办任务" when idle)
 
 ---
 
 ## 🔍 Data Sources
 
 ### 1. Claude Code Stdin JSON
-
-The primary data source. Claude Code pipes JSON to stdin on every prompt, containing:
+Primary data source piped from Claude Code on every prompt:
 - Model info (name, ID)
 - Context window (input/output/cache tokens, max size)
-- Cost (total USD)
-- Effort level
-- Working directory, git branch/status
+- Working directory
 - Session ID
-- Usage/rate-limit percent and reset time when Claude Code provides it
 
-### 2. Transcript JSONL
-
-Parsed from Claude Code transcript JSONL paths under `~/.claude/projects/`:
-- Tool calls (Edit, MultiEdit, Write, Read, NotebookRead/Edit, Grep, Glob, Bash, WebFetch, WebSearch, etc.)
-- Agent spawn count and latest agent label
-- Todo progress from Claude Code task tools (`TaskCreate`/`TaskUpdate`), with `TodoWrite input.todos` and Markdown checkbox fallbacks
-- Session duration (first → last timestamp)
-
-### 3. Git CLI
-
+### 2. Git CLI
 Collected via `git` commands:
 - Current branch
-- Dirty state (any uncommitted changes)
-- Ahead/behind upstream
-- Staged, unstaged, untracked file counts
+- Dirty state (uncommitted changes)
 
----
-
-## 📁 File Structure
-
-```
-cc-fusion/
-├── package.json          # Project config
-├── tsconfig.json         # TypeScript config
-├── src/
-│   ├── index.ts          # Entry: read stdin, parse, render, write stdout
-│   ├── types.ts          # TypeScript interfaces
-│   ├── config.ts         # Config + TOML theme + preset loading
-│   ├── stdin.ts          # Parse Claude Code stdin JSON
-│   ├── transcript.ts     # Parse transcript JSONL
-│   ├── git.ts            # Git info via child_process
-│   ├── render.ts         # Main render engine (composes all elements)
-│   ├── context.ts        # Context bar + traffic-light
-│   ├── usage.ts          # Usage bar + traffic-light
-│   ├── cost.ts           # Cost display + smart hiding
-│   ├── effort.ts         # Effort level + color
-│   ├── i18n.ts           # Internationalization loader
-│   └── utils.ts          # ANSI colors, progress bar, helpers
-├── themes/
-│   ├── cometix.toml      # CCometixLine-inspired (default)
-│   ├── hud.toml          # Claude HUD-inspired
-│   ├── neon.toml         # Screenshot-inspired HUD
-│   ├── gruvbox.toml      # Warm retro
-│   ├── dracula.toml      # Modern purple
-│   └── nord.toml         # Nordic cold
-├── presets/
-│   ├── full.json         # Full multi-line layout
-│   ├── essential.json    # 2 lines
-│   └── minimal.json      # 1 line
-├── i18n/
-│   ├── en.json           # English
-│   └── zh.json           # Chinese
-└── README.md
-```
-
----
-
-## 🌍 国际化 / Internationalization
-
-CC-Fusion supports English and Chinese out of the box. Set `"lang": "zh"` in `config.json` to switch.
-
-### Adding a New Language
-
-1. Copy `i18n/en.json` to `i18n/<lang>.json`
-2. Translate the values
-3. Set `"lang": "<lang>"` in `config.json`
+### 3. Transcript JSONL
+Parsed from `~/.claude/projects/` transcript files:
+- Tool calls (Read, Edit, Grep, etc.)
+- Agent spawns
+- Task progress
 
 ---
 
@@ -477,8 +151,41 @@ npm run dev
 npm run build
 
 # Test with sample stdin
-echo '{"model":{"display_name":"Opus 4.6","id":"claude-opus-4-6"},"context_window":{"input_tokens":45000,"output_tokens":12000},"max_context_window_size":200000,"usage":{"percent":82,"reset_at":"2099-01-01T00:00:00Z"},"cost":{"total_cost_usd":0.42},"effortLevel":"high","cwd":"/home/user/project","sessionId":"test123"}' | node dist/index.js
+printf '{"model":{"display_name":"Claude Sonnet 4","id":"claude-sonnet-4"},"context_window":{"total_input_tokens":156400,"total_output_tokens":12000,"context_window_size":200000,"used_percentage":78.2},"cwd":"/Users/user/project"}' | node dist/index.js
 ```
+
+---
+
+## 📁 Architecture
+
+```
+cc-fusion/
+├── src/
+│   ├── index.ts          # Entry point: read stdin, render, output
+│   ├── types.ts          # TypeScript interfaces
+│   ├── colors.ts         # ANSI color codes
+│   ├── utils.ts          # Progress bar, formatters
+│   ├── stdin.ts          # Parse Claude Code stdin JSON
+│   ├── git.ts            # Git info via child_process
+│   ├── transcript.ts     # Parse transcript JSONL
+│   ├── render.ts         # Main renderer (composes 5 lines)
+│   └── lines/
+│       ├── line1.ts      # Core info renderer
+│       ├── line2.ts      # Context renderer
+│       ├── line3.ts      # Activity renderer
+│       ├── line4.ts      # Agents renderer
+│       └── line5.ts      # Tasks renderer
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+### Design Principles
+
+- **Fixed layout** — Always 5 lines, no configuration needed
+- **Hardcoded colors** — Purple, orange, yellow, cyan, blue palette
+- **Emoji-first** — Visual indicators for quick scanning
+- **Zero config** — Works out of the box
 
 ---
 
@@ -490,6 +197,5 @@ MIT
 
 ## 🙏 Credits
 
-- [CCometixLine](https://github.com/Haleclipse/CCometixLine) — Visual design, TOML themes, Nerd Font icons, preset system
-- [Claude HUD](https://github.com/jarrodwatts/claude-hud) — Transcript parsing, token breakdowns, usage/rate-limit display, smart cost hiding, i18n, element ordering
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — The AI coding tool this plugin extends
+- Inspired by [CCometixLine](https://github.com/Haleclipse/CCometixLine) and [Claude HUD](https://github.com/jarrodwatts/claude-hud)
+- Built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
