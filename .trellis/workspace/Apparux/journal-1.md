@@ -112,3 +112,36 @@ Added two statusline design images to English and Chinese README preview section
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: Document npm update command
+
+**Date**: 2026-05-12
+**Task**: Document npm update command
+**Branch**: `main`
+
+### Summary
+
+Added npm global update and version verification instructions to both English and Chinese README installation sections; verified with git diff --check.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `fa59a6e` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
