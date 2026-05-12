@@ -63,6 +63,8 @@ export function parseTranscript(filePath, maxLines = 500) {
         let lastRead;
         let lastEdit;
         let lastSearch;
+        const agentMap = new Map();
+        const todoMap = new Map();
         for (const line of tail) {
             let entry;
             try {
@@ -92,16 +94,61 @@ export function parseTranscript(filePath, maxLines = 500) {
                     if (typeof pattern === 'string')
                         lastSearch = pattern;
                 }
+                // Track agents
+                if (name === 'agent' || name === 'task') {
+                    const agentName = tool.input?.subagent_type || tool.input?.description || 'Agent';
+                    const agentId = tool.id;
+                    if (!agentMap.has(agentId)) {
+                        const colors = ['green', 'orange', 'blue', 'purple', 'white'];
+                        const color = colors[agentMap.size % colors.length];
+                        agentMap.set(agentId, {
+                            name: String(agentName).slice(0, 20),
+                            status: '运行中',
+                            color,
+                        });
+                    }
+                }
+                // Track todos from TaskCreate/TaskUpdate
+                if (name === 'taskcreate') {
+                    const subject = tool.input?.subject;
+                    if (typeof subject === 'string') {
+                        const taskId = todoMap.size + 1;
+                        todoMap.set(taskId, {
+                            id: taskId,
+                            name: subject.slice(0, 30),
+                            status: 'pending',
+                        });
+                    }
+                }
+                if (name === 'taskupdate') {
+                    const taskId = tool.input?.taskId;
+                    const status = tool.input?.status;
+                    if (typeof taskId === 'string' && typeof status === 'string') {
+                        const id = parseInt(taskId, 10);
+                        const existing = todoMap.get(id);
+                        if (existing) {
+                            if (status === 'completed') {
+                                existing.status = 'done';
+                            }
+                            else if (status === 'in_progress') {
+                                existing.status = 'current';
+                            }
+                        }
+                    }
+                }
             }
         }
+        const agents = Array.from(agentMap.values()).slice(-5); // Keep last 5 agents
+        const todos = Array.from(todoMap.values()).slice(-5); // Keep last 5 todos
+        const doneTodos = todos.filter(t => t.status === 'done').length;
         return {
             lastRead,
             lastEdit,
             lastSearch,
-            agents: [],
-            todos: [],
-            totalTodos: 0,
-            doneTodos: 0,
+            agents,
+            todos,
+            totalTodos: todos.length,
+            doneTodos,
         };
     }
     catch {

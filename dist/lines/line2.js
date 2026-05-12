@@ -14,8 +14,6 @@ export function renderLine2(ctx) {
     parts.push(colorize(bar, COLORS.purple));
     // Token usage
     parts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
-    // Percentage badge
-    parts.push(colorize(`[${ctx.contextPct.toFixed(1)}%]`, COLORS.purple));
     return parts.join('  ');
 }
 //# sourceMappingURL=line2.js.map

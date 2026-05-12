@@ -22,8 +22,5 @@ export function renderLine2(ctx: RenderContext): string {
   // Token usage
   parts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
 
-  // Percentage badge
-  parts.push(colorize(`[${ctx.contextPct.toFixed(1)}%]`, COLORS.purple));
-
   return parts.join('  ');
 }
