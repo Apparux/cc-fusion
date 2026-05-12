@@ -1,0 +1,1 @@
+{"version":3,"file":"help.d.ts","sourceRoot":"","sources":["../../../src/tui/components/help.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,IAAI,EAAE,MAAM,cAAc,CAAC;AAGzC,qBAAa,SAAS;IACpB,MAAM,CAAC,IAAI,EAAE,IAAI,EAAE,YAAY,EAAE,MAAM,GAAG,MAAM,EAAE;IAYlD,OAAO,CAAC,YAAY;IAgBpB,OAAO,CAAC,OAAO;CAMhB"}

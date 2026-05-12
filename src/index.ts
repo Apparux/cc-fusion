@@ -21,6 +21,7 @@ import { findTranscript, parseTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { getProjectDir, loadConfig, loadTheme, loadPreset, readConfigFile } from './config.js';
 import { runConfigureCommand } from './configure.js';
+import { TUIApp } from './tui/app.js';
 import { loadI18n } from './i18n.js';
 import { simplifyModel, shortenDir, formatDuration } from './utils.js';
 import { render } from './render.js';
@@ -86,9 +87,8 @@ function estimateDuration(transcriptPath: string | null): string {
 function printHelp(): void {
   process.stdout.write(`Usage:
   cc-fusion              Render statusline from Claude Code stdin
-  cc-fusion configure    Run guided configuration
-  cc-fusion config       Alias for configure
-  cc-fusion init         Alias for configure
+  cc-fusion config       Interactive TUI configuration
+  cc-fusion init         CLI-based configuration (first-time setup)
   cc-fusion --help       Show this help
   cc-fusion --version    Show version
 `);
@@ -102,7 +102,13 @@ function readPackageVersion(): string {
 async function handleCliCommand(command: string | undefined): Promise<boolean> {
   if (!command) return false;
 
-  if (command === 'configure' || command === 'config' || command === 'init') {
+  if (command === 'config') {
+    const app = new TUIApp();
+    await app.run();
+    return true;
+  }
+
+  if (command === 'init') {
     await runConfigureCommand();
     return true;
   }

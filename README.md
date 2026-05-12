@@ -96,18 +96,42 @@ npm install
 npm run build
 ```
 
-### Guided Configuration
+### Configuration
 
-Run the guided setup any time you install CC-Fusion or want to change theme, preset, language, or display options:
+CC-Fusion offers two configuration methods:
+
+#### Interactive TUI (Recommended)
+
+Launch the interactive Terminal User Interface for real-time preview and easy configuration:
 
 ```bash
-cc-fusion configure
+cc-fusion config
 ```
 
-For curl/source installs, run the local build directly:
+Features:
+- **Real-time preview** — see statusline changes as you configure
+- **Four-panel layout** — Preview, Themes, Presets, Settings
+- **Keyboard navigation** — `↑↓` to navigate, `Tab` to switch panels, `Enter` to select, `1-6` for quick theme switch
+- **All options editable** — themes, presets, language, transcript parsing, bar width, thresholds, element toggles
+
+For curl/source installs:
 
 ```bash
-node ~/.claude/cc-fusion/dist/index.js configure
+node ~/.claude/cc-fusion/dist/index.js config
+```
+
+#### CLI Configuration (First-time setup / Fallback)
+
+Run the guided CLI setup for non-TTY environments or first-time initialization:
+
+```bash
+cc-fusion init
+```
+
+For curl/source installs:
+
+```bash
+node ~/.claude/cc-fusion/dist/index.js init
 ```
 
 ### Configure Claude Code

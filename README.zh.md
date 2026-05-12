@@ -104,18 +104,42 @@ npm install
 npm run build
 ```
 
-### 引导式配置
+### 配置
 
-安装后或想更换主题、布局、语言、显示项时，运行：
+CC-Fusion 提供两种配置方式：
+
+#### 交互式 TUI（推荐）
+
+启动交互式终端用户界面，实时预览配置效果：
 
 ```bash
-cc-fusion configure
+cc-fusion config
 ```
 
-通过 curl 或源码安装时，运行本地构建：
+功能特性：
+- **实时预览** — 配置时即时查看状态栏变化
+- **四面板布局** — 预览、主题、预设、设置
+- **键盘导航** — `↑↓` 导航，`Tab` 切换面板，`Enter` 选择，`1-6` 快速切换主题
+- **全配置项可编辑** — 主题、预设、语言、转录解析、进度条宽度、阈值、元素开关
+
+通过 curl 或源码安装时：
 
 ```bash
-node ~/.claude/cc-fusion/dist/index.js configure
+node ~/.claude/cc-fusion/dist/index.js config
+```
+
+#### CLI 配置（首次设置 / 备选）
+
+在非 TTY 环境或首次初始化时运行引导式 CLI 配置：
+
+```bash
+cc-fusion init
+```
+
+通过 curl 或源码安装时：
+
+```bash
+node ~/.claude/cc-fusion/dist/index.js init
 ```
 
 ### 配置 Claude Code

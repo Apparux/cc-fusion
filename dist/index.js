@@ -14,6 +14,7 @@ const transcript_js_1 = require("./transcript.js");
 const git_js_1 = require("./git.js");
 const config_js_1 = require("./config.js");
 const configure_js_1 = require("./configure.js");
+const app_js_1 = require("./tui/app.js");
 const i18n_js_1 = require("./i18n.js");
 const utils_js_1 = require("./utils.js");
 const render_js_1 = require("./render.js");
@@ -72,9 +73,8 @@ function estimateDuration(transcriptPath) {
 function printHelp() {
     process.stdout.write(`Usage:
   cc-fusion              Render statusline from Claude Code stdin
-  cc-fusion configure    Run guided configuration
-  cc-fusion config       Alias for configure
-  cc-fusion init         Alias for configure
+  cc-fusion config       Interactive TUI configuration
+  cc-fusion init         CLI-based configuration (first-time setup)
   cc-fusion --help       Show this help
   cc-fusion --version    Show version
 `);
@@ -86,7 +86,12 @@ function readPackageVersion() {
 async function handleCliCommand(command) {
     if (!command)
         return false;
-    if (command === 'configure' || command === 'config' || command === 'init') {
+    if (command === 'config') {
+        const app = new app_js_1.TUIApp();
+        await app.run();
+        return true;
+    }
+    if (command === 'init') {
         await (0, configure_js_1.runConfigureCommand)();
         return true;
     }
