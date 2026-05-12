@@ -5,8 +5,8 @@
  */
 
 import { readFileSync } from 'fs';
-import { parseStdin, calcContextPct, getCwd } from './stdin.js';
-import { parseTranscript } from './transcript.js';
+import { parseStdin, calcContextPct, getCwd, getContextTokens } from './stdin.js';
+import { parseTranscript, findTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { simplifyModel, getProjectName, formatTokens } from './utils.js';
 import { render } from './render.js';
@@ -75,16 +75,9 @@ function main(): void {
   // 2. Collect git info
   const git = getGitInfo(cwd);
 
-  // 3. Parse transcript (mock for now - will be implemented later)
-  const tools: ToolStats = {
-    lastRead: undefined,
-    lastEdit: undefined,
-    lastSearch: undefined,
-    agents: [],
-    todos: [],
-    totalTodos: 0,
-    doneTodos: 0,
-  };
+  // 3. Parse transcript
+  const transcriptPath = typeof stdin.transcript_path === 'string' ? stdin.transcript_path : null;
+  const tools = parseTranscript(transcriptPath);
 
   // 4. Build render context
   const model = simplifyModel(stdin.model?.display_name, stdin.model?.id);
