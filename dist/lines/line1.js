@@ -10,7 +10,7 @@ export function renderLine1(ctx) {
     parts.push(colorize(`🗃️ ${ctx.project}`, COLORS.orange));
     // 🫯 Git branch + status
     if (ctx.git) {
-        const status = ctx.git.dirty ? '⚠️' : '✅';
+        const status = ctx.git.dirty ? '⚠️' : '🎯';
         parts.push(colorize(`🫯 ${ctx.git.branch} ${status}`, COLORS.yellow));
     }
     return parts.join(colorize('  |  ', COLORS.gray));
