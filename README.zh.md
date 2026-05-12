@@ -46,6 +46,13 @@
 npm install -g cc-fusion
 ```
 
+### 通过 npm 更新
+
+```bash
+npm install -g cc-fusion@latest
+cc-fusion --version
+```
+
 ### 手动安装（从源码）
 
 ```bash

@@ -46,6 +46,13 @@ A TypeScript CLI for Claude Code that renders a colorful 5-line statusline direc
 npm install -g cc-fusion
 ```
 
+### Update via npm
+
+```bash
+npm install -g cc-fusion@latest
+cc-fusion --version
+```
+
 ### Manual Install (from source)
 
 ```bash
