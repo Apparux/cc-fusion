@@ -79,3 +79,36 @@ Initialized Trellis workflow files and populated project-specific backend/fronte
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: Add README statusline design previews
+
+**Date**: 2026-05-12
+**Task**: Add README statusline design previews
+**Branch**: `dev`
+
+### Summary
+
+Added two statusline design images to English and Chinese README preview sections, included docs/assets in npm package files, and verified with git diff --check plus npm pack --dry-run.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `819968e` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
