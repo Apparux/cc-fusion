@@ -14,7 +14,7 @@
     "README.zh.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "dev": "tsc --watch",
     "prepack": "npm run build",
     "prepublishOnly": "npm run build"

@@ -29,12 +29,9 @@ export function renderLine3(ctx: RenderContext): string {
     parts.push(colorize(`🔍 Search "${ctx.tools.lastSearch}"`, COLORS.magenta));
   }
 
-  // If no activity, show idle message
+  // If no activity, show idle
   if (!ctx.tools.lastRead && !ctx.tools.lastEdit && !ctx.tools.lastSearch) {
     parts.push(colorize('空闲中', COLORS.dim));
-  } else {
-    // Time indicator
-    parts.push(colorize('刚刚', COLORS.dim));
   }
 
   return parts.join(colorize('  |  ', COLORS.gray));

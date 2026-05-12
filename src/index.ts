@@ -5,8 +5,8 @@
  */
 
 import { readFileSync } from 'fs';
-import { parseStdin, calcContextPct, getCwd, getContextTokens } from './stdin.js';
-import { parseTranscript, findTranscript } from './transcript.js';
+import { parseStdin, calcContextPct, getCwd } from './stdin.js';
+import { parseTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { simplifyModel, getProjectName, formatTokens } from './utils.js';
 import { render } from './render.js';

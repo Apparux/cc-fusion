@@ -1,26 +1,29 @@
 /**
- * line4.ts — Agent tracking line
+ * line4.ts — Task progress line
  */
 import { COLORS, colorize } from '../colors.js';
 export function renderLine4(ctx) {
     const parts = [];
-    // 🌀 Agents label
-    parts.push(colorize('🌀 Agents', COLORS.brightCyan));
-    // Agent status
-    if (ctx.tools.agents.length > 0) {
-        for (const agent of ctx.tools.agents) {
-            const dot = agent.color === 'green' ? '🟢' :
-                agent.color === 'orange' ? '🟠' :
-                    agent.color === 'blue' ? '🔵' :
-                        agent.color === 'purple' ? '🟣' : '⚪';
-            parts.push(colorize(`${dot} ${agent.name} ${agent.status}`, COLORS.cyan));
+    // 💤 Tasks label
+    parts.push(colorize('💤 Tasks', COLORS.purple));
+    // Task list
+    if (ctx.tools.todos.length > 0) {
+        for (const todo of ctx.tools.todos) {
+            const icon = todo.status === 'done' ? '✅' :
+                todo.status === 'current' ? '⚡' :
+                    todo.status === 'pending' ? '⏳' : '🕒';
+            const text = `${icon} ${todo.id}/${ctx.tools.totalTodos} ${todo.name}`;
+            const color = todo.status === 'done' ? COLORS.green :
+                todo.status === 'current' ? COLORS.yellow :
+                    COLORS.dim;
+            parts.push(colorize(text, color));
         }
-        // Running count
-        const runningCount = ctx.tools.agents.length;
-        parts.push(colorize(`${runningCount} 运行中`, COLORS.brightBlue));
+        // Overall progress percentage
+        const progressPct = Math.round((ctx.tools.doneTodos / ctx.tools.totalTodos) * 100);
+        parts.push(colorize(`${progressPct}%`, COLORS.purple));
     }
     else {
-        parts.push(colorize('无活动 Agent', COLORS.dim));
+        parts.push(colorize('无待办任务', COLORS.dim));
     }
     return parts.join(colorize('  |  ', COLORS.gray));
 }

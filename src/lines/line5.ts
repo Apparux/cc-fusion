@@ -1,5 +1,5 @@
 /**
- * line5.ts — Task progress line
+ * line5.ts — Recent agents line
  */
 
 import type { RenderContext } from '../types.js';
@@ -8,29 +8,20 @@ import { COLORS, colorize } from '../colors.js';
 export function renderLine5(ctx: RenderContext): string {
   const parts: string[] = [];
 
-  // 💤 Tasks label
-  parts.push(colorize('💤 Tasks', COLORS.purple));
+  // 🌀 Agents label
+  parts.push(colorize('🌀 Agents', COLORS.brightCyan));
 
-  // Task list
-  if (ctx.tools.todos.length > 0) {
-    for (const todo of ctx.tools.todos) {
-      const icon = todo.status === 'done' ? '✅' :
-                   todo.status === 'current' ? '⚡' :
-                   todo.status === 'pending' ? '⏳' : '🕒';
-      const text = `${icon} ${todo.id}/${ctx.tools.totalTodos} ${todo.name}`;
-
-      const color = todo.status === 'done' ? COLORS.green :
-                    todo.status === 'current' ? COLORS.yellow :
-                    COLORS.dim;
-
-      parts.push(colorize(text, color));
+  // Recent agents (not "running")
+  if (ctx.tools.agents.length > 0) {
+    for (const agent of ctx.tools.agents) {
+      const dot = agent.color === 'green' ? '🟢' :
+                  agent.color === 'orange' ? '🟠' :
+                  agent.color === 'blue' ? '🔵' :
+                  agent.color === 'purple' ? '🟣' : '⚪';
+      parts.push(colorize(`${dot} ${agent.name}`, COLORS.cyan));
     }
-
-    // Overall progress percentage
-    const progressPct = Math.round((ctx.tools.doneTodos / ctx.tools.totalTodos) * 100);
-    parts.push(colorize(`${progressPct}%`, COLORS.purple));
   } else {
-    parts.push(colorize('无待办任务', COLORS.dim));
+    parts.push(colorize('无最近 Agent', COLORS.dim));
   }
 
   return parts.join(colorize('  |  ', COLORS.gray));
