@@ -39,3 +39,43 @@ Initialized Trellis workflow files and populated project-specific backend/fronte
 ### Next Steps
 
 - None - task complete
+
+
+## Session 2: cc-fusion 完全重写：固定5行状态栏
+
+**Date**: 2026-05-12
+**Task**: cc-fusion 完全重写：固定5行状态栏
+**Branch**: `main`
+
+### Summary
+
+完全推倒重做 cc-fusion 项目，从可配置多主题架构改为固定5行emoji状态栏。行1核心信息/行2上下文+交通灯进度条/行3工具活动/行4待办进度/行5最近Agents。移除TUI、主题、预设、i18n系统。零配置开箱即用。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d5081f9` | (see git log) |
+| `2551d09` | (see git log) |
+| `3d1b51e` | (see git log) |
+| `d841780` | (see git log) |
+| `c5279e2` | (see git log) |
+| `ca094f8` | (see git log) |
+| `c2f7245` | (see git log) |
+| `0493e5f` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
