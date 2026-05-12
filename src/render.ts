@@ -9,9 +9,6 @@ import { renderLine3 } from './lines/line3.js';
 import { renderLine4 } from './lines/line4.js';
 import { renderLine5 } from './lines/line5.js';
 
-/**
- * Render all 5 statusline rows
- */
 export function render(ctx: RenderContext): string {
   const lines: string[] = [
     renderLine1(ctx),
