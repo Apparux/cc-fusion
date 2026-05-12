@@ -1,13 +1,28 @@
 /**
  * utils.ts — Utility functions for statusline rendering
  */
+import { COLORS } from './colors.js';
 /**
  * Render a progress bar with filled and empty blocks
+ * Returns { filled, empty } for separate coloring
  */
 export function renderProgressBar(pct, width = 10) {
-    const filled = Math.round((pct / 100) * width);
-    const empty = width - filled;
-    return '▓'.repeat(filled) + '▒'.repeat(empty);
+    const filledCount = Math.round((pct / 100) * width);
+    const emptyCount = width - filledCount;
+    return {
+        filled: '▰'.repeat(filledCount),
+        empty: '▱'.repeat(emptyCount),
+    };
+}
+/**
+ * Get traffic-light color based on percentage
+ */
+export function progressColor(pct) {
+    if (pct >= 80)
+        return COLORS.red;
+    if (pct >= 50)
+        return COLORS.yellow;
+    return COLORS.green;
 }
 /**
  * Format token count with k/M suffix
