@@ -10,6 +10,10 @@ A TypeScript CLI for Claude Code that renders a colorful 5-line statusline direc
 
 ## 📸 Preview
 
+![CC-Fusion statusline design overview](docs/assets/statusline-design-overview.png)
+
+![CC-Fusion statusline design draft](docs/assets/statusline-design-draft.png)
+
 ```
 👾 Sonnet 4  |  🧰 cc-fusion  |  🌟 main ✅
 🧠 Context  ● 78.0%  ▓▓▓▓▓▓▓▓▒▒  168.4k / 200.0k tokens  [78.0%]

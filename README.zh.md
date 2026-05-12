@@ -10,6 +10,10 @@
 
 ## 📸 预览
 
+![CC-Fusion 状态栏设计总览](docs/assets/statusline-design-overview.png)
+
+![CC-Fusion 状态栏设计图稿](docs/assets/statusline-design-draft.png)
+
 ```
 👾 Sonnet 4  |  🧰 cc-fusion  |  🌟 main ✅
 🧠 Context  ● 78.0%  ▓▓▓▓▓▓▓▓▒▒  168.4k / 200.0k tokens  [78.0%]
