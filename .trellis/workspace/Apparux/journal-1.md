@@ -211,3 +211,36 @@ Refined the Context statusline row to match the screenshot crop: rounded Nerd Fo
 ### Next Steps
 
 - None - task complete
+
+
+## Session 7: Preserve Context metadata with flatter progress bar
+
+**Date**: 2026-05-13
+**Task**: Preserve Context metadata with flatter progress bar
+**Branch**: `main`
+
+### Summary
+
+Corrected the Context row to preserve the dot percentage marker and cyan token usage text while changing only the progress bar to a flatter 16-character line style. Verified build, Context smoke thresholds, diff check, and package preview.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3911c73` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
