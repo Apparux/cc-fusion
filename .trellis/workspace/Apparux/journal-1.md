@@ -277,3 +277,36 @@ Adjusted the Context progress bar from a thin line to a medium-flat half-height 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 9: Correct Context bar and task progress display
+
+**Date**: 2026-05-13
+**Task**: Correct Context bar and task progress display
+**Branch**: `main`
+
+### Summary
+
+Fixed screenshot regressions: centered the Context bar glyph, restored the Context separator, and tracked Tasks completion by real task IDs so progress no longer stays at 0%. Verified build, Context threshold smoke tests, synthetic and real transcript task progress, diff check, and package preview.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5f5d26d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
