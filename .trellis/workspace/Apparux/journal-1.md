@@ -442,3 +442,36 @@ Published cc-fusion v1.2.1 to npm for the verified statusline rendering and task
 ### Next Steps
 
 - None - task complete
+
+
+## Session 14: Group repeated agents in statusline
+
+**Date**: 2026-05-13
+**Task**: Group repeated agents in statusline
+**Branch**: `dev`
+
+### Summary
+
+Grouped duplicate agent names in the Agents statusline and verified build, whitespace, smoke rendering, and npm pack dry run.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `92944a2` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
