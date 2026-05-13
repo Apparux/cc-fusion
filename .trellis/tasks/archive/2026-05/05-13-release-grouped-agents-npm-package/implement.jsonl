@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Release verification requires build, whitespace check, smoke tests, and npm pack dry run."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Release touches generated dist and package metadata for the CLI package."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Statusline runtime output must remain clean in release verification."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Visible terminal rendering release needs targeted statusline smoke verification."}
