@@ -2,6 +2,7 @@
  * line5.ts — Recent agents line
  */
 import { COLORS, colorize } from '../colors.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator } from '../utils.js';
 export function renderLine5(ctx) {
     const parts = [];
     // 🌀 Agents label
@@ -19,6 +20,6 @@ export function renderLine5(ctx) {
     else {
         parts.push(colorize('无最近 Agent', COLORS.dim));
     }
-    return parts.join(colorize('  |  ', COLORS.gray));
+    return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }
 //# sourceMappingURL=line5.js.map

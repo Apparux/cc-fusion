@@ -2,6 +2,7 @@
  * line1.ts — Core info line (model, project, git)
  */
 import { COLORS, colorize } from '../colors.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator } from '../utils.js';
 export function renderLine1(ctx) {
     const parts = [];
     // 👾 Model
@@ -13,6 +14,6 @@ export function renderLine1(ctx) {
         const status = ctx.git.dirty ? '⚠️' : '🎯';
         parts.push(colorize(`🫯 ${ctx.git.branch} ${status}`, COLORS.yellow));
     }
-    return parts.join(colorize('  |  ', COLORS.gray));
+    return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }
 //# sourceMappingURL=line1.js.map

@@ -4,7 +4,7 @@
 
 import type { RenderContext } from '../types.js';
 import { COLORS, colorize } from '../colors.js';
-import { shortenPath } from '../utils.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator, shortenPath } from '../utils.js';
 
 export function renderLine3(ctx: RenderContext): string {
   const parts: string[] = [];
@@ -34,5 +34,5 @@ export function renderLine3(ctx: RenderContext): string {
     parts.push(colorize('空闲中', COLORS.dim));
   }
 
-  return parts.join(colorize('  |  ', COLORS.gray));
+  return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }

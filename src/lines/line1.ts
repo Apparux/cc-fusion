@@ -4,6 +4,7 @@
 
 import type { RenderContext } from '../types.js';
 import { COLORS, colorize } from '../colors.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator } from '../utils.js';
 
 export function renderLine1(ctx: RenderContext): string {
   const parts: string[] = [];
@@ -20,5 +21,5 @@ export function renderLine1(ctx: RenderContext): string {
     parts.push(colorize(`🫯 ${ctx.git.branch} ${status}`, COLORS.yellow));
   }
 
-  return parts.join(colorize('  |  ', COLORS.gray));
+  return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }

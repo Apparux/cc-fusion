@@ -4,6 +4,7 @@
 
 import type { RenderContext } from '../types.js';
 import { COLORS, colorize } from '../colors.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator } from '../utils.js';
 
 export function renderLine5(ctx: RenderContext): string {
   const parts: string[] = [];
@@ -24,5 +25,5 @@ export function renderLine5(ctx: RenderContext): string {
     parts.push(colorize('无最近 Agent', COLORS.dim));
   }
 
-  return parts.join(colorize('  |  ', COLORS.gray));
+  return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }

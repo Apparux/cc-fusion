@@ -1,7 +1,7 @@
 /**
  * utils.ts — Utility functions for statusline rendering
  */
-import { COLORS } from './colors.js';
+import { COLORS, colorize } from './colors.js';
 /**
  * Render a rounded, medium-flat progress bar.
  * Returns { filled, empty } for separate coloring.
@@ -84,5 +84,72 @@ export function shortenPath(path) {
     if (parts.length <= 2)
         return path;
     return parts.slice(-2).join('/');
+}
+/**
+ * Strip ANSI escape sequences before display-width calculations.
+ */
+export function stripAnsi(text) {
+    return text.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+}
+/**
+ * Visible label width after removing ANSI sequences.
+ *
+ * This is a small wcwidth-style approximation for statusline labels: combining
+ * marks and emoji variation selectors have zero width, CJK/fullwidth code
+ * points and common emoji presentation characters count as two columns, and
+ * everything else counts as one column.
+ */
+export function displayWidth(text) {
+    let width = 0;
+    for (const char of stripAnsi(text)) {
+        const codePoint = char.codePointAt(0) ?? 0;
+        if (isZeroWidthCodePoint(codePoint))
+            continue;
+        width += isWideCodePoint(codePoint) ? 2 : 1;
+    }
+    return width;
+}
+function isZeroWidthCodePoint(codePoint) {
+    return (codePoint === 0x200d ||
+        codePoint === 0xfe0e ||
+        codePoint === 0xfe0f ||
+        (codePoint >= 0x0300 && codePoint <= 0x036f) ||
+        (codePoint >= 0x1ab0 && codePoint <= 0x1aff) ||
+        (codePoint >= 0x1dc0 && codePoint <= 0x1dff) ||
+        (codePoint >= 0x20d0 && codePoint <= 0x20ff) ||
+        (codePoint >= 0xfe20 && codePoint <= 0xfe2f) ||
+        (codePoint >= 0x1f3fb && codePoint <= 0x1f3ff));
+}
+function isWideCodePoint(codePoint) {
+    return ((codePoint >= 0x1100 && codePoint <= 0x115f) ||
+        codePoint === 0x2329 ||
+        codePoint === 0x232a ||
+        (codePoint >= 0x2e80 && codePoint <= 0xa4cf && codePoint !== 0x303f) ||
+        (codePoint >= 0xac00 && codePoint <= 0xd7a3) ||
+        (codePoint >= 0xf900 && codePoint <= 0xfaff) ||
+        (codePoint >= 0xfe10 && codePoint <= 0xfe19) ||
+        (codePoint >= 0xfe30 && codePoint <= 0xfe6f) ||
+        (codePoint >= 0xff00 && codePoint <= 0xff60) ||
+        (codePoint >= 0xffe0 && codePoint <= 0xffe6) ||
+        (codePoint >= 0x1f000 && codePoint <= 0x1faff) ||
+        (codePoint >= 0x1fc00 && codePoint <= 0x1fffd));
+}
+/**
+ * Width of the first line's title segment, used as the separator alignment target.
+ */
+export function firstSeparatorTargetWidth(model) {
+    return displayWidth(`👾 ${model}`);
+}
+/**
+ * Join line parts while aligning only the first separator.
+ */
+export function joinWithAlignedFirstSeparator(parts, targetFirstWidth) {
+    if (parts.length <= 1)
+        return parts.join('');
+    const [firstPart, ...restParts] = parts;
+    const padding = ' '.repeat(Math.max(0, targetFirstWidth - displayWidth(firstPart)));
+    const firstSeparator = colorize('  |  ', COLORS.gray);
+    const remainingSeparator = colorize('  |  ', COLORS.gray);
+    return `${firstPart}${padding}${firstSeparator}${restParts.join(remainingSeparator)}`;
 }
 //# sourceMappingURL=utils.js.map

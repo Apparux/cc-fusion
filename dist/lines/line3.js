@@ -2,7 +2,7 @@
  * line3.ts — Tool activity line (read, edit, search)
  */
 import { COLORS, colorize } from '../colors.js';
-import { shortenPath } from '../utils.js';
+import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator, shortenPath } from '../utils.js';
 export function renderLine3(ctx) {
     const parts = [];
     // ⚡ Activity label
@@ -25,6 +25,6 @@ export function renderLine3(ctx) {
     if (!ctx.tools.lastRead && !ctx.tools.lastEdit && !ctx.tools.lastSearch) {
         parts.push(colorize('空闲中', COLORS.dim));
     }
-    return parts.join(colorize('  |  ', COLORS.gray));
+    return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }
 //# sourceMappingURL=line3.js.map
