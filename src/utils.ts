@@ -5,16 +5,18 @@
 import { COLORS } from './colors.js';
 
 /**
- * Render a continuous-looking progress bar.
+ * Render a thick rounded progress pill.
  * Returns { filled, empty } for separate coloring.
  */
-export function renderProgressBar(pct: number, width: number = 10): { filled: string; empty: string } {
+export function renderProgressBar(pct: number, width: number = 16): { filled: string; empty: string } {
   const normalizedPct = Math.max(0, Math.min(100, pct));
-  const filledCount = Math.round((normalizedPct / 100) * width);
-  const emptyCount = width - filledCount;
+  const innerWidth = Math.max(1, width - 2);
+  const filledInnerCount = Math.round((normalizedPct / 100) * innerWidth);
+  const emptyInnerCount = innerWidth - filledInnerCount;
+
   return {
-    filled: '━'.repeat(filledCount),
-    empty: '─'.repeat(emptyCount),
+    filled: filledInnerCount > 0 ? `${'█'.repeat(filledInnerCount)}${emptyInnerCount === 0 ? '' : ''}` : '',
+    empty: filledInnerCount === 0 ? `${'█'.repeat(emptyInnerCount)}` : `${'█'.repeat(emptyInnerCount)}${emptyInnerCount > 0 ? '' : ''}`,
   };
 }
 
