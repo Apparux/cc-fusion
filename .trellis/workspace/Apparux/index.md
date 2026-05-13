@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 10
+- **Total Sessions**: 11
 - **Last Active**: 2026-05-13
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~345 | Active |
+| `journal-1.md` | ~378 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 11 | 2026-05-13 | Align first statusline separators | `5273e64` | `main` |
 | 10 | 2026-05-13 | Restore rounded flatter Context bar | `093e052` | `main` |
 | 9 | 2026-05-13 | Correct Context bar and task progress display | `5f5d26d` | `main` |
 | 8 | 2026-05-13 | Use medium-flat Context progress glyph | `dd4cb4d` | `main` |

@@ -343,3 +343,36 @@ Restored the rounded Context progress bar style using Powerline caps with a cent
 ### Next Steps
 
 - None - task complete
+
+
+## Session 11: Align first statusline separators
+
+**Date**: 2026-05-13
+**Task**: Align first statusline separators
+**Branch**: `main`
+
+### Summary
+
+Aligned the first separator after each statusline row title to the model row while preserving row-specific later separators and Context rounded-flat progress styling. Verified build, display-width alignment smoke tests, Context threshold smoke tests, diff check, and package preview.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5273e64` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
