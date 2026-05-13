@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/index.md","reason":"CLI runtime pre-development checklist for statusline command behavior and build output changes."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Required verification for TypeScript/runtime and packaging-sensitive changes."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Ensure no noisy stdout/stderr changes in statusline runtime while diagnosing command failures."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve resilient statusline behavior and concise CLI failure handling."}
+{"file":".trellis/spec/guides/index.md","reason":"Shared thinking checklist for cross-file/release-sensitive changes."}
