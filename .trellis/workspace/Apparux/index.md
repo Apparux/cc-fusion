@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
+- **Total Sessions**: 14
 - **Last Active**: 2026-05-13
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~444 | Active |
+| `journal-1.md` | ~477 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-05-13 | Group repeated agents in statusline | `92944a2` | `dev` |
 | 13 | 2026-05-13 | Release cc-fusion v1.2.1 | `182da36` | `main` |
 | 12 | 2026-05-13 | Fix Activity separator alignment | `dc3017c` | `main` |
 | 11 | 2026-05-13 | Align first statusline separators | `5273e64` | `main` |

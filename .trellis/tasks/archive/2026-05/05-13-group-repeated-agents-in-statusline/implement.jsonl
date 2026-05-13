@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Runtime TypeScript and rendering-change verification requirements."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"CLI module boundaries for transcript parsing, render context, and renderer modules."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Transcript parsing should remain tolerant and optional data should not crash statusline rendering."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"No-argument statusline execution must not gain debug or noisy output."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Agents line is terminal presentation assembled by pure renderer functions."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Visible terminal rendering changes need build, diff check, and smoke verification."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Shared types and strict TypeScript conventions for renderer/transcript data."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Change spans transcript aggregation data and terminal display formatting."}

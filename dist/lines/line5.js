@@ -9,12 +9,23 @@ export function renderLine5(ctx) {
     parts.push(colorize('🌀 Agents', COLORS.brightCyan));
     // Recent agents (not "running")
     if (ctx.tools.agents.length > 0) {
+        const groupedAgents = new Map();
         for (const agent of ctx.tools.agents) {
-            const dot = agent.color === 'green' ? '🟢' :
-                agent.color === 'orange' ? '🟠' :
-                    agent.color === 'blue' ? '🔵' :
-                        agent.color === 'purple' ? '🟣' : '⚪';
-            parts.push(colorize(`${dot} ${agent.name}`, COLORS.cyan));
+            const group = groupedAgents.get(agent.name);
+            if (group) {
+                group.count += 1;
+            }
+            else {
+                groupedAgents.set(agent.name, { color: agent.color, count: 1 });
+            }
+        }
+        for (const [name, group] of groupedAgents) {
+            const dot = group.color === 'green' ? '🟢' :
+                group.color === 'orange' ? '🟠' :
+                    group.color === 'blue' ? '🔵' :
+                        group.color === 'purple' ? '🟣' : '⚪';
+            const count = group.count > 1 ? ` x${group.count}` : '';
+            parts.push(colorize(`${dot} ${name}${count}`, COLORS.cyan));
         }
     }
     else {

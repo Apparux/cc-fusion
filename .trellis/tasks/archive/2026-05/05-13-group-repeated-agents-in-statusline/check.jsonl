@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check build, whitespace, and targeted smoke test coverage for runtime changes."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Verify no statusline runtime logging/noisy stdout was introduced."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Verify renderer purity and compact terminal UI output."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check visible rendering output stays compact and follows required verification."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check strict TypeScript and shared type changes if any."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check transcript-to-renderer data flow remains coherent."}
