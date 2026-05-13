@@ -10,6 +10,7 @@ export function renderLine2(ctx: RenderContext): string {
   const parts: string[] = [];
 
   parts.push(colorize('🧠 Context', COLORS.pink));
+  parts.push(colorize('|', COLORS.gray));
 
   const pctColor = progressColor(ctx.contextPct);
   parts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));

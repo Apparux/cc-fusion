@@ -61,6 +61,54 @@ function fileFromTool(tool: TranscriptToolUse): string | undefined {
   return typeof value === 'string' && value ? value : undefined;
 }
 
+function parseTaskId(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isInteger(value)) return value;
+  if (typeof value !== 'string') return undefined;
+
+  const id = parseInt(value, 10);
+  return Number.isNaN(id) ? undefined : id;
+}
+
+function textFromValue(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (!Array.isArray(value)) return undefined;
+
+  const parts: string[] = [];
+  for (const item of value) {
+    if (typeof item === 'string') {
+      parts.push(item);
+    } else if (typeof item === 'object' && item !== null && 'text' in item) {
+      const text = (item as { text?: unknown }).text;
+      if (typeof text === 'string') parts.push(text);
+    }
+  }
+
+  return parts.length > 0 ? parts.join('\n') : undefined;
+}
+
+function collectToolResultTexts(entry: TranscriptEntry): Array<{ toolUseId?: string; text: string }> {
+  const results: Array<{ toolUseId?: string; text: string }> = [];
+  const content = (entry.type === 'assistant' || entry.type === 'user' || entry.type === 'system')
+    ? entry.message?.content
+    : undefined;
+
+  if (!Array.isArray(content)) return results;
+
+  for (const item of content) {
+    if (item.type !== 'tool_result') continue;
+
+    const text = textFromValue(item.content);
+    if (!text) continue;
+
+    results.push({
+      toolUseId: typeof item.tool_use_id === 'string' ? item.tool_use_id : undefined,
+      text,
+    });
+  }
+
+  return results;
+}
+
 /**
  * Parse a transcript JSONL file and extract tool usage statistics.
  */
@@ -75,6 +123,8 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
     let lastSearch: string | undefined;
     const agentMap = new Map<string, { name: string; status: string; color: string }>();
     const todoMap = new Map<number, { id: number; name: string; status: 'done' | 'current' | 'pending' | 'future' }>();
+    const taskCreateSubjects = new Map<string, string>();
+    const pendingTaskCreateToolIds: string[] = [];
 
     for (const line of tail) {
       let entry: TranscriptEntry;
@@ -82,6 +132,31 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
         entry = JSON.parse(line);
       } catch {
         continue;
+      }
+
+      for (const result of collectToolResultTexts(entry)) {
+        const match = result.text.match(/Task #(\d+) created successfully/i);
+        if (!match) continue;
+
+        const taskId = parseTaskId(match[1]);
+        if (taskId === undefined) continue;
+
+        const toolId = result.toolUseId || pendingTaskCreateToolIds.shift();
+        if (!toolId) continue;
+
+        if (result.toolUseId) {
+          const pendingIndex = pendingTaskCreateToolIds.indexOf(result.toolUseId);
+          if (pendingIndex !== -1) pendingTaskCreateToolIds.splice(pendingIndex, 1);
+        }
+
+        const subject = taskCreateSubjects.get(toolId);
+        if (!subject) continue;
+
+        todoMap.set(taskId, {
+          id: taskId,
+          name: subject.slice(0, 30),
+          status: 'pending',
+        });
       }
 
       const toolUses = collectToolUses(entry);
@@ -125,21 +200,25 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
         if (name === 'taskcreate') {
           const subject = tool.input?.subject;
           if (typeof subject === 'string') {
-            const taskId = todoMap.size + 1;
-            todoMap.set(taskId, {
-              id: taskId,
-              name: subject.slice(0, 30),
-              status: 'pending',
-            });
+            taskCreateSubjects.set(tool.id, subject);
+            pendingTaskCreateToolIds.push(tool.id);
+
+            const taskId = parseTaskId(tool.input?.taskId ?? tool.input?.id);
+            if (taskId !== undefined) {
+              todoMap.set(taskId, {
+                id: taskId,
+                name: subject.slice(0, 30),
+                status: 'pending',
+              });
+            }
           }
         }
 
         if (name === 'taskupdate') {
-          const taskId = tool.input?.taskId;
+          const taskId = parseTaskId(tool.input?.taskId);
           const status = tool.input?.status;
-          if (typeof taskId === 'string' && typeof status === 'string') {
-            const id = parseInt(taskId, 10);
-            const existing = todoMap.get(id);
+          if (taskId !== undefined && typeof status === 'string') {
+            const existing = todoMap.get(taskId);
             if (existing) {
               if (status === 'completed') {
                 existing.status = 'done';
@@ -153,7 +232,9 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
     }
 
     const agents = Array.from(agentMap.values()).slice(-5); // Keep last 5 agents
-    const todos = Array.from(todoMap.values()).slice(-5); // Keep last 5 todos
+    const todos = Array.from(todoMap.values())
+      .slice(-5)
+      .map((todo, index) => ({ ...todo, id: index + 1 }));
     const doneTodos = todos.filter(t => t.status === 'done').length;
 
     return {

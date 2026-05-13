@@ -6,6 +6,7 @@ import { renderProgressBar, progressColor } from '../utils.js';
 export function renderLine2(ctx) {
     const parts = [];
     parts.push(colorize('🧠 Context', COLORS.pink));
+    parts.push(colorize('|', COLORS.gray));
     const pctColor = progressColor(ctx.contextPct);
     parts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));
     const { filled, empty } = renderProgressBar(ctx.contextPct, 16);

@@ -13,7 +13,7 @@ export function renderProgressBar(pct: number, width: number = 16): { filled: st
   const barWidth = Math.max(1, width);
   const filledCount = Math.round((normalizedPct / 100) * barWidth);
   const emptyCount = barWidth - filledCount;
-  const barGlyph = '▄';
+  const barGlyph = '▬';
 
   return {
     filled: barGlyph.repeat(filledCount),
