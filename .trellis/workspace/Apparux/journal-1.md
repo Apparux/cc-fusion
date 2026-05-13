@@ -509,3 +509,37 @@ Merged grouped Agents statusline changes into main, bumped cc-fusion to 1.3.0, p
 ### Next Steps
 
 - None - task complete
+
+
+## Session 16: Fix statusline executable regression
+
+**Date**: 2026-05-13
+**Task**: Fix statusline executable regression
+**Branch**: `main`
+
+### Summary
+
+Fixed post-release local linked cc-fusion command regression by preserving dist/index.js executable mode after build, verified five-line statusline output, released v1.3.1 to npm, and confirmed GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `dbc9207` | (see git log) |
+| `d7c4ff1` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
