@@ -5,7 +5,7 @@
 import { COLORS } from './colors.js';
 
 /**
- * Render a flat line-style progress bar.
+ * Render a medium-flat progress bar.
  * Returns { filled, empty } for separate coloring.
  */
 export function renderProgressBar(pct: number, width: number = 16): { filled: string; empty: string } {
@@ -13,10 +13,11 @@ export function renderProgressBar(pct: number, width: number = 16): { filled: st
   const barWidth = Math.max(1, width);
   const filledCount = Math.round((normalizedPct / 100) * barWidth);
   const emptyCount = barWidth - filledCount;
+  const barGlyph = '▄';
 
   return {
-    filled: '━'.repeat(filledCount),
-    empty: '─'.repeat(emptyCount),
+    filled: barGlyph.repeat(filledCount),
+    empty: barGlyph.repeat(emptyCount),
   };
 }
 
