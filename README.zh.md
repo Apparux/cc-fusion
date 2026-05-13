@@ -57,7 +57,7 @@ cc-fusion --version
 
 ```bash
 # 克隆
-git clone https://github.com/CanCanNeedNei/cc-fusion.git
+git clone https://github.com/Apparux/cc-fusion.git
 cd cc-fusion
 
 # 安装并构建
