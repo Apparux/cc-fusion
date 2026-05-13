@@ -3,18 +3,32 @@
  */
 import { COLORS } from './colors.js';
 /**
- * Render a medium-flat progress bar.
+ * Render a rounded, medium-flat progress bar.
  * Returns { filled, empty } for separate coloring.
  */
 export function renderProgressBar(pct, width = 16) {
     const normalizedPct = Math.max(0, Math.min(100, pct));
-    const barWidth = Math.max(1, width);
-    const filledCount = Math.round((normalizedPct / 100) * barWidth);
-    const emptyCount = barWidth - filledCount;
-    const barGlyph = '▬';
+    const innerWidth = Math.max(1, width - 2);
+    const filledInner = Math.round((normalizedPct / 100) * innerWidth);
+    const emptyInner = innerWidth - filledInner;
+    const leftCap = '';
+    const rightCap = '';
+    const barGlyph = '═';
+    if (filledInner === 0) {
+        return {
+            filled: '',
+            empty: `${leftCap}${barGlyph.repeat(innerWidth)}${rightCap}`,
+        };
+    }
+    if (emptyInner === 0) {
+        return {
+            filled: `${leftCap}${barGlyph.repeat(innerWidth)}${rightCap}`,
+            empty: '',
+        };
+    }
     return {
-        filled: barGlyph.repeat(filledCount),
-        empty: barGlyph.repeat(emptyCount),
+        filled: `${leftCap}${barGlyph.repeat(filledInner)}`,
+        empty: `${barGlyph.repeat(emptyInner)}${rightCap}`,
     };
 }
 /**
