@@ -376,3 +376,36 @@ Aligned the first separator after each statusline row title to the model row whi
 ### Next Steps
 
 - None - task complete
+
+
+## Session 12: Fix Activity separator alignment
+
+**Date**: 2026-05-13
+**Task**: Fix Activity separator alignment
+**Branch**: `main`
+
+### Summary
+
+Corrected the first-separator alignment width model so Activity counts as wide and all rows align to the widest label. Verified build, Activity alignment smoke, Context threshold smoke, diff check, and package preview.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `dc3017c` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
