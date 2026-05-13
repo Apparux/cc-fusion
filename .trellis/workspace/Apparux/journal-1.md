@@ -475,3 +475,37 @@ Grouped duplicate agent names in the Agents statusline and verified build, white
 ### Next Steps
 
 - None - task complete
+
+
+## Session 15: Release cc-fusion v1.3.0
+
+**Date**: 2026-05-13
+**Task**: Release cc-fusion v1.3.0
+**Branch**: `main`
+
+### Summary
+
+Merged grouped Agents statusline changes into main, bumped cc-fusion to 1.3.0, pushed v1.3.0, verified npm publish workflow and registry version, and created the GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `029c7b9` | (see git log) |
+| `6b9d01b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
