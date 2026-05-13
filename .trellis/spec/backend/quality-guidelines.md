@@ -26,6 +26,7 @@ Use targeted stdin smoke tests when rendering behavior changes.
 - Preserve command dispatch before stdin reads in `src/index.ts` so interactive commands do not consume Claude Code statusline input.
 - Centralize Claude Code input compatibility in `src/stdin.ts`. Current support covers legacy fields such as `input_tokens`/`max_context_window_size` and current fields such as `context_window.used_percentage`, `context_window.context_window_size`, `context_window.current_usage`, `total_input_tokens`, and `total_output_tokens`.
 - Keep visual theme behavior separate from preset/layout behavior. Themes live in TOML under `themes/`; presets live in JSON under `presets/`; renderer composition lives in `src/render.ts`.
+- Preserve display precision for renderer percentages until the renderer formats them. For Context usage, `calcContextPct` returns a clamped decimal percentage; color thresholds are green for `<60`, yellow for `>=60 && <80`, and red for `>=80`.
 - Keep transcript parsing bounded and tolerant. `src/transcript.ts` tail-reads JSONL and skips malformed lines.
 - Avoid dependencies unless clearly justified. Current runtime has no external dependencies; dev dependencies are TypeScript and Node types only.
 
@@ -49,6 +50,7 @@ There is no `npm test` script. Choose verification based on touched files:
 - Docs/spec-only changes: at minimum `git diff --check`.
 - Any TypeScript/runtime/config behavior change: `npm run build` plus `git diff --check`.
 - Rendering changes: run a targeted smoke test such as the sample stdin command in `CLAUDE.md` piped to `node dist/index.js` after build.
+- Context rendering changes: include smoke cases around percentage thresholds, especially `59.9`, `60`, `79.9`, and `80`, plus representative low/medium/high values.
 - Packaging/release-sensitive changes: `npm pack --dry-run`.
 
 ---

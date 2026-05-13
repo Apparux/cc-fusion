@@ -44,12 +44,12 @@ export function getContextTokens(stdin: StdinData): {
 export function calcContextPct(stdin: StdinData): number {
   const directPct = stdin.context_window?.used_percentage;
   if (typeof directPct === 'number' && Number.isFinite(directPct)) {
-    return Math.max(0, Math.min(100, Math.round(directPct)));
+    return Math.max(0, Math.min(100, directPct));
   }
 
   const max = getContextWindowSize(stdin);
   if (!max || max <= 0) return 0;
 
   const { total } = getContextTokens(stdin);
-  return Math.min(100, Math.round((total / max) * 100));
+  return Math.min(100, (total / max) * 100);
 }

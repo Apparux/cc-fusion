@@ -3,24 +3,26 @@
  */
 import { COLORS } from './colors.js';
 /**
- * Render a progress bar with filled and empty blocks
- * Returns { filled, empty } for separate coloring
+ * Render a continuous-looking progress bar.
+ * Returns { filled, empty } for separate coloring.
  */
 export function renderProgressBar(pct, width = 10) {
-    const filledCount = Math.round((pct / 100) * width);
+    const normalizedPct = Math.max(0, Math.min(100, pct));
+    const filledCount = Math.round((normalizedPct / 100) * width);
     const emptyCount = width - filledCount;
     return {
-        filled: '▰'.repeat(filledCount),
-        empty: '▱'.repeat(emptyCount),
+        filled: '━'.repeat(filledCount),
+        empty: '─'.repeat(emptyCount),
     };
 }
 /**
- * Get traffic-light color based on percentage
+ * Get traffic-light color based on percentage.
+ * 0–59.9 green, 60–79.9 yellow, 80+ red.
  */
 export function progressColor(pct) {
     if (pct >= 80)
         return COLORS.red;
-    if (pct >= 50)
+    if (pct >= 60)
         return COLORS.yellow;
     return COLORS.green;
 }
