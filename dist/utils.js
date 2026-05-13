@@ -121,7 +121,8 @@ function isZeroWidthCodePoint(codePoint) {
         (codePoint >= 0x1f3fb && codePoint <= 0x1f3ff));
 }
 function isWideCodePoint(codePoint) {
-    return ((codePoint >= 0x1100 && codePoint <= 0x115f) ||
+    return (codePoint === 0x26a1 ||
+        (codePoint >= 0x1100 && codePoint <= 0x115f) ||
         codePoint === 0x2329 ||
         codePoint === 0x232a ||
         (codePoint >= 0x2e80 && codePoint <= 0xa4cf && codePoint !== 0x303f) ||
@@ -135,10 +136,10 @@ function isWideCodePoint(codePoint) {
         (codePoint >= 0x1fc00 && codePoint <= 0x1fffd));
 }
 /**
- * Width of the first line's title segment, used as the separator alignment target.
+ * Width of the widest row title segment, used as the first separator alignment target.
  */
 export function firstSeparatorTargetWidth(model) {
-    return displayWidth(`👾 ${model}`);
+    return Math.max(displayWidth(`👾 ${model}`), displayWidth('🧠 Context'), displayWidth('⚡ Activity'), displayWidth('💤 Tasks'), displayWidth('🌀 Agents'));
 }
 /**
  * Join line parts while aligning only the first separator.

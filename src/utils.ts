@@ -135,6 +135,7 @@ function isZeroWidthCodePoint(codePoint: number): boolean {
 
 function isWideCodePoint(codePoint: number): boolean {
   return (
+    codePoint === 0x26a1 ||
     (codePoint >= 0x1100 && codePoint <= 0x115f) ||
     codePoint === 0x2329 ||
     codePoint === 0x232a ||
@@ -151,10 +152,16 @@ function isWideCodePoint(codePoint: number): boolean {
 }
 
 /**
- * Width of the first line's title segment, used as the separator alignment target.
+ * Width of the widest row title segment, used as the first separator alignment target.
  */
 export function firstSeparatorTargetWidth(model: string): number {
-  return displayWidth(`👾 ${model}`);
+  return Math.max(
+    displayWidth(`👾 ${model}`),
+    displayWidth('🧠 Context'),
+    displayWidth('⚡ Activity'),
+    displayWidth('💤 Tasks'),
+    displayWidth('🌀 Agents')
+  );
 }
 
 /**
