@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 7
+- **Total Sessions**: 8
 - **Last Active**: 2026-05-13
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~246 | Active |
+| `journal-1.md` | ~279 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 8 | 2026-05-13 | Use medium-flat Context progress glyph | `dd4cb4d` | `main` |
 | 7 | 2026-05-13 | Preserve Context metadata with flatter progress bar | `3911c73` | `main` |
 | 6 | 2026-05-13 | Match Context progress pill style | `c89f2c5` | `main` |
 | 5 | 2026-05-13 | Refine Context progress bar | `d9e13c6` | `main` |
