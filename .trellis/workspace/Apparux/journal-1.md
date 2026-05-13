@@ -178,3 +178,36 @@ Implemented a compact Context progress bar with continuous styling, 60/80 traffi
 ### Next Steps
 
 - None - task complete
+
+
+## Session 6: Match Context progress pill style
+
+**Date**: 2026-05-13
+**Task**: Match Context progress pill style
+**Branch**: `main`
+
+### Summary
+
+Refined the Context statusline row to match the screenshot crop: rounded Nerd Font pill progress before the one-decimal percentage, with dot and token text removed. Verified build, targeted Context smoke thresholds, diff check, and package preview.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c89f2c5` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

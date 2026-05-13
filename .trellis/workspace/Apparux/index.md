@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 5
+- **Total Sessions**: 6
 - **Last Active**: 2026-05-13
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~180 | Active |
+| `journal-1.md` | ~213 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 6 | 2026-05-13 | Match Context progress pill style | `c89f2c5` | `main` |
 | 5 | 2026-05-13 | Refine Context progress bar | `d9e13c6` | `main` |
 | 4 | 2026-05-12 | Document npm update command | `fa59a6e` | `main` |
 | 3 | 2026-05-12 | Add README statusline design previews | `819968e` | `dev` |
