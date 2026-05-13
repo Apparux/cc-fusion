@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 4
-- **Last Active**: 2026-05-12
+- **Total Sessions**: 5
+- **Last Active**: 2026-05-13
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~147 | Active |
+| `journal-1.md` | ~180 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 5 | 2026-05-13 | Refine Context progress bar | `d9e13c6` | `main` |
 | 4 | 2026-05-12 | Document npm update command | `fa59a6e` | `main` |
 | 3 | 2026-05-12 | Add README statusline design previews | `819968e` | `dev` |
 | 2 | 2026-05-12 | cc-fusion 完全重写：固定5行状态栏 | `d5081f9`, `2551d09`, `3d1b51e`, `d841780`, `c5279e2`, `ca094f8`, `c2f7245`, `0493e5f` | `main` |
