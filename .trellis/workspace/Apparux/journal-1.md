@@ -409,3 +409,36 @@ Corrected the first-separator alignment width model so Activity counts as wide a
 ### Next Steps
 
 - None - task complete
+
+
+## Session 13: Release cc-fusion v1.2.1
+
+**Date**: 2026-05-13
+**Task**: Release cc-fusion v1.2.1
+**Branch**: `main`
+
+### Summary
+
+Published cc-fusion v1.2.1 to npm for the verified statusline rendering and task progress fixes; confirmed workflow success, npm registry version, and GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `182da36` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
