@@ -15,7 +15,7 @@
     "README.zh.md"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc && chmod 755 dist/index.js",
     "dev": "tsc --watch",
     "prepack": "npm run build",
     "prepublishOnly": "npm run build"
