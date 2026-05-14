@@ -576,3 +576,36 @@ Changed the dirty git statusline icon from warning to broken-link, rebuilt dist,
 ### Next Steps
 
 - None - task complete
+
+
+## Session 18: Use brick dirty git icon
+
+**Date**: 2026-05-14
+**Task**: Use brick dirty git icon
+**Branch**: `dev`
+
+### Summary
+
+Changed the dirty git statusline icon to the brick emoji after visual tuning, rebuilt dist, and verified with build, whitespace check, and smoke test.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9abe790` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
