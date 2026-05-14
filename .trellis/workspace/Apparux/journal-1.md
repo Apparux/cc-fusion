@@ -609,3 +609,36 @@ Changed the dirty git statusline icon to the brick emoji after visual tuning, re
 ### Next Steps
 
 - None - task complete
+
+
+## Session 19: Release cc-fusion 1.3.2
+
+**Date**: 2026-05-14
+**Task**: Release cc-fusion 1.3.2
+**Branch**: `main`
+
+### Summary
+
+Bumped cc-fusion to 1.3.2, pushed the release tag, verified the npm publish workflow, confirmed npm reports 1.3.2, and created the GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `bbbd3e7` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
