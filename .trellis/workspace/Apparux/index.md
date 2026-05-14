@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-05-13
+- **Total Sessions**: 17
+- **Last Active**: 2026-05-14
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~545 | Active |
+| `journal-1.md` | ~578 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 17 | 2026-05-14 | Replace dirty git icon | `28a53e7` | `dev` |
 | 16 | 2026-05-13 | Fix statusline executable regression | `dbc9207`, `d7c4ff1` | `main` |
 | 15 | 2026-05-13 | Release cc-fusion v1.3.0 | `029c7b9`, `6b9d01b` | `main` |
 | 14 | 2026-05-13 | Group repeated agents in statusline | `92944a2` | `dev` |
