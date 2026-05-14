@@ -17,7 +17,7 @@ export function renderLine1(ctx: RenderContext): string {
 
   // 🫯 Git branch + status
   if (ctx.git) {
-    const status = ctx.git.dirty ? '⛓️‍💥' : '🎯';
+    const status = ctx.git.dirty ? '🧱' : '🎯';
     parts.push(colorize(`🫯 ${ctx.git.branch} ${status}`, COLORS.yellow));
   }
 
