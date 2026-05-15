@@ -25,10 +25,17 @@ export interface ContextWindow extends ContextUsage {
   current_usage?: ContextUsage | null;
 }
 
-export interface StdinData {
+export interface StdinData extends ContextUsage {
   model?: ModelInfo;
   context_window?: ContextWindow;
   cwd?: string;
+  session_id?: string;
+  sessionId?: string;
+  transcript_path?: string;
+  total_input_tokens?: number;
+  total_output_tokens?: number;
+  context_window_size?: number;
+  max_context_window_size?: number;
   [key: string]: unknown;
 }
 

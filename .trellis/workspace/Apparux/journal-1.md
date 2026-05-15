@@ -642,3 +642,36 @@ Bumped cc-fusion to 1.3.2, pushed the release tag, verified the npm publish work
 ### Next Steps
 
 - None - task complete
+
+
+## Session 20: Optimize statusline stability
+
+**Date**: 2026-05-15
+**Task**: Optimize statusline stability
+**Branch**: `dev`
+
+### Summary
+
+Improved statusline transcript discovery and context compatibility, added build-backed regression tests, updated verification guidance, then cleaned up agent worktrees.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `17bc0ae` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

@@ -18,6 +18,9 @@ npm install
 # Build TypeScript into dist/
 npm run build
 
+# Run build-backed regression tests
+npm test
+
 # Watch build during development
 npm run dev
 
@@ -31,7 +34,7 @@ printf '{"model":{"display_name":"Opus 4.7","id":"claude-opus-4-7"},"context_win
 npm pack --dry-run
 ```
 
-There is no dedicated test script currently. Use `npm run build`, targeted stdin smoke tests, `git diff --check`, and `npm pack --dry-run` for verification.
+Use `npm test`, targeted stdin smoke tests, `git diff --check`, and `npm pack --dry-run` for verification. `npm test` runs `npm run build` first, then executes the Node built-in regression tests.
 
 ## Architecture overview
 

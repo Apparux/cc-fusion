@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"CLI runtime overview and pre-development checklist for statusline behavior changes"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Build, smoke, stdin compatibility, and packaging verification requirements"}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Resilient statusline fallback behavior for optional stdin/transcript data"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Avoid duplicating existing compatibility logic while making surgical changes"}

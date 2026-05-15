@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 19
-- **Last Active**: 2026-05-14
+- **Total Sessions**: 20
+- **Last Active**: 2026-05-15
 <!-- @@@/auto:current-status -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 20 | 2026-05-15 | Optimize statusline stability | `17bc0ae` | `dev` |
 | 19 | 2026-05-14 | Release cc-fusion 1.3.2 | `bbbd3e7` | `main` |
 | 18 | 2026-05-14 | Use brick dirty git icon | `9abe790` | `dev` |
 | 17 | 2026-05-14 | Replace dirty git icon | `28a53e7` | `dev` |
