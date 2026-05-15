@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"CLI runtime overview and statusline behavior boundaries"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Required verification commands and review checklist for TypeScript/runtime changes"}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Ensure optional transcript/stdin failures degrade safely"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check implementation reuses helpers rather than duplicating logic"}
