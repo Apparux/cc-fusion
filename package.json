@@ -17,6 +17,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc && chmod 755 dist/index.js",
     "dev": "tsc --watch",
+    "test": "npm run build && node --test test/*.test.mjs",
     "prepack": "npm run build",
     "prepublishOnly": "npm run build"
   },

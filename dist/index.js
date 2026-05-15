@@ -4,8 +4,8 @@
  * Reads Claude Code stdin JSON, renders 5-line statusline to stdout.
  */
 import { readFileSync } from 'fs';
-import { parseStdin, calcContextPct, getCwd } from './stdin.js';
-import { parseTranscript } from './transcript.js';
+import { parseStdin, calcContextPct, getContextTokens, getContextWindowSize, getCwd } from './stdin.js';
+import { parseTranscript, findTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { simplifyModel, getProjectName, formatTokens } from './utils.js';
 import { render } from './render.js';
@@ -63,18 +63,21 @@ function main() {
     // 2. Collect git info
     const git = getGitInfo(cwd);
     // 3. Parse transcript
-    const transcriptPath = typeof stdin.transcript_path === 'string' ? stdin.transcript_path : null;
+    const sessionId = typeof stdin.session_id === 'string'
+        ? stdin.session_id
+        : typeof stdin.sessionId === 'string'
+            ? stdin.sessionId
+            : undefined;
+    const transcriptPath = findTranscript(sessionId, cwd, typeof stdin.transcript_path === 'string' ? stdin.transcript_path : null);
     const tools = parseTranscript(transcriptPath);
     // 4. Build render context
     const model = simplifyModel(stdin.model?.display_name, stdin.model?.id);
     const project = getProjectName(cwd);
     const contextPct = calcContextPct(stdin);
     // Calculate token usage
-    const contextWindow = stdin.context_window;
-    const totalInput = contextWindow?.total_input_tokens || 0;
-    const totalOutput = contextWindow?.total_output_tokens || 0;
-    const contextSize = contextWindow?.context_window_size || 200000;
-    const contextUsed = formatTokens(totalInput + totalOutput);
+    const { total: totalContextTokens } = getContextTokens(stdin);
+    const contextSize = getContextWindowSize(stdin) || 200000;
+    const contextUsed = formatTokens(totalContextTokens);
     const contextTotal = formatTokens(contextSize);
     const rc = {
         stdin,

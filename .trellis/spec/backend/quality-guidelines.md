@@ -6,11 +6,12 @@
 
 ## Overview
 
-The project is a strict TypeScript Node CLI with no dedicated test script. Quality verification relies on TypeScript build, targeted smoke tests, whitespace checks, and package preview.
+The project is a strict TypeScript Node CLI. Quality verification relies on `npm test` for build-backed regression tests, targeted smoke tests, whitespace checks, and package preview.
 
 Required commands from `CLAUDE.md`:
 
 ```bash
+npm test
 npm run build
 git diff --check
 npm pack --dry-run
@@ -45,10 +46,10 @@ Use targeted stdin smoke tests when rendering behavior changes.
 
 ## Testing Requirements
 
-There is no `npm test` script. Choose verification based on touched files:
+Choose verification based on touched files:
 
 - Docs/spec-only changes: at minimum `git diff --check`.
-- Any TypeScript/runtime/config behavior change: `npm run build` plus `git diff --check`.
+- Any TypeScript/runtime/config behavior change: `npm test` plus `git diff --check`.
 - Rendering changes: run a targeted smoke test such as the sample stdin command in `CLAUDE.md` piped to `node dist/index.js` after build.
 - Context rendering changes: include smoke cases around percentage thresholds, especially `59.9`, `60`, `79.9`, and `80`, plus representative low/medium/high values.
 - Packaging/release-sensitive changes: `npm pack --dry-run`.
