@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 18
-- **Last Active**: 2026-05-14
+- **Total Sessions**: 19
+- **Last Active**: 2026-05-15
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~611 | Active |
+| `journal-1.md` | ~644 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 19 | 2026-05-15 | Optimize statusline stability | `17bc0ae` | `dev` |
 | 18 | 2026-05-14 | Use brick dirty git icon | `9abe790` | `dev` |
 | 17 | 2026-05-14 | Replace dirty git icon | `28a53e7` | `dev` |
 | 16 | 2026-05-13 | Fix statusline executable regression | `dbc9207`, `d7c4ff1` | `main` |

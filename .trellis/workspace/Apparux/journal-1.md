@@ -609,3 +609,36 @@ Changed the dirty git statusline icon to the brick emoji after visual tuning, re
 ### Next Steps
 
 - None - task complete
+
+
+## Session 19: Optimize statusline stability
+
+**Date**: 2026-05-15
+**Task**: Optimize statusline stability
+**Branch**: `dev`
+
+### Summary
+
+Improved statusline transcript discovery and context compatibility, added build-backed regression tests, updated verification guidance, then cleaned up agent worktrees.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `17bc0ae` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
