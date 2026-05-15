@@ -675,3 +675,37 @@ Improved statusline transcript discovery and context compatibility, added build-
 ### Next Steps
 
 - None - task complete
+
+
+## Session 21: Release cc-fusion v2.0.0
+
+**Date**: 2026-05-15
+**Task**: Release cc-fusion v2.0.0
+**Branch**: `main`
+
+### Summary
+
+Merged dev into main, bumped cc-fusion to 2.0.0, pushed main and v2.0.0, verified npm publish workflow and npm registry, and created the GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `458edb9` | (see git log) |
+| `bd23af9` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
