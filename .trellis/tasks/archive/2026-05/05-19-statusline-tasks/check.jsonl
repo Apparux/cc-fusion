@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"Checklist for validating CLI/runtime changes."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Required checks: npm test, git diff --check, targeted smoke when rendering behavior changes."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Review module boundary: parser aggregation in transcript.ts, renderer remains presentation-only."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Review for unnecessary duplication or over-abstraction."}

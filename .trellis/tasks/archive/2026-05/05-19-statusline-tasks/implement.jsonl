@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"Pre-development checklist for CLI/runtime behavior changes."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Strict TypeScript CLI quality patterns and required verification for transcript/rendering behavior."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Confirms transcript parsing belongs in src/transcript.ts and renderer boundaries should remain separated."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Guidance to avoid unnecessary abstraction and reuse existing parser/test patterns."}
