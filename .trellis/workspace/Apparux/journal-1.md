@@ -743,3 +743,36 @@ Implemented MVP reset for completed statusline task batches, added regression co
 ### Next Steps
 
 - None - task complete
+
+
+## Session 23: Release cc-fusion v2.0.1
+
+**Date**: 2026-05-19
+**Task**: Release cc-fusion v2.0.1
+**Branch**: `main`
+
+### Summary
+
+Published cc-fusion v2.0.1: bumped package versions, pushed main and v2.0.1 tag, verified npm publish workflow success, confirmed npm registry, and created the GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b1c64c3` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

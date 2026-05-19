@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 22
+- **Total Sessions**: 23
 - **Last Active**: 2026-05-19
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~745 | Active |
+| `journal-1.md` | ~778 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 23 | 2026-05-19 | Release cc-fusion v2.0.1 | `b1c64c3` | `main` |
 | 22 | 2026-05-19 | Statusline task batch reset | `ae91e73`, `340adac` | `main` |
 | 21 | 2026-05-15 | Release cc-fusion v2.0.0 | `458edb9`, `bd23af9` | `main` |
 | 20 | 2026-05-15 | Optimize statusline stability | `17bc0ae` | `dev` |
