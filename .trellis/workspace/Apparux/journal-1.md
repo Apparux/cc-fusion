@@ -810,3 +810,36 @@ Implemented dynamic statusline task display window: full-batch totals/progress a
 ### Next Steps
 
 - None - task complete
+
+
+## Session 25: Release cc-fusion v2.0.2
+
+**Date**: 2026-05-19
+**Task**: Release cc-fusion v2.0.2
+**Branch**: `main`
+
+### Summary
+
+Published cc-fusion v2.0.2: bumped package versions, pushed main and v2.0.2 tag, verified npm publish workflow success, confirmed npm registry, and created the GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `80e6683` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
