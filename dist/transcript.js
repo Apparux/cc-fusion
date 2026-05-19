@@ -221,17 +221,18 @@ export function parseTranscript(filePath, maxLines = 500) {
             }
         }
         const agents = Array.from(agentMap.values()).slice(-5); // Keep last 5 agents
-        const todos = Array.from(todoMap.values())
-            .slice(-5)
-            .map((todo, index) => ({ ...todo, id: index + 1 }));
-        const doneTodos = todos.filter(t => t.status === 'done').length;
+        const allTodos = Array.from(todoMap.values()).map((todo, index) => ({ ...todo, id: index + 1 }));
+        const doneTodos = allTodos.filter(t => t.status === 'done').length;
+        const todos = allTodos.length > 5
+            ? allTodos.filter(todo => todo.status !== 'done').slice(0, 5)
+            : allTodos;
         return {
             lastRead,
             lastEdit,
             lastSearch,
             agents,
             todos,
-            totalTodos: todos.length,
+            totalTodos: allTodos.length,
             doneTodos,
         };
     }

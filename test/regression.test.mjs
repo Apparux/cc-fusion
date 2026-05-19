@@ -100,6 +100,60 @@ test('unfinished task batch appends later task without reset', () => {
   assert.equal(stats.doneTodos, 1);
 });
 
+test('over-five task batch uses full counts and displays active window after completed prefix', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-window-'));
+  const transcript = join(dir, 'completed-prefix-window.jsonl');
+  const lines = [];
+
+  for (let taskId = 1; taskId <= 9; taskId += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `task-create-${taskId}`, name: 'TaskCreate', input: { taskId, subject: `Task ${taskId}` } }));
+  }
+  for (let taskId = 1; taskId <= 4; taskId += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `task-update-${taskId}`, name: 'TaskUpdate', input: { taskId, status: 'completed' } }));
+  }
+  lines.push(JSON.stringify({ type: 'tool_use', id: 'task-update-5', name: 'TaskUpdate', input: { taskId: 5, status: 'in_progress' } }));
+  writeFileSync(transcript, lines.join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, [
+    { id: 5, name: 'Task 5', status: 'current' },
+    { id: 6, name: 'Task 6', status: 'pending' },
+    { id: 7, name: 'Task 7', status: 'pending' },
+    { id: 8, name: 'Task 8', status: 'pending' },
+    { id: 9, name: 'Task 9', status: 'pending' },
+  ]);
+  assert.equal(stats.totalTodos, 9);
+  assert.equal(stats.doneTodos, 4);
+});
+
+test('over-five task batch displays first five active tasks and preserves full totals', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-window-'));
+  const transcript = join(dir, 'first-active-window.jsonl');
+  const lines = [];
+
+  for (let taskId = 1; taskId <= 9; taskId += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `task-create-${taskId}`, name: 'TaskCreate', input: { taskId, subject: `Task ${taskId}` } }));
+  }
+  for (let taskId = 1; taskId <= 2; taskId += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `task-update-${taskId}`, name: 'TaskUpdate', input: { taskId, status: 'completed' } }));
+  }
+  for (let taskId = 3; taskId <= 7; taskId += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `task-update-${taskId}`, name: 'TaskUpdate', input: { taskId, status: 'in_progress' } }));
+  }
+  writeFileSync(transcript, lines.join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, [
+    { id: 3, name: 'Task 3', status: 'current' },
+    { id: 4, name: 'Task 4', status: 'current' },
+    { id: 5, name: 'Task 5', status: 'current' },
+    { id: 6, name: 'Task 6', status: 'current' },
+    { id: 7, name: 'Task 7', status: 'current' },
+  ]);
+  assert.equal(stats.totalTodos, 9);
+  assert.equal(stats.doneTodos, 2);
+});
+
 test('task create result does not duplicate an already parsed task id', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-batch-'));
   const transcript = join(dir, 'task-create-result-dedup.jsonl');
