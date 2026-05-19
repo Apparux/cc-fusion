@@ -709,3 +709,37 @@ Merged dev into main, bumped cc-fusion to 2.0.0, pushed main and v2.0.0, verifie
 ### Next Steps
 
 - None - task complete
+
+
+## Session 22: Statusline task batch reset
+
+**Date**: 2026-05-19
+**Task**: Statusline task batch reset
+**Branch**: `main`
+
+### Summary
+
+Implemented MVP reset for completed statusline task batches, added regression coverage, verified npm test/package smoke checks, and captured the transcript task batch contract in spec.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `ae91e73` | (see git log) |
+| `340adac` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
