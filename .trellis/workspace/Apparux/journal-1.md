@@ -776,3 +776,37 @@ Published cc-fusion v2.0.1: bumped package versions, pushed main and v2.0.1 tag,
 ### Next Steps
 
 - None - task complete
+
+
+## Session 24: Fix statusline task window counts
+
+**Date**: 2026-05-19
+**Task**: Fix statusline task window counts
+**Branch**: `main`
+
+### Summary
+
+Implemented dynamic statusline task display window: full-batch totals/progress are preserved while only the first five active tasks render, added regression coverage and targeted smoke verification, and updated the transcript task aggregation spec.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1eee853` | (see git log) |
+| `d1f68ef` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
