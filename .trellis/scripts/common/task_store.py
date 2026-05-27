@@ -138,6 +138,32 @@ def _write_seed_jsonl(path: Path) -> None:
     path.write_text(json.dumps(seed, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def _default_prd_content(title: str, description: str | None = None) -> str:
+    """Return the default PRD skeleton created with every task."""
+    goal = (description or "").strip() or "TBD."
+    heading = title.strip() or "Untitled task"
+    return f"""# {heading}
+
+## Goal
+
+{goal}
+
+## Requirements
+
+- TBD
+
+## Acceptance Criteria
+
+- [ ] TBD
+
+## Notes
+
+- Keep `prd.md` focused on requirements, constraints, and acceptance criteria.
+- Lightweight tasks can remain PRD-only.
+- For complex tasks, add `design.md` for technical design and `implement.md` for execution planning before `task.py start`.
+"""
+
+
 # =============================================================================
 # Command: create
 # =============================================================================
@@ -233,8 +259,15 @@ def cmd_create(args: argparse.Namespace) -> int:
 
     write_json(task_json_path, task_data)
 
+    prd_path = task_dir / "prd.md"
+    if not prd_path.exists():
+        prd_path.write_text(
+            _default_prd_content(args.title, args.description),
+            encoding="utf-8",
+        )
+
     # Seed implement.jsonl / check.jsonl for sub-agent-capable platforms.
-    # Agent curates real entries in Phase 1.3 (see .trellis/workflow.md).
+    # Agent curates real entries during planning when the task needs them.
     # Agent-less platforms (Kilo / Antigravity / Windsurf) skip this — they
     # load specs via the trellis-before-dev skill instead of JSONL.
     seeded_jsonl = False
@@ -286,16 +319,15 @@ def cmd_create(args: argparse.Namespace) -> int:
     print(colored(f"Created task: {dir_name}", Colors.GREEN), file=sys.stderr)
     print("", file=sys.stderr)
     print(colored("Next steps:", Colors.BLUE), file=sys.stderr)
-    print("  1. Create prd.md with requirements", file=sys.stderr)
+    print("  - Fill prd.md with requirements and acceptance criteria", file=sys.stderr)
+    print("  - Lightweight task: PRD-only is valid", file=sys.stderr)
+    print("  - Complex task: add design.md and implement.md before task.py start", file=sys.stderr)
     if seeded_jsonl:
         print(
-            "  2. Curate implement.jsonl / check.jsonl (spec + research files only — "
-            "see .trellis/workflow.md Phase 1.3)",
+            "  - Curate implement.jsonl / check.jsonl as spec/research manifests when sub-agents need context",
             file=sys.stderr,
         )
-        print("  3. Run: python3 task.py start <dir>", file=sys.stderr)
-    else:
-        print("  2. Run: python3 task.py start <dir>", file=sys.stderr)
+    print("  - Use /trellis:continue or phase context to decide the next step", file=sys.stderr)
     print("", file=sys.stderr)
 
     # Output relative path for script chaining
@@ -337,6 +369,9 @@ def cmd_archive(args: argparse.Namespace) -> int:
 
     # Update status before archiving
     today = datetime.now().strftime("%Y-%m-%d")
+    # Names of child task dirs whose task.json gets modified below; passed
+    # into safe_archive_paths_to_add so they're staged in this commit.
+    modified_children: list[str] = []
     if task_json_path.is_file():
         data = read_json(task_json_path)
         if data:
@@ -361,6 +396,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
                             if child_data:
                                 child_data["parent"] = None
                                 write_json(child_json, child_data)
+                                modified_children.append(child_dir_path.name)
 
     # Clear any session that still points at this task before the path moves.
     from .active_task import clear_task_from_sessions
@@ -375,7 +411,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
 
         # Auto-commit unless --no-commit
         if not getattr(args, "no_commit", False):
-            _auto_commit_archive(dir_name, repo_root)
+            _auto_commit_archive(dir_name, repo_root, modified_children)
 
         # Return the archive path
         print(f"{DIR_WORKFLOW}/{DIR_TASKS}/{DIR_ARCHIVE}/{year_month}/{dir_name}")
@@ -388,18 +424,26 @@ def cmd_archive(args: argparse.Namespace) -> int:
     return 1
 
 
-def _auto_commit_archive(task_name: str, repo_root: Path) -> None:
+def _auto_commit_archive(
+    task_name: str,
+    repo_root: Path,
+    modified_children: list[str] | None = None,
+) -> None:
     """Stage Trellis-owned task paths and commit after archive.
 
-    Only stages specific subpaths (the archive subtree and active task dirs),
-    never the whole ``.trellis/`` tree. If ``.gitignore`` blocks the paths,
-    we warn + skip — we do NOT retry with ``git add -f``. The warning
-    explicitly forbids ``git add -f .trellis/`` (which would fan out to
-    caches/backups) and points users at ``session_auto_commit: false``.
+    Scoped narrowly to the archived task's source + destination paths
+    plus any child task dirs whose ``task.json`` was edited (parent →
+    children relationship update). Dirty changes in OTHER active task
+    dirs are NOT bundled into the archive commit.
 
-    Honors ``session_auto_commit`` in ``.trellis/config.yaml``: when set to
-    ``false``, this function returns immediately without touching git
-    (the archive directory move on disk is unaffected).
+    If ``.gitignore`` blocks the paths, we warn + skip — we do NOT
+    retry with ``git add -f``. The warning explicitly forbids
+    ``git add -f .trellis/`` (which would fan out to caches/backups)
+    and points users at ``session_auto_commit: false``.
+
+    Honors ``session_auto_commit`` in ``.trellis/config.yaml``: when
+    set to ``false``, this function returns immediately without
+    touching git (the archive directory move on disk is unaffected).
     """
     if not get_session_auto_commit(repo_root):
         print(
@@ -408,7 +452,9 @@ def _auto_commit_archive(task_name: str, repo_root: Path) -> None:
         )
         return
 
-    paths = safe_archive_paths_to_add(repo_root)
+    paths = safe_archive_paths_to_add(
+        repo_root, task_name=task_name, modified_children=modified_children
+    )
     if not paths:
         print("[OK] No task changes to commit.", file=sys.stderr)
         return
@@ -424,8 +470,24 @@ def _auto_commit_archive(task_name: str, repo_root: Path) -> None:
             )
         return
 
+    # Belt-and-suspenders for the phantom-delete bug: `safe_git_add` uses
+    # `git add` (no -A) which only stages additions/modifications. The
+    # source task directory was moved away by `shutil.move`, so its files
+    # need an explicit `git rm --cached` to stage the deletions in this
+    # same commit — otherwise they sit as uncommitted "phantom deletes"
+    # against HEAD until something later picks them up.
+    #
+    # `--ignore-unmatch` makes this a no-op when the task was never tracked
+    # (e.g. archiving a task that lived only in working tree).
+    source_rel = f"{DIR_WORKFLOW}/{DIR_TASKS}/{task_name}"
+    run_git(
+        ["rm", "-r", "--cached", "--ignore-unmatch", "--", source_rel],
+        cwd=repo_root,
+    )
+
     rc, _, _ = run_git(
-        ["diff", "--cached", "--quiet", "--", *paths], cwd=repo_root
+        ["diff", "--cached", "--quiet", "--", *paths, source_rel],
+        cwd=repo_root,
     )
     if rc == 0:
         print("[OK] No task changes to commit.", file=sys.stderr)
