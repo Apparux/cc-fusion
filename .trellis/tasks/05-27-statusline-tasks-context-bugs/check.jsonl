@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/error-handling.md","reason":"Check that missing/partial context and transcript inputs degrade to accepted display states."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check required build, regression tests, smoke tests, transcript parsing constraints, and no dist hand edits."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Check normal statusline rendering remains stdout-clean and does not leak diagnostics."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Check terminal renderer output remains compact and renderer functions do not print directly."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check stdin/transcript parsing uses explicit narrowing and avoids broad any."}

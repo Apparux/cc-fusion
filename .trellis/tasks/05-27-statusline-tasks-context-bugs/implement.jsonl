@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/error-handling.md","reason":"Statusline runtime must degrade gracefully for missing stdin/transcript fields without crashing or noisy output."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Runtime changes must keep stdin compatibility centralized, transcript parsing bounded/tolerant, and pass required verification."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"No-argument statusline execution must not emit diagnostics or debug logs while handling missing data."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Context and Tasks display changes must stay in terminal renderer functions and preserve compact statusline output."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Claude stdin and transcript payloads are untrusted flexible JSON and need strict narrowing without broad any."}
