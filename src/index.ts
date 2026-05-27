@@ -5,7 +5,7 @@
  */
 
 import { readFileSync } from 'fs';
-import { parseStdin, calcContextPct, getContextTokens, getContextWindowSize, getCwd } from './stdin.js';
+import { parseStdin, calcContextPct, getContextTokens, getContextWindowSize, getCwd, hasContextTokens } from './stdin.js';
 import { parseTranscript, findTranscript } from './transcript.js';
 import { getGitInfo } from './git.js';
 import { simplifyModel, getProjectName, formatTokens } from './utils.js';
@@ -94,10 +94,12 @@ function main(): void {
   const contextPct = calcContextPct(stdin);
 
   // Calculate token usage
+  const hasTokens = hasContextTokens(stdin);
   const { total: totalContextTokens } = getContextTokens(stdin);
-  const contextSize = getContextWindowSize(stdin) || 200000;
-  const contextUsed = formatTokens(totalContextTokens);
-  const contextTotal = formatTokens(contextSize);
+  const contextSize = getContextWindowSize(stdin);
+  const hasKnownWindow = contextSize > 0;
+  const contextUsed = hasTokens && hasKnownWindow ? formatTokens(totalContextTokens) : '--';
+  const contextTotal = hasKnownWindow ? formatTokens(contextSize) : '--';
 
   const rc: RenderContext = {
     stdin,

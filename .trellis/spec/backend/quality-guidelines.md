@@ -27,9 +27,9 @@ Use targeted stdin smoke tests when rendering behavior changes.
 - Preserve command dispatch before stdin reads in `src/index.ts` so interactive commands do not consume Claude Code statusline input.
 - Centralize Claude Code input compatibility in `src/stdin.ts`. Current support covers legacy fields such as `input_tokens`/`max_context_window_size` and current fields such as `context_window.used_percentage`, `context_window.context_window_size`, `context_window.current_usage`, `total_input_tokens`, and `total_output_tokens`.
 - Keep visual theme behavior separate from preset/layout behavior. Themes live in TOML under `themes/`; presets live in JSON under `presets/`; renderer composition lives in `src/render.ts`.
-- Preserve display precision for renderer percentages until the renderer formats them. For Context usage, `calcContextPct` returns a clamped decimal percentage; color thresholds are green for `<60`, yellow for `>=60 && <80`, and red for `>=80`.
-- Keep transcript parsing bounded and tolerant. `src/transcript.ts` tail-reads JSONL and skips malformed lines.
-- Keep transcript-derived task aggregation batch-local: when all currently tracked tasks are `done`, the next distinct `TaskCreate` starts a fresh batch; if any tracked task is unfinished, later tasks append to the same batch. `TaskCreate` may be observed through both tool input and tool result text, so task IDs must be deduplicated before applying batch-reset logic. `totalTodos` and `doneTodos` must always be calculated from the full current batch; the rendered `todos` list is only a display window of at most the first five non-done tasks in original order, using full-batch positions for `id`.
+- Preserve display precision for renderer percentages until the renderer formats them. For Context usage, `calcContextPct` returns a clamped decimal percentage when usage is known and `null` when usage is unknown; color thresholds are green for `<60`, yellow for `>=60 && <80`, and red for `>=80`.
+- Keep transcript parsing bounded and tolerant. `src/transcript.ts` tail-reads JSONL and skips malformed lines. Activity fields such as last read/edit/search and agents stay on the normal tail window; task aggregation may use a separate wider bounded scan because task create/result events can be far older than current updates.
+- Keep transcript-derived task aggregation batch-local: when all currently tracked tasks are `done`, the next distinct `TaskCreate` starts a fresh batch; if any tracked task is unfinished, later tasks append to the same batch. `TaskCreate` may be observed through both tool input and tool result text, so task IDs must be deduplicated across the whole task-event scan before applying batch-reset logic. `totalTodos` and `doneTodos` must always be calculated from the full current batch; the rendered `todos` list is only a display window of at most the first five non-done tasks in original order, using full-batch positions for `id`.
 - Avoid dependencies unless clearly justified. Current runtime has no external dependencies; dev dependencies are TypeScript and Node types only.
 
 ---
@@ -44,6 +44,70 @@ Use targeted stdin smoke tests when rendering behavior changes.
 - Do not couple theme palette/icon changes to preset line layout behavior.
 
 ---
+
+## Context and Transcript Contracts
+
+### Context usage: unknown is not zero
+
+**Signature**: `calcContextPct(stdin: StdinData): number | null`.
+
+**Contract**:
+
+| Input condition | Expected behavior |
+| --- | --- |
+| `context_window.used_percentage` is finite | Return clamped decimal percentage, even if token counts are absent. |
+| Token usage fields are present and a positive window size is present | Calculate percentage from tokens / window size. |
+| Usage fields are absent | Return `null`; renderers must not treat this as `0`. |
+| Usage is absent but `context_window_size` is known | Render unknown used values with known total, e.g. `--.-%` and `-- / 1.0M tokens`. |
+
+**Wrong**:
+
+```typescript
+const pct = calcContextPct(stdin) || 0;
+```
+
+**Correct**:
+
+```typescript
+const pct = calcContextPct(stdin);
+if (pct === null) {
+  // render unknown placeholders
+}
+```
+
+**Tests required**: cover legacy token fields, current `context_window` totals, missing usage with known window size, and known `used_percentage` with missing token counts.
+
+### Transcript tasks: scan wider than activity tail
+
+**Scope**: `parseTranscript(filePath, maxLines)` must keep activity stats tail-bounded while reconstructing task state from a separate wider bounded task-event scan.
+
+**Contract**:
+
+| Event shape | Expected behavior |
+| --- | --- |
+| `TaskCreate.input.taskId` is present | Create that task once with the input subject. |
+| `TaskCreate` lacks `taskId` and its own later `tool_result` says `Task #N created successfully: <subject>` | Map the tool result back to the create tool and create task `N`. |
+| Non-TaskCreate tool output contains text like `Task #N created successfully` | Ignore it; task result parsing must require a known `TaskCreate` tool id or pending TaskCreate. |
+| A later `TaskUpdate` references a known task | Apply normalized status to the existing task. |
+| A create/result event appears again after a batch reset | Ignore it if that task ID was already seen in the task-event scan. |
+| Create/result is outside the normal activity tail but inside task scan | Tasks should still reconstruct; activity fields should not expand with it. |
+
+**Wrong**:
+
+```typescript
+if (todoMap.has(taskId)) return;
+addCreatedTask(todoMap, taskId, subject);
+```
+
+**Correct**:
+
+```typescript
+if (seenTaskIds.has(taskId)) return;
+seenTaskIds.add(taskId);
+addCreatedTaskToCurrentBatch(todoMap, taskId, subject);
+```
+
+**Tests required**: cover ID-less `TaskCreate` result backfill, non-task tool output containing task-result-looking text, delayed duplicate result after batch reset, over-five display windows, and long transcripts where create/result events are outside the normal activity tail.
 
 ## Testing Requirements
 

@@ -16,13 +16,18 @@ export function renderLine2(ctx: RenderContext): string {
 
   parts.push(colorize('🧠 Context', COLORS.pink));
 
-  const pctColor = progressColor(ctx.contextPct);
   const contextParts: string[] = [];
-  contextParts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));
+  if (ctx.contextPct === null) {
+    contextParts.push(colorize('● --.-%', COLORS.dim));
+    contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+  } else {
+    const pctColor = progressColor(ctx.contextPct);
+    contextParts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));
 
-  const { filled, empty } = renderProgressBar(ctx.contextPct, 16);
-  contextParts.push(colorize(filled, pctColor) + colorize(empty, COLORS.dim));
-  contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+    const { filled, empty } = renderProgressBar(ctx.contextPct, 16);
+    contextParts.push(colorize(filled, pctColor) + colorize(empty, COLORS.dim));
+    contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+  }
 
   parts.push(contextParts.join('  '));
 

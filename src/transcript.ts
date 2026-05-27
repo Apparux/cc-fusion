@@ -6,6 +6,8 @@ import { openSync, readSync, closeSync, statSync } from 'fs';
 import type { ToolStats, TranscriptEntry, TranscriptToolUse } from './types.js';
 
 const DEFAULT_TAIL_BYTES = 1024 * 512;
+const TASK_SCAN_BYTES = 1024 * 1024 * 8;
+const TASK_SCAN_LINES = 10000;
 
 function emptyStats(): ToolStats {
   return {
@@ -94,10 +96,12 @@ function shouldStartNewTaskBatch(todoMap: Map<number, TodoItem>): boolean {
 
 function addCreatedTask(
   todoMap: Map<number, TodoItem>,
+  seenTaskIds: Set<number>,
   taskId: number,
   subject: string
 ): void {
-  if (todoMap.has(taskId)) return;
+  if (seenTaskIds.has(taskId)) return;
+  seenTaskIds.add(taskId);
 
   if (shouldStartNewTaskBatch(todoMap)) {
     todoMap.clear();
@@ -133,6 +137,148 @@ function collectToolResultTexts(entry: TranscriptEntry): Array<{ toolUseId?: str
   return results;
 }
 
+type OrderedTaskEvent =
+  | { kind: 'tool_use'; tool: TranscriptToolUse }
+  | { kind: 'tool_result'; toolUseId?: string; text: string };
+
+function collectOrderedTaskEvents(entry: TranscriptEntry): OrderedTaskEvent[] {
+  const events: OrderedTaskEvent[] = [];
+  if (entry.type === 'tool_use') {
+    events.push({ kind: 'tool_use', tool: entry as TranscriptToolUse });
+  }
+
+  const content = (entry.type === 'assistant' || entry.type === 'user' || entry.type === 'system')
+    ? entry.message?.content
+    : undefined;
+
+  if (!Array.isArray(content)) return events;
+
+  for (const item of content) {
+    if (item.type === 'tool_use') {
+      events.push({ kind: 'tool_use', tool: item as unknown as TranscriptToolUse });
+      continue;
+    }
+
+    if (item.type === 'tool_result') {
+      const text = textFromValue(item.content);
+      if (!text) continue;
+
+      events.push({
+        kind: 'tool_result',
+        toolUseId: typeof item.tool_use_id === 'string' ? item.tool_use_id : undefined,
+        text,
+      });
+    }
+  }
+
+  return events;
+}
+
+function parseTaskCreateResult(text: string): { taskId: number; subject?: string } | undefined {
+  const match = text.match(/Task #(\d+) created successfully(?::\s*(.+))?/i);
+  if (!match) return undefined;
+
+  const taskId = parseTaskId(match[1]);
+  if (taskId === undefined) return undefined;
+
+  const subject = typeof match[2] === 'string' && match[2].trim() ? match[2].trim() : undefined;
+  return { taskId, subject };
+}
+
+function normalizeTaskStatus(status: string): TodoItem['status'] | undefined {
+  if (status === 'completed' || status === 'done') return 'done';
+  if (status === 'in_progress' || status === 'current') return 'current';
+  if (status === 'pending') return 'pending';
+  if (status === 'future') return 'future';
+  return undefined;
+}
+
+function taskSubjectFromTool(tool: TranscriptToolUse): string | undefined {
+  const subject = tool.input?.subject ?? tool.input?.description ?? tool.input?.activeForm;
+  return typeof subject === 'string' && subject ? subject : undefined;
+}
+
+function parseTaskEvents(lines: string[]): Pick<ToolStats, 'todos' | 'totalTodos' | 'doneTodos'> {
+  const todoMap = new Map<number, TodoItem>();
+  const seenTaskIds = new Set<number>();
+  const taskCreateSubjects = new Map<string, string>();
+  const pendingTaskCreateToolIds: string[] = [];
+
+  for (const line of lines) {
+    let entry: TranscriptEntry;
+    try {
+      entry = JSON.parse(line);
+    } catch {
+      continue;
+    }
+
+    for (const event of collectOrderedTaskEvents(entry)) {
+      if (event.kind === 'tool_use') {
+        const tool = event.tool;
+        const name = (tool.name || '').toLowerCase();
+
+        if (name === 'taskcreate') {
+          const subject = taskSubjectFromTool(tool);
+          if (!subject) continue;
+
+          taskCreateSubjects.set(tool.id, subject);
+
+          const taskId = parseTaskId(tool.input?.taskId ?? tool.input?.id);
+          if (taskId !== undefined) {
+            addCreatedTask(todoMap, seenTaskIds, taskId, subject);
+          } else if (!pendingTaskCreateToolIds.includes(tool.id)) {
+            pendingTaskCreateToolIds.push(tool.id);
+          }
+        }
+
+        if (name === 'taskupdate') {
+          const taskId = parseTaskId(tool.input?.taskId ?? tool.input?.id);
+          const status = tool.input?.status;
+          if (taskId === undefined || typeof status !== 'string') continue;
+
+          const existing = todoMap.get(taskId);
+          const normalized = normalizeTaskStatus(status);
+          if (existing && normalized) {
+            existing.status = normalized;
+          }
+        }
+
+        continue;
+      }
+
+      const toolId = event.toolUseId || pendingTaskCreateToolIds[0];
+      if (!toolId || !taskCreateSubjects.has(toolId)) continue;
+
+      const created = parseTaskCreateResult(event.text);
+      if (!created) continue;
+
+      if (event.toolUseId) {
+        const pendingIndex = pendingTaskCreateToolIds.indexOf(event.toolUseId);
+        if (pendingIndex !== -1) pendingTaskCreateToolIds.splice(pendingIndex, 1);
+      } else {
+        pendingTaskCreateToolIds.shift();
+      }
+
+      const subject = taskCreateSubjects.get(toolId) ?? created.subject;
+      if (!subject) continue;
+
+      addCreatedTask(todoMap, seenTaskIds, created.taskId, subject);
+    }
+  }
+
+  const allTodos = Array.from(todoMap.values()).map((todo, index) => ({ ...todo, id: index + 1 }));
+  const doneTodos = allTodos.filter(t => t.status === 'done').length;
+  const todos = allTodos.length > 5
+    ? allTodos.filter(todo => todo.status !== 'done').slice(0, 5)
+    : allTodos;
+
+  return {
+    todos,
+    totalTodos: allTodos.length,
+    doneTodos,
+  };
+}
+
 /**
  * Parse a transcript JSONL file and extract tool usage statistics.
  */
@@ -142,13 +288,11 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
 
   try {
     const tail = readTailLines(filePath, maxLines);
+    const taskStats = parseTaskEvents(readTailLines(filePath, TASK_SCAN_LINES, TASK_SCAN_BYTES));
     let lastRead: string | undefined;
     let lastEdit: string | undefined;
     let lastSearch: string | undefined;
     const agentMap = new Map<string, { name: string; status: string; color: string }>();
-    const todoMap = new Map<number, { id: number; name: string; status: 'done' | 'current' | 'pending' | 'future' }>();
-    const taskCreateSubjects = new Map<string, string>();
-    const pendingTaskCreateToolIds: string[] = [];
 
     for (const line of tail) {
       let entry: TranscriptEntry;
@@ -156,27 +300,6 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
         entry = JSON.parse(line);
       } catch {
         continue;
-      }
-
-      for (const result of collectToolResultTexts(entry)) {
-        const match = result.text.match(/Task #(\d+) created successfully/i);
-        if (!match) continue;
-
-        const taskId = parseTaskId(match[1]);
-        if (taskId === undefined) continue;
-
-        const toolId = result.toolUseId || pendingTaskCreateToolIds.shift();
-        if (!toolId) continue;
-
-        if (result.toolUseId) {
-          const pendingIndex = pendingTaskCreateToolIds.indexOf(result.toolUseId);
-          if (pendingIndex !== -1) pendingTaskCreateToolIds.splice(pendingIndex, 1);
-        }
-
-        const subject = taskCreateSubjects.get(toolId);
-        if (!subject) continue;
-
-        addCreatedTask(todoMap, taskId, subject);
       }
 
       const toolUses = collectToolUses(entry);
@@ -215,53 +338,17 @@ export function parseTranscript(filePath: string | null, maxLines: number = 500)
             });
           }
         }
-
-        // Track todos from TaskCreate/TaskUpdate
-        if (name === 'taskcreate') {
-          const subject = tool.input?.subject;
-          if (typeof subject === 'string') {
-            taskCreateSubjects.set(tool.id, subject);
-            pendingTaskCreateToolIds.push(tool.id);
-
-            const taskId = parseTaskId(tool.input?.taskId ?? tool.input?.id);
-            if (taskId !== undefined) {
-              addCreatedTask(todoMap, taskId, subject);
-            }
-          }
-        }
-
-        if (name === 'taskupdate') {
-          const taskId = parseTaskId(tool.input?.taskId);
-          const status = tool.input?.status;
-          if (taskId !== undefined && typeof status === 'string') {
-            const existing = todoMap.get(taskId);
-            if (existing) {
-              if (status === 'completed') {
-                existing.status = 'done';
-              } else if (status === 'in_progress') {
-                existing.status = 'current';
-              }
-            }
-          }
-        }
       }
     }
 
     const agents = Array.from(agentMap.values()).slice(-5); // Keep last 5 agents
-    const allTodos = Array.from(todoMap.values()).map((todo, index) => ({ ...todo, id: index + 1 }));
-    const doneTodos = allTodos.filter(t => t.status === 'done').length;
-    const todos = allTodos.length > 5
-      ? allTodos.filter(todo => todo.status !== 'done').slice(0, 5)
-      : allTodos;
 
     return {
       lastRead,
       lastEdit,
       lastSearch,
       agents,
-      todos,
-      totalTodos: allTodos.length,
-      doneTodos,
+      ...taskStats,
     };
   } catch {
     return empty;

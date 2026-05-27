@@ -6,12 +6,18 @@ import { firstSeparatorTargetWidth, joinWithAlignedFirstSeparator, renderProgres
 export function renderLine2(ctx) {
     const parts = [];
     parts.push(colorize('🧠 Context', COLORS.pink));
-    const pctColor = progressColor(ctx.contextPct);
     const contextParts = [];
-    contextParts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));
-    const { filled, empty } = renderProgressBar(ctx.contextPct, 16);
-    contextParts.push(colorize(filled, pctColor) + colorize(empty, COLORS.dim));
-    contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+    if (ctx.contextPct === null) {
+        contextParts.push(colorize('● --.-%', COLORS.dim));
+        contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+    }
+    else {
+        const pctColor = progressColor(ctx.contextPct);
+        contextParts.push(colorize(`● ${ctx.contextPct.toFixed(1)}%`, pctColor));
+        const { filled, empty } = renderProgressBar(ctx.contextPct, 16);
+        contextParts.push(colorize(filled, pctColor) + colorize(empty, COLORS.dim));
+        contextParts.push(colorize(`${ctx.contextUsed} / ${ctx.contextTotal} tokens`, COLORS.cyan));
+    }
     parts.push(contextParts.join('  '));
     return joinWithAlignedFirstSeparator(parts, firstSeparatorTargetWidth(ctx.model));
 }

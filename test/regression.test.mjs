@@ -47,6 +47,78 @@ test('current context_window fields preserve direct percentage and total token d
   assert.equal(calcContextPct(stdin), 59.9);
 });
 
+test('missing context usage with known window size reports unknown percentage', () => {
+  const stdin = {
+    context_window: {
+      context_window_size: 1_000_000,
+    },
+  };
+
+  assert.equal(getContextWindowSize(stdin), 1_000_000);
+  assert.equal(calcContextPct(stdin), null);
+});
+
+test('CLI preserves known context percentage when token usage is missing', () => {
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        context_window: {
+          context_window_size: 1_000_000,
+        },
+        cwd: '/tmp/project',
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /--\.-%/);
+  assert.match(output, /-- \/ 1\.0M tokens/);
+  assert.doesNotMatch(output, /0\.0%/);
+  assert.doesNotMatch(output, /0 \/ 1\.0M tokens/);
+});
+
+test('CLI renders unknown context usage placeholders with unknown window size', () => {
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        cwd: '/tmp/project',
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /--\.-%/);
+  assert.match(output, /-- \/ -- tokens/);
+});
+
+test('CLI preserves known context percentage when token usage is missing', () => {
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        context_window: {
+          used_percentage: 60,
+          context_window_size: 1_000_000,
+        },
+        cwd: '/tmp/project',
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /60\.0%/);
+  assert.match(output, /-- \/ 1\.0M tokens/);
+  assert.doesNotMatch(output, /--\.-%/);
+});
+
 test('transcript discovery prefers valid explicit path and parses transcript stats', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-transcript-'));
   const explicit = join(dir, 'explicit.jsonl');
@@ -154,6 +226,39 @@ test('over-five task batch displays first five active tasks and preserves full t
   assert.equal(stats.doneTodos, 2);
 });
 
+test('task create and result in one transcript entry are parsed in order', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-order-'));
+  const transcript = join(dir, 'same-entry-order.jsonl');
+  writeFileSync(transcript, [
+    JSON.stringify({ type: 'user', message: { content: [
+      { type: 'tool_use', id: 'task-create-1', name: 'TaskCreate', input: { subject: 'Same entry task' } },
+      { type: 'tool_result', tool_use_id: 'task-create-1', content: 'Task #19 created successfully: Same entry task' },
+    ] } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-1', name: 'TaskUpdate', input: { taskId: 19, status: 'in_progress' } }),
+  ].join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, [
+    { id: 1, name: 'Same entry task', status: 'current' },
+  ]);
+  assert.equal(stats.totalTodos, 1);
+  assert.equal(stats.doneTodos, 0);
+});
+
+test('non-task tool result text does not create a task', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-result-'));
+  const transcript = join(dir, 'non-task-result-text.jsonl');
+  writeFileSync(transcript, [
+    JSON.stringify({ type: 'tool_use', id: 'read-1', name: 'Read', input: { file_path: '/tmp/project/test.ts' } }),
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'read-1', content: 'fixture text: Task #17 created successfully: Investigate context bug' }] } }),
+  ].join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, []);
+  assert.equal(stats.totalTodos, 0);
+  assert.equal(stats.doneTodos, 0);
+});
+
 test('task create result does not duplicate an already parsed task id', () => {
   const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-batch-'));
   const transcript = join(dir, 'task-create-result-dedup.jsonl');
@@ -169,6 +274,72 @@ test('task create result does not duplicate an already parsed task id', () => {
   ]);
   assert.equal(stats.totalTodos, 1);
   assert.equal(stats.doneTodos, 1);
+});
+
+test('delayed task create result does not re-add an old completed batch task', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-batch-'));
+  const transcript = join(dir, 'delayed-result-after-reset.jsonl');
+  writeFileSync(transcript, [
+    JSON.stringify({ type: 'tool_use', id: 'task-create-1', name: 'TaskCreate', input: { taskId: 1, subject: 'Old completed task' } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-1', name: 'TaskUpdate', input: { taskId: 1, status: 'completed' } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-create-2', name: 'TaskCreate', input: { taskId: 2, subject: 'New active task' } }),
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'task-create-1', content: 'Task #1 created successfully: Old completed task' }] } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-2', name: 'TaskUpdate', input: { taskId: 2, status: 'in_progress' } }),
+  ].join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, [
+    { id: 1, name: 'New active task', status: 'current' },
+  ]);
+  assert.equal(stats.totalTodos, 1);
+  assert.equal(stats.doneTodos, 0);
+});
+
+test('task create without taskId uses tool result id and subject', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-result-'));
+  const transcript = join(dir, 'task-create-result-id.jsonl');
+  writeFileSync(transcript, [
+    JSON.stringify({ type: 'tool_use', id: 'task-create-1', name: 'TaskCreate', input: { subject: 'Investigate context bug', description: 'Check context', activeForm: 'Investigating context' } }),
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'task-create-1', content: 'Task #17 created successfully: Investigate context bug' }] } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-1', name: 'TaskUpdate', input: { taskId: 17, status: 'in_progress' } }),
+  ].join('\n'));
+
+  const stats = parseTranscript(transcript);
+  assert.deepEqual(stats.todos, [
+    { id: 1, name: 'Investigate context bug', status: 'current' },
+  ]);
+  assert.equal(stats.totalTodos, 1);
+  assert.equal(stats.doneTodos, 0);
+});
+
+test('task scan reconstructs tasks outside the activity tail window', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cc-fusion-task-long-'));
+  const transcript = join(dir, 'long-tail-mismatch.jsonl');
+  const lines = [
+    JSON.stringify({ type: 'tool_use', id: 'task-create-1', name: 'TaskCreate', input: { subject: 'Older completed task' } }),
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'task-create-1', content: 'Task #1 created successfully: Older completed task' }] } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-create-2', name: 'TaskCreate', input: { subject: 'Older active task' } }),
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'task-create-2', content: 'Task #2 created successfully: Older active task' }] } }),
+  ];
+
+  for (let i = 0; i < 20; i += 1) {
+    lines.push(JSON.stringify({ type: 'tool_use', id: `read-${i}`, name: 'Read', input: { file_path: `/tmp/project/file-${i}.ts` } }));
+  }
+
+  lines.push(
+    JSON.stringify({ type: 'tool_use', id: 'task-update-1', name: 'TaskUpdate', input: { taskId: 1, status: 'completed' } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-2', name: 'TaskUpdate', input: { taskId: 2, status: 'in_progress' } })
+  );
+  writeFileSync(transcript, lines.join('\n'));
+
+  const stats = parseTranscript(transcript, 2);
+  assert.deepEqual(stats.todos, [
+    { id: 1, name: 'Older completed task', status: 'done' },
+    { id: 2, name: 'Older active task', status: 'current' },
+  ]);
+  assert.equal(stats.totalTodos, 2);
+  assert.equal(stats.doneTodos, 1);
+  assert.equal(stats.lastRead, undefined);
 });
 
 test('transcript discovery falls back to inferred Claude project path', () => {

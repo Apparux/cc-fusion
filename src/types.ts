@@ -86,7 +86,7 @@ export interface RenderContext {
   tools: ToolStats;
   model: string;
   project: string;
-  contextPct: number;
+  contextPct: number | null;
   contextUsed: string;
   contextTotal: string;
 }

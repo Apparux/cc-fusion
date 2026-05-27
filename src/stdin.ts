@@ -63,14 +63,33 @@ export function getContextTokens(stdin: StdinData): {
   return { input, output, cacheCreate, cacheRead, total };
 }
 
-export function calcContextPct(stdin: StdinData): number {
+export function hasContextTokens(stdin: StdinData): boolean {
+  const ctx = stdin.context_window || {};
+  const usage = ctx.current_usage || ctx;
+  return finiteNumber(usage.input_tokens) !== undefined
+    || finiteNumber(usage.output_tokens) !== undefined
+    || finiteNumber(usage.cache_creation_input_tokens) !== undefined
+    || finiteNumber(usage.cache_read_input_tokens) !== undefined
+    || finiteNumber(ctx.total_input_tokens) !== undefined
+    || finiteNumber(ctx.total_output_tokens) !== undefined
+    || finiteNumber(stdin.input_tokens) !== undefined
+    || finiteNumber(stdin.output_tokens) !== undefined
+    || finiteNumber(stdin.total_input_tokens) !== undefined
+    || finiteNumber(stdin.total_output_tokens) !== undefined
+    || finiteNumber(stdin.cache_creation_input_tokens) !== undefined
+    || finiteNumber(stdin.cache_read_input_tokens) !== undefined;
+}
+
+export function calcContextPct(stdin: StdinData): number | null {
   const directPct = stdin.context_window?.used_percentage;
   if (typeof directPct === 'number' && Number.isFinite(directPct)) {
     return Math.max(0, Math.min(100, directPct));
   }
 
+  if (!hasContextTokens(stdin)) return null;
+
   const max = getContextWindowSize(stdin);
-  if (!max || max <= 0) return 0;
+  if (!max || max <= 0) return null;
 
   const { total } = getContextTokens(stdin);
   return Math.max(0, Math.min(100, (total / max) * 100));
