@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 25
-- **Last Active**: 2026-05-19
+- **Total Sessions**: 26
+- **Last Active**: 2026-05-28
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~845 | Active |
+| `journal-1.md` | ~881 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 26 | 2026-05-28 | Fix statusline tasks/context display and release 2.0.4 | `a8cd185`, `f68d8ef`, `9eaf2f3`, `3c0d3b8` | `main` |
 | 25 | 2026-05-19 | Release cc-fusion v2.0.2 | `80e6683` | `main` |
 | 24 | 2026-05-19 | Fix statusline task window counts | `1eee853`, `d1f68ef` | `main` |
 | 23 | 2026-05-19 | Release cc-fusion v2.0.1 | `b1c64c3` | `main` |

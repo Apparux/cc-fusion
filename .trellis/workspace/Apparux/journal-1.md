@@ -843,3 +843,39 @@ Published cc-fusion v2.0.2: bumped package versions, pushed main and v2.0.2 tag,
 ### Next Steps
 
 - None - task complete
+
+
+## Session 26: Fix statusline tasks/context display and release 2.0.4
+
+**Date**: 2026-05-28
+**Task**: Fix statusline tasks/context display and release 2.0.4
+**Branch**: `main`
+
+### Summary
+
+Fixed context unknown display and transcript task parsing, added regression/spec coverage, updated npm publish actions, and released cc-fusion 2.0.4 to npm with GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a8cd185` | (see git log) |
+| `f68d8ef` | (see git log) |
+| `9eaf2f3` | (see git log) |
+| `3c0d3b8` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
