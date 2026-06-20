@@ -397,3 +397,164 @@ test('CLI uses inferred transcript path when transcript_path is absent', () => {
   assert.match(output, /15\.0k \/ 100\.0k tokens/);
   assert.match(output, /Read src\/index\.ts/);
 });
+
+function writeTrellisTask(projectDir, taskName, title, status = 'in_progress') {
+  const taskDir = join(projectDir, '.trellis', 'tasks', taskName);
+  mkdirSync(taskDir, { recursive: true });
+  writeFileSync(join(taskDir, 'task.json'), JSON.stringify({ title, status }));
+  return `.trellis/tasks/${taskName}`;
+}
+
+function writeTrellisSession(projectDir, fileName, currentTask) {
+  const sessionsDir = join(projectDir, '.trellis', '.runtime', 'sessions');
+  mkdirSync(sessionsDir, { recursive: true });
+  writeFileSync(join(sessionsDir, fileName), JSON.stringify({ current_task: currentTask }));
+}
+
+test('CLI falls back to Trellis active task when transcript has no todos', () => {
+  const project = mkdtempSync(join(tmpdir(), 'cc-fusion-trellis-project-'));
+  const taskRef = writeTrellisTask(project, '06-19-statusline-display', '兼容显示 Trellis 任务到状态栏', 'in_progress');
+  writeTrellisSession(project, 'claude_trellis-session.json', taskRef);
+
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        session_id: 'trellis-session',
+        cwd: project,
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /⚡ Trellis 兼容显示 Trellis 任务到状态栏/);
+  assert.match(output, /in_progress/);
+  assert.doesNotMatch(output, /无待办任务/);
+});
+
+test('CLI maps Trellis planning and completed statuses to task icons', () => {
+  const renderTrellisProject = (status) => {
+    const project = mkdtempSync(join(tmpdir(), `cc-fusion-trellis-${status}-`));
+    const taskRef = writeTrellisTask(project, `06-19-${status}`, `${status} task`, status);
+    writeTrellisSession(project, `claude_${status}-session.json`, taskRef);
+
+    return execFileSync(
+      process.execPath,
+      ['dist/index.js'],
+      {
+        input: JSON.stringify({
+          model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+          session_id: `${status}-session`,
+          cwd: project,
+        }),
+        encoding: 'utf8',
+      }
+    );
+  };
+
+  const planningOutput = renderTrellisProject('planning');
+  assert.match(planningOutput, /⏳ Trellis planning task/);
+  assert.match(planningOutput, /planning/);
+
+  const completedOutput = renderTrellisProject('completed');
+  assert.match(completedOutput, /✅ Trellis completed task/);
+  assert.match(completedOutput, /completed/);
+});
+
+test('CLI keeps Claude transcript todos ahead of Trellis fallback', () => {
+  const project = mkdtempSync(join(tmpdir(), 'cc-fusion-trellis-priority-'));
+  const transcript = join(project, 'transcript.jsonl');
+  const taskRef = writeTrellisTask(project, '06-19-statusline-display', 'Trellis fallback should not render', 'in_progress');
+  writeTrellisSession(project, 'claude_trellis-priority.json', taskRef);
+  writeFileSync(transcript, [
+    JSON.stringify({ type: 'tool_use', id: 'task-create-1', name: 'TaskCreate', input: { taskId: 1, subject: 'Claude todo wins' } }),
+    JSON.stringify({ type: 'tool_use', id: 'task-update-1', name: 'TaskUpdate', input: { taskId: 1, status: 'in_progress' } }),
+  ].join('\n'));
+
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        session_id: 'trellis-priority',
+        transcript_path: transcript,
+        cwd: project,
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /⚡ 1\/1 Claude todo wins/);
+  assert.match(output, /0%/);
+  assert.doesNotMatch(output, /Trellis fallback should not render/);
+});
+
+test('CLI degrades to no todos for stale Trellis active task pointer', () => {
+  const project = mkdtempSync(join(tmpdir(), 'cc-fusion-trellis-stale-'));
+  writeTrellisSession(project, 'claude_trellis-stale.json', '.trellis/tasks/missing-task');
+
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        session_id: 'trellis-stale',
+        cwd: project,
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /无待办任务/);
+  assert.doesNotMatch(output, /Trellis/);
+});
+
+test('CLI degrades to no todos for bad Trellis task JSON', () => {
+  const project = mkdtempSync(join(tmpdir(), 'cc-fusion-trellis-bad-json-'));
+  const taskDir = join(project, '.trellis', 'tasks', '06-19-bad-json');
+  mkdirSync(taskDir, { recursive: true });
+  writeFileSync(join(taskDir, 'task.json'), '{ bad json');
+  writeTrellisSession(project, 'claude_trellis-bad-json.json', '.trellis/tasks/06-19-bad-json');
+
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        session_id: 'trellis-bad-json',
+        cwd: project,
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /无待办任务/);
+  assert.doesNotMatch(output, /Trellis/);
+});
+
+test('CLI does not guess Trellis active task when multiple sessions exist without exact match', () => {
+  const project = mkdtempSync(join(tmpdir(), 'cc-fusion-trellis-multiple-'));
+  const taskRef = writeTrellisTask(project, '06-19-multiple-session', 'Multiple session task', 'in_progress');
+  writeTrellisSession(project, 'claude_other-a.json', taskRef);
+  writeTrellisSession(project, 'claude_other-b.json', taskRef);
+
+  const output = execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify({
+        model: { display_name: 'Opus 4.7', id: 'claude-opus-4-7' },
+        cwd: project,
+      }),
+      encoding: 'utf8',
+    }
+  );
+
+  assert.match(output, /无待办任务/);
+  assert.doesNotMatch(output, /Multiple session task/);
+});

@@ -61,12 +61,20 @@ export type TranscriptEntry = TranscriptToolUse | TranscriptMessage;
 
 // ── Aggregated Tool Stats ────────────────────────────────────────────────────
 
+export interface TodoItem {
+  id: number;
+  name: string;
+  status: 'done' | 'current' | 'pending' | 'future';
+  source?: 'claude' | 'trellis';
+  statusLabel?: string;
+}
+
 export interface ToolStats {
   lastRead?: string;
   lastEdit?: string;
   lastSearch?: string;
   agents: Array<{ name: string; status: string; color: string }>;
-  todos: Array<{ id: number; name: string; status: 'done' | 'current' | 'pending' | 'future' }>;
+  todos: TodoItem[];
   totalTodos: number;
   doneTodos: number;
 }

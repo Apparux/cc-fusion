@@ -109,6 +109,79 @@ addCreatedTaskToCurrentBatch(todoMap, taskId, subject);
 
 **Tests required**: cover ID-less `TaskCreate` result backfill, non-task tool output containing task-result-looking text, delayed duplicate result after batch reset, over-five display windows, and long transcripts where create/result events are outside the normal activity tail.
 
+### Trellis active task fallback: local runtime data source
+
+#### 1. Scope / Trigger
+
+- Trigger: the Tasks line may consume Trellis runtime/task files as a fallback data source when Claude transcript todos are empty.
+- Scope: statusline runtime only; do not modify Trellis itself or synchronize Trellis tasks into Claude Code `TaskCreate` / `TaskUpdate` events.
+
+#### 2. Signatures
+
+```typescript
+readTrellisTaskStats(cwd: string | undefined, stdin: StdinData): Pick<ToolStats, 'todos' | 'totalTodos' | 'doneTodos'> | null
+```
+
+`src/index.ts` must call this only after `parseTranscript(...)` and only when `transcriptTools.todos.length === 0`.
+
+#### 3. Contracts
+
+- Input `cwd`: Claude Code stdin working directory. Walk upward from it to find a `.trellis/` directory.
+- Input session id: prefer `stdin.session_id`; fall back to `stdin.sessionId`.
+- Runtime session file: `.trellis/.runtime/sessions/claude_<sanitized-session-id>.json` when a session id is known.
+- Safe fallback: if no exact session file can be resolved, use the sole `.json` file in `.trellis/.runtime/sessions/` only when there is exactly one; never guess across multiple session files.
+- Session payload: read string `current_task`.
+- Task payload: read `.trellis/tasks/<active-task>/task.json` with string `title` and string `status`; archive paths are not active tasks.
+- Output todo: one item named `Trellis <title>` with `source: 'trellis'`, `statusLabel: <raw status>`, `totalTodos: 1`, and `doneTodos: 1` only for completed/done statuses.
+
+#### 4. Validation & Error Matrix
+
+| Condition | Expected behavior |
+| --- | --- |
+| `cwd` missing or no `.trellis/` ancestor | Return `null`. |
+| Runtime sessions directory missing/unreadable | Return `null`. |
+| Exact session file absent and session file count is 0 or >1 | Return `null`; do not guess. |
+| Session JSON is malformed or lacks string `current_task` | Return `null`. |
+| `current_task` resolves outside `.trellis/tasks/`, into `archive/`, or to a missing directory | Return `null`. |
+| `task.json` malformed or lacks non-empty string `title` / `status` | Return `null`. |
+| Claude transcript already has todos | Do not call/apply Trellis fallback; transcript todos win. |
+
+All failures are normal optional-data fallbacks: no stdout/stderr diagnostics during statusline rendering.
+
+#### 5. Good/Base/Bad Cases
+
+- Good: stdin has `cwd` and `session_id`, runtime file points at an active task, task JSON has `title` and `status` -> Tasks line displays `Trellis <title>` and raw status.
+- Base: no Claude todos and no Trellis runtime -> existing `无待办任务` display remains.
+- Bad: multiple Trellis session files exist without an exact session id -> do not pick one arbitrarily.
+
+#### 6. Tests Required
+
+- CLI regression: no transcript todos + Trellis active task -> output contains `Trellis <title>` and raw status.
+- Priority regression: transcript `TaskCreate` / `TaskUpdate` exists + Trellis active task exists -> output contains Claude Todo and omits Trellis fallback.
+- Degrade regressions: stale `current_task`, bad `task.json`, and multiple sessions without exact match -> output remains `无待办任务`.
+- Status mapping regression: `planning`, `in_progress`, and `completed` map to pending/current/done visual classes while preserving raw status label.
+
+#### 7. Wrong vs Correct
+
+**Wrong**:
+
+```typescript
+// Slow/noisy and can corrupt frequent statusline rendering.
+execFileSync('python3', ['.trellis/scripts/task.py', 'current']);
+```
+
+**Correct**:
+
+```typescript
+const transcriptTools = parseTranscript(transcriptPath);
+const trellisTaskStats = transcriptTools.todos.length === 0
+  ? readTrellisTaskStats(cwd, stdin)
+  : null;
+const tools = trellisTaskStats
+  ? { ...transcriptTools, ...trellisTaskStats }
+  : transcriptTools;
+```
+
 ## Testing Requirements
 
 Choose verification based on touched files:

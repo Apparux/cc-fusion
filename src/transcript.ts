@@ -3,7 +3,7 @@
  */
 
 import { openSync, readSync, closeSync, statSync } from 'fs';
-import type { ToolStats, TranscriptEntry, TranscriptToolUse } from './types.js';
+import type { TodoItem, ToolStats, TranscriptEntry, TranscriptToolUse } from './types.js';
 
 const DEFAULT_TAIL_BYTES = 1024 * 512;
 const TASK_SCAN_BYTES = 1024 * 1024 * 8;
@@ -87,8 +87,6 @@ function textFromValue(value: unknown): string | undefined {
 
   return parts.length > 0 ? parts.join('\n') : undefined;
 }
-
-type TodoItem = { id: number; name: string; status: 'done' | 'current' | 'pending' | 'future' };
 
 function shouldStartNewTaskBatch(todoMap: Map<number, TodoItem>): boolean {
   return todoMap.size > 0 && Array.from(todoMap.values()).every(todo => todo.status === 'done');

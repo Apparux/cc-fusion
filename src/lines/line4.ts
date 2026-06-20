@@ -18,18 +18,25 @@ export function renderLine4(ctx: RenderContext): string {
       const icon = todo.status === 'done' ? '✅' :
                    todo.status === 'current' ? '⚡' :
                    todo.status === 'pending' ? '⏳' : '🕒';
-      const text = `${icon} ${todo.id}/${ctx.tools.totalTodos} ${todo.name}`;
+      const text = todo.source === 'trellis'
+        ? `${icon} ${todo.name}`
+        : `${icon} ${todo.id}/${ctx.tools.totalTodos} ${todo.name}`;
 
       const color = todo.status === 'done' ? COLORS.green :
                     todo.status === 'current' ? COLORS.yellow :
                     COLORS.dim;
 
       parts.push(colorize(text, color));
+      if (todo.statusLabel) {
+        parts.push(colorize(todo.statusLabel, color));
+      }
     }
 
-    // Overall progress percentage
-    const progressPct = Math.round((ctx.tools.doneTodos / ctx.tools.totalTodos) * 100);
-    parts.push(colorize(`${progressPct}%`, COLORS.purple));
+    // Overall progress percentage for Claude Code Todo lists.
+    if (!ctx.tools.todos.some(todo => todo.source === 'trellis')) {
+      const progressPct = Math.round((ctx.tools.doneTodos / ctx.tools.totalTodos) * 100);
+      parts.push(colorize(`${progressPct}%`, COLORS.purple));
+    }
   } else {
     parts.push(colorize('无待办任务', COLORS.dim));
   }
