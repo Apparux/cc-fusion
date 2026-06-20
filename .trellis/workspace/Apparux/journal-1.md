@@ -879,3 +879,36 @@ Fixed context unknown display and transcript task parsing, added regression/spec
 ### Next Steps
 
 - None - task complete
+
+
+## Session 27: Show Trellis tasks in statusline
+
+**Date**: 2026-06-21
+**Task**: Show Trellis tasks in statusline
+**Branch**: `main`
+
+### Summary
+
+Added cc-fusion Tasks line fallback for Trellis active tasks, with transcript Todo priority, Trellis status labels, regression tests, and spec contract updates.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9eed5e9` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
