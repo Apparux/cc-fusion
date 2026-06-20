@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep new statusline runtime module boundaries consistent with existing CLI organization."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Trellis fallback must degrade silently on missing/stale/bad optional files."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Preserve transcript task contracts, bounded parsing, and required validation commands."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Tasks line is terminal renderer output; keep rendering pure and compact."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Visible statusline change needs build/test plus targeted smoke verification."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Trellis runtime/task JSON is untrusted optional data requiring strict narrowing."}

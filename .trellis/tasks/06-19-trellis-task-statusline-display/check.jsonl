@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/error-handling.md","reason":"Review fallback behavior for missing/bad/stale Trellis files and no noisy output."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check transcript Todo priority, bounded parsing, tests, and validation coverage."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Review Tasks renderer purity and compact terminal output."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check visible rendering behavior and smoke-test coverage."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check strict narrowing for runtime session JSON and task.json shapes."}
