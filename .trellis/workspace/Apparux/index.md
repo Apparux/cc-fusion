@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 27
+- **Total Sessions**: 28
 - **Last Active**: 2026-06-21
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~914 | Active |
+| `journal-1.md` | ~947 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 28 | 2026-06-21 | Release cc-fusion v2.1.0 | `16b7ebe` | `main` |
 | 27 | 2026-06-21 | Show Trellis tasks in statusline | `9eed5e9` | `main` |
 | 26 | 2026-05-28 | Fix statusline tasks/context display and release 2.0.4 | `a8cd185`, `f68d8ef`, `9eaf2f3`, `3c0d3b8` | `main` |
 | 25 | 2026-05-19 | Release cc-fusion v2.0.2 | `80e6683` | `main` |

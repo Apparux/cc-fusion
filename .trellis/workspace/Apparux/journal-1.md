@@ -912,3 +912,36 @@ Added cc-fusion Tasks line fallback for Trellis active tasks, with transcript To
 ### Next Steps
 
 - None - task complete
+
+
+## Session 28: Release cc-fusion v2.1.0
+
+**Date**: 2026-06-21
+**Task**: Release cc-fusion v2.1.0
+**Branch**: `main`
+
+### Summary
+
+Released cc-fusion v2.1.0 to npm after verifying tests, package preview, GitHub Actions publish, npm latest dist-tag, and GitHub Release.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `16b7ebe` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
