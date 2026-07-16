@@ -16,6 +16,28 @@ export function parseStdin(jsonStr) {
 export function getCwd(stdin) {
     return stdin.cwd;
 }
+function normalizeEffortLevel(value) {
+    if (typeof value !== 'string')
+        return undefined;
+    const normalized = value.trim().toLowerCase();
+    return normalized || undefined;
+}
+function getCurrentEffortLevel(value) {
+    if (typeof value !== 'object' || value === null)
+        return undefined;
+    return normalizeEffortLevel(value.level);
+}
+function normalizeEffortEnv(value) {
+    const normalized = normalizeEffortLevel(value);
+    return normalized === 'auto' || normalized === 'unset' ? undefined : normalized;
+}
+export function getEffortLevel(stdin, env = process.env) {
+    return getCurrentEffortLevel(stdin.effort)
+        ?? normalizeEffortLevel(stdin.effortLevel)
+        ?? normalizeEffortLevel(stdin.effort_level)
+        ?? normalizeEffortEnv(env.CLAUDE_EFFORT)
+        ?? normalizeEffortEnv(env.CLAUDE_CODE_EFFORT_LEVEL);
+}
 export function getContextWindowSize(stdin) {
     return finiteNumber(stdin.context_window?.context_window_size)
         ?? finiteNumber(stdin.context_window_size)

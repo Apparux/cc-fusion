@@ -5,8 +5,301 @@ import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { renderLine1 } from '../dist/lines/line1.js';
 import { calcContextPct, getContextTokens, getContextWindowSize } from '../dist/stdin.js';
 import { findTranscript, parseTranscript } from '../dist/transcript.js';
+
+const ANSI = {
+  reset: '\x1b[0m',
+  blink: '\x1b[5m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  brightBlue: '\x1b[94m',
+  lightPurple: '\x1b[38;5;141m',
+  deepPurple: '\x1b[38;5;93m',
+  gray: '\x1b[38;5;240m',
+  pink: '\x1b[38;5;213m',
+};
+
+function stripAnsi(text) {
+  return text.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+}
+
+function renderCli(stdin, env = process.env) {
+  return execFileSync(
+    process.execPath,
+    ['dist/index.js'],
+    {
+      input: JSON.stringify(stdin),
+      encoding: 'utf8',
+      env,
+    }
+  );
+}
+
+function firstLine(output) {
+  return output.split('\n', 1)[0];
+}
+
+function firstLineParts(output) {
+  return stripAnsi(firstLine(output)).split('  |  ').map((part) => part.trim());
+}
+
+test('CLI renders every known effort level with its required ANSI treatment', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-colors-'));
+  const staticCases = [
+    ['low', ANSI.yellow, 'low'],
+    ['medium', ANSI.blue, 'medium'],
+    ['high', ANSI.brightBlue, 'high'],
+    ['ultra', ANSI.deepPurple, 'ultracode'],
+    ['ultracode', ANSI.deepPurple, 'ultracode'],
+  ];
+
+  for (const [input, color, display] of staticCases) {
+    const line = firstLine(renderCli({
+      model: { display_name: 'Opus 4.7' },
+      cwd,
+      effortLevel: input,
+    }));
+
+    assert.ok(
+      line.endsWith(`${color}🧿 ${display}${ANSI.reset}`),
+      `${input} should render as ${display} with ${JSON.stringify(color)}`
+    );
+  }
+
+  const xhighLine = firstLine(renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effortLevel: 'xhigh',
+  }));
+  assert.ok(xhighLine.endsWith(`${ANSI.lightPurple}🧿 xhigh${ANSI.reset}`));
+
+  const maxLine = firstLine(renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effortLevel: 'max',
+  }));
+  assert.ok(maxLine.endsWith(
+    `${ANSI.green}🧿 m${ANSI.brightBlue}a${ANSI.lightPurple}x${ANSI.reset}`
+  ));
+  assert.equal(stripAnsi(maxLine).split('  |  ').at(-1).trim(), '🧿 max');
+});
+
+test('renderLine1 keeps xhigh and max static over time without ANSI blink', () => {
+  const renderEffort = (level) => renderLine1({
+    stdin: { effort: { level } },
+    git: null,
+    tools: { agents: [], todos: [], totalTodos: 0, doneTodos: 0 },
+    model: 'Opus 4.7',
+    project: 'project',
+    contextPct: null,
+    contextUsed: '--',
+    contextTotal: '--',
+  });
+  const originalDateNow = Date.now;
+
+  try {
+    Date.now = () => 0;
+    const xhighFirst = renderEffort('xhigh');
+    const maxFirst = renderEffort('max');
+
+    Date.now = () => 300;
+    const xhighSecond = renderEffort('xhigh');
+    const maxSecond = renderEffort('max');
+
+    assert.equal(xhighFirst, xhighSecond);
+    assert.ok(xhighFirst.endsWith(`${ANSI.lightPurple}🧿 xhigh${ANSI.reset}`));
+
+    const staticMax = `${ANSI.green}🧿 m${ANSI.brightBlue}a${ANSI.lightPurple}x${ANSI.reset}`;
+    assert.equal(maxFirst, maxSecond);
+    assert.ok(maxFirst.endsWith(staticMax));
+    assert.equal(firstLineParts(maxFirst).at(-1), '🧿 max');
+
+    for (const line of [xhighFirst, xhighSecond, maxFirst, maxSecond]) {
+      assert.equal(line.includes(ANSI.blink), false);
+      assert.ok(line.endsWith(ANSI.reset));
+    }
+  } finally {
+    Date.now = originalDateNow;
+  }
+});
+
+test('CLI keeps static effort labels readable and reset at the line boundary', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-static-'));
+  const cases = [
+    ['xhigh', '🧿 xhigh'],
+    ['max', '🧿 max'],
+  ];
+
+  for (const [level, plainLabel] of cases) {
+    const output = renderCli({
+      model: { display_name: 'Opus 4.7' },
+      cwd,
+      effortLevel: level,
+    });
+    const line = firstLine(output);
+
+    assert.equal(firstLineParts(output).at(-1), plainLabel);
+    assert.equal(line.includes(ANSI.blink), false);
+    assert.ok(line.endsWith(ANSI.reset));
+    assert.ok(output.includes(`${ANSI.reset}\n${ANSI.pink}🧠 Context`));
+  }
+});
+
+test('CLI normalizes camelCase and snake_case effort fields with valid camelCase priority', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-input-'));
+
+  const camelWins = renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effortLevel: '  HIGH  ',
+    effort_level: 'low',
+  });
+  assert.equal(firstLineParts(camelWins).at(-1), '🧿 high');
+  assert.ok(firstLine(camelWins).endsWith(`${ANSI.brightBlue}🧿 high${ANSI.reset}`));
+
+  const snakeCase = renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effort_level: '  MeDiUm  ',
+  });
+  assert.equal(firstLineParts(snakeCase).at(-1), '🧿 medium');
+  assert.ok(firstLine(snakeCase).endsWith(`${ANSI.blue}🧿 medium${ANSI.reset}`));
+
+  const invalidCamelFallsBack = renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effortLevel: 42,
+    effort_level: ' low ',
+  });
+  assert.equal(firstLineParts(invalidCamelFallsBack).at(-1), '🧿 low');
+});
+
+test('CLI prefers current effort schema and falls back through effort environment variables', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-current-'));
+  const baseStdin = {
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+  };
+  const effortEnv = {
+    ...process.env,
+    CLAUDE_EFFORT: 'medium',
+    CLAUDE_CODE_EFFORT_LEVEL: 'max',
+  };
+
+  const currentSchema = renderCli({
+    ...baseStdin,
+    effort: { level: ' XHIGH ' },
+    effortLevel: 'low',
+  }, effortEnv);
+  assert.equal(firstLineParts(currentSchema).at(-1), '🧿 xhigh');
+
+  const currentTurnEnv = renderCli(baseStdin, effortEnv);
+  assert.equal(firstLineParts(currentTurnEnv).at(-1), '🧿 medium');
+
+  const configuredEnv = renderCli(baseStdin, {
+    ...effortEnv,
+    CLAUDE_EFFORT: ' ',
+    CLAUDE_CODE_EFFORT_LEVEL: 'HIGH',
+  });
+  assert.equal(firstLineParts(configuredEnv).at(-1), '🧿 high');
+});
+
+test('CLI gives a valid unknown camelCase effort priority and renders it gray', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-unknown-'));
+  const output = renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd,
+    effortLevel: '  Future-Mode  ',
+    effort_level: 'max',
+  });
+
+  assert.equal(firstLineParts(output).at(-1), '🧿 future-mode');
+  assert.ok(firstLine(output).endsWith(`${ANSI.gray}🧿 future-mode${ANSI.reset}`));
+  assert.doesNotMatch(stripAnsi(firstLine(output)), /🧿 max/);
+});
+
+test('CLI hides missing, empty, and non-string effort values without a dangling separator', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-invalid-'));
+  const invalidInputs = [
+    {},
+    { effortLevel: '' },
+    { effortLevel: '   ' },
+    { effortLevel: null },
+    { effortLevel: 7 },
+    { effortLevel: false },
+    { effortLevel: ['high'] },
+    { effortLevel: { level: 'high' } },
+    { effortLevel: ' ', effort_level: '' },
+  ];
+
+  const noEffortEnv = {
+    ...process.env,
+    CLAUDE_EFFORT: '',
+    CLAUDE_CODE_EFFORT_LEVEL: '',
+  };
+
+  for (const effortFields of invalidInputs) {
+    const output = renderCli({
+      model: { display_name: 'Opus 4.7' },
+      cwd,
+      ...effortFields,
+    }, noEffortEnv);
+    const line = firstLine(output);
+
+    assert.deepEqual(firstLineParts(output), ['👾 Opus 4', `🗃️ ${cwd.split('/').at(-1)}`]);
+    assert.doesNotMatch(stripAnsi(line), /🧿/);
+    assert.doesNotMatch(stripAnsi(line), /\|\s*$/);
+  }
+});
+
+test('CLI places effort after Git, or directly after Project outside Git', () => {
+  const gitProject = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-git-'));
+  execFileSync('git', ['init', '-q', '-b', 'effort-branch'], { cwd: gitProject });
+  execFileSync(
+    'git',
+    ['-c', 'user.name=CC Fusion Test', '-c', 'user.email=test@example.com', 'commit', '--allow-empty', '-q', '-m', 'init'],
+    { cwd: gitProject }
+  );
+
+  const gitParts = firstLineParts(renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd: gitProject,
+    effortLevel: 'high',
+  }));
+  assert.deepEqual(gitParts.slice(-2), ['🫯 effort-branch 🎯', '🧿 high']);
+
+  const plainProject = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-no-git-'));
+  const plainParts = firstLineParts(renderCli({
+    model: { display_name: 'Opus 4.7' },
+    cwd: plainProject,
+    effortLevel: 'high',
+  }));
+  assert.deepEqual(plainParts.slice(-2), [`🗃️ ${plainProject.split('/').at(-1)}`, '🧿 high']);
+  assert.equal(plainParts.some((part) => part.startsWith('🫯 ')), false);
+});
+
+test('CLI renders the current effort on every consecutive LEVEL switch', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'cc-fusion-effort-switch-'));
+  const switches = [
+    ['low', 'low'],
+    ['MAX', 'max'],
+    [' ultra ', 'ultracode'],
+    ['xhigh', 'xhigh'],
+    ['medium', 'medium'],
+  ];
+
+  for (const [input, expected] of switches) {
+    const output = renderCli({
+      model: { display_name: 'Opus 4.7' },
+      cwd,
+      effortLevel: input,
+    });
+    assert.equal(firstLineParts(output).at(-1), `🧿 ${expected}`);
+  }
+});
 
 test('legacy top-level context fields produce percentage and token totals', () => {
   const stdin = {

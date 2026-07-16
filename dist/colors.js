@@ -20,6 +20,7 @@ export const COLORS = {
     brightMagenta: '\x1b[95m',
     // 256-color palette
     purple: '\x1b[38;5;141m',
+    deepPurple: '\x1b[38;5;93m',
     orange: '\x1b[38;5;208m',
     pink: '\x1b[38;5;213m',
     gray: '\x1b[38;5;240m',

@@ -25,12 +25,19 @@ export interface ContextWindow extends ContextUsage {
   current_usage?: ContextUsage | null;
 }
 
+export interface EffortInfo {
+  level?: unknown;
+}
+
 export interface StdinData extends ContextUsage {
   model?: ModelInfo;
   context_window?: ContextWindow;
   cwd?: string;
   session_id?: string;
   sessionId?: string;
+  effort?: EffortInfo | null;
+  effortLevel?: unknown;
+  effort_level?: unknown;
   transcript_path?: string;
   total_input_tokens?: number;
   total_output_tokens?: number;

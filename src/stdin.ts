@@ -21,6 +21,33 @@ export function getCwd(stdin: StdinData): string | undefined {
   return stdin.cwd;
 }
 
+function normalizeEffortLevel(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  return normalized || undefined;
+}
+
+function getCurrentEffortLevel(value: unknown): string | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  return normalizeEffortLevel((value as Record<string, unknown>).level);
+}
+
+function normalizeEffortEnv(value: unknown): string | undefined {
+  const normalized = normalizeEffortLevel(value);
+  return normalized === 'auto' || normalized === 'unset' ? undefined : normalized;
+}
+
+export function getEffortLevel(
+  stdin: StdinData,
+  env: NodeJS.ProcessEnv = process.env
+): string | undefined {
+  return getCurrentEffortLevel(stdin.effort)
+    ?? normalizeEffortLevel(stdin.effortLevel)
+    ?? normalizeEffortLevel(stdin.effort_level)
+    ?? normalizeEffortEnv(env.CLAUDE_EFFORT)
+    ?? normalizeEffortEnv(env.CLAUDE_CODE_EFFORT_LEVEL);
+}
+
 export function getContextWindowSize(stdin: StdinData): number {
   return finiteNumber(stdin.context_window?.context_window_size)
     ?? finiteNumber(stdin.context_window_size)
