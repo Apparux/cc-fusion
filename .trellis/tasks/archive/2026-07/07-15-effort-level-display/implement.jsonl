@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Keep stdin compatibility centralized and optional effort data non-fatal"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Follow pure terminal renderer and ANSI styling conventions"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Narrow untrusted effort fields under strict TypeScript"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Reuse existing color and separator helpers before adding logic"}

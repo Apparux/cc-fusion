@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Apply build-backed regression, smoke, diff, and package checks"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify compact rendering, separator behavior, and visible output"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Review defensive narrowing and strict TypeScript compliance"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Verify malformed or missing effort data never breaks rendering"}
