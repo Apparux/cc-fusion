@@ -1,6 +1,6 @@
 {
   "name": "cc-fusion",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Claude Code statusline: CCometixLine beauty + Claude HUD functionality",
   "type": "module",
   "main": "dist/index.js",
@@ -30,11 +30,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/CanCanNeedNei/cc-fusion.git"
+    "url": "git+https://github.com/Apparux/cc-fusion.git"
   },
-  "homepage": "https://github.com/CanCanNeedNei/cc-fusion",
+  "homepage": "https://github.com/Apparux/cc-fusion",
   "bugs": {
-    "url": "https://github.com/CanCanNeedNei/cc-fusion/issues"
+    "url": "https://github.com/Apparux/cc-fusion/issues"
   },
   "license": "MIT",
   "engines": {
