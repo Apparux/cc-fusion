@@ -13,7 +13,7 @@ import { render } from './render.js';
 // ── Read stdin ───────────────────────────────────────────────────────────────
 function readStdin() {
     try {
-        return readFileSync('/dev/stdin', 'utf-8');
+        return readFileSync(0, 'utf-8');
     }
     catch {
         return '{}';
