@@ -82,3 +82,20 @@ EOF
 ```
 
 Use `minor` instead of `patch` for user-facing features. After pushing a release tag, check GitHub Actions with `gh run list --repo CanCanNeedNei/cc-fusion --workflow npm-publish.yml --limit 5`, confirm npm with `npm view cc-fusion version`, and confirm the GitHub Release with `gh release view v<version> --repo CanCanNeedNei/cc-fusion`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are tracked in GitHub Issues for `Apparux/cc-fusion`.
+See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five default canonical triage labels.
+See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: root `GLOSSARY.md` and `docs/adr/`.
+See `docs/agents/domain.md`.
