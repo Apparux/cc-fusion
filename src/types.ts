@@ -72,8 +72,6 @@ export interface TodoItem {
   id: number;
   name: string;
   status: 'done' | 'current' | 'pending' | 'future';
-  source?: 'claude' | 'trellis';
-  statusLabel?: string;
 }
 
 export interface ToolStats {

@@ -6,7 +6,6 @@
 import { readFileSync } from 'fs';
 import { parseStdin, calcContextPct, getContextTokens, getContextWindowSize, getCwd, hasContextTokens } from './stdin.js';
 import { parseTranscript, findTranscript } from './transcript.js';
-import { readTrellisTaskStats } from './trellis.js';
 import { getGitInfo } from './git.js';
 import { simplifyModel, getProjectName, formatTokens } from './utils.js';
 import { render } from './render.js';
@@ -70,13 +69,7 @@ function main() {
             ? stdin.sessionId
             : undefined;
     const transcriptPath = findTranscript(sessionId, cwd, typeof stdin.transcript_path === 'string' ? stdin.transcript_path : null);
-    const transcriptTools = parseTranscript(transcriptPath);
-    const trellisTaskStats = transcriptTools.todos.length === 0
-        ? readTrellisTaskStats(cwd, stdin)
-        : null;
-    const tools = trellisTaskStats
-        ? { ...transcriptTools, ...trellisTaskStats }
-        : transcriptTools;
+    const tools = parseTranscript(transcriptPath);
     // 4. Build render context
     const model = simplifyModel(stdin.model?.display_name, stdin.model?.id);
     const project = getProjectName(cwd);
